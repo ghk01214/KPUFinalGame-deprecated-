@@ -4,8 +4,7 @@
 ---------------------------
 <u>작업 예정 목록</u>
 
- - 거시적 환경 분석(STEEP) 분석하기
-
+ - 거시적 환경 분석(STEEP) 분석하기  
      (STEEP: Social, Technology, Economy, Ecological, Politic)
  - 졸업작품용 Github Repository 제작
  - Repository에 docs 폴더 및 Weekly Report 생성
