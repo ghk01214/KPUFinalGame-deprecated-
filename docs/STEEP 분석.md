@@ -16,11 +16,10 @@
 5. KF21 전투기 첫 비행 https://ko.wikipedia.org/wiki/KF-21_%EB%B3%B4%EB%9D%BC%EB%A7%A4
 ## Economic (경제적)    
 1. 퐁의 저작권 보호 종료  
-2. 보잉 747 단종
-3. 유로화 구권 무효화
-4. '위드 코로나' 시행으로 경제 활성화
-5. 기준금리 추가 인상
-6. 반도체 수급 문제 장기화
+2. 보잉 747 단종 https://ko.wikipedia.org/wiki/%EB%B3%B4%EC%9E%89_747-8
+3. 유로화 구권 무효화 https://m.blog.naver.com/kkulkkuls/221679296465
+4. '위드 코로나' 시행으로 경제 활성화 https://www.ytn.co.kr/_ln/0102_202109211508495378  
+ 
 ## Ecological (생태학적)
 1. 일회용컵 보증금제 시행
 2. 국제적인 환경세 신설 움직임 강화
