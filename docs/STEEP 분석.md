@@ -15,10 +15,9 @@
 4. 한국형 달 궤도선 발사 https://ko.wikipedia.org/wiki/%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD_%EB%8B%AC_%EA%B6%A4%EB%8F%84%EC%84%A0
 5. KF21 전투기 첫 비행 https://ko.wikipedia.org/wiki/KF-21_%EB%B3%B4%EB%9D%BC%EB%A7%A4
 ## Economic (경제적)    
-1. 퐁의 저작권 보호 종료  
-2. 보잉 747 단종 https://ko.wikipedia.org/wiki/%EB%B3%B4%EC%9E%89_747-8
-3. 유로화 구권 무효화 https://m.blog.naver.com/kkulkkuls/221679296465
-4. '위드 코로나' 시행으로 경제 활성화 https://www.ytn.co.kr/_ln/0102_202109211508495378  
+1. 보잉 747 단종 https://ko.wikipedia.org/wiki/%EB%B3%B4%EC%9E%89_747-8
+2. 유로화 구권 무효화 https://m.blog.naver.com/kkulkkuls/221679296465
+3. '위드 코로나' 시행으로 경제 활성화 https://www.ytn.co.kr/_ln/0102_202109211508495378  
  
 ## Ecological (생태학적)
 1. 일회용컵 보증금제 시행
