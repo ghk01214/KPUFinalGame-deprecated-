@@ -20,11 +20,9 @@
 3. '위드 코로나' 시행으로 경제 활성화 https://www.ytn.co.kr/_ln/0102_202109211508495378  
  
 ## Ecological (생태학적)
-1. 일회용컵 보증금제 시행
-2. 국제적인 환경세 신설 움직임 강화
-3. 고리 원자력 본부 1호기 해체
-4. 일회용 비닐봉지 금지 대상 업종 확대
-5. 빨대 사용시 소비자가 별도 구매
+1. 일회용컵 보증금제 시행 http://www.me.go.kr/home/web/board/read.do?boardMasterId=1&boardId=1375060&menuId=286
+2. 일회용 비닐봉지 금지 대상 업종 확대 https://www.ntoday.co.kr/news/articleView.html?idxno=76439
+3. 빨대 사용시 소비자가 별도 구매
 ## Political (정치적)   
 1. 대한민국 20대 대통령 선거  
 2. 제 8회 전국 동시 지방선거 
