@@ -2,20 +2,19 @@
 **거시적 환경 분석**  
 2022년 분석
 ## Social (사회적)
-1. 2022 베이징 동계올림픽
-2. 2022 항저우 아시안 게임
-3. 2022 FIFA 월드컵 카타르
-4. 레고랜드 코리아 개장
-5. 병사의 DP보직 폐지
-6. 디즈니+ 국내 진출
+1. 2022 베이징 동계올림픽 https://olympics.com/ko/beijing-2022/
+2. 2022 항저우 아시안 게임 https://ko.wikipedia.org/wiki/2022%EB%85%84_%EC%95%84%EC%8B%9C%EC%95%88_%EA%B2%8C%EC%9E%84
+3. 2022 FIFA 월드컵 카타르 https://ko.wikipedia.org/wiki/2022%EB%85%84_FIFA_%EC%9B%94%EB%93%9C%EC%BB%B5
+4. 레고랜드 코리아 개장 https://www.legoland.kr/
+5. 병사의 DP보직 폐지 https://www.khan.co.kr/politics/defense-diplomacy/article/202109091642001
+6. 디즈니+ 국내 진출 https://www.hani.co.kr/arti/culture/culture_general/1010895.html
 ## Technological (기술적)
-1. 마이크로소프트의 익스플로러 11의 지원이 종료되고 엣지 브라우저로 대체  
-2. 스페이스X의 세계 최초 유인 화성 탐사선 발사
-3. 윈도우 11의 출시 및 윈도우 10 사용자 대상 무료 업데이트로 윈도우 11 사용자 증가
-4. 윈도우 서버 2016 메인 스트림 지원 종료
-5. 한국형 달 궤도선 발사
-6. 지구 저궤도 인공위성 2차 발사
-7. KF21 전투기 첫 비행
+1. 마이크로소프트의 익스플로러 11의 지원이 종료되고 엣지 브라우저로 대체  https://www.boannews.com/media/view.asp?idx=97976
+2. 윈도우 11의 출시 및 윈도우 10 사용자 대상 무료 업데이트로 윈도우 11 사용자 증가
+3. 윈도우 서버 2016 메인 스트림 지원 종료
+4. 한국형 달 궤도선 발사
+5. 지구 저궤도 인공위성 2차 발사
+6. KF21 전투기 첫 비행
 ## Economic (경제적)    
 1. 퐁의 저작권 보호 종료  
 2. 동해선 신설 개통  
