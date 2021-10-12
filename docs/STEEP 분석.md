@@ -11,10 +11,9 @@
 ## Technological (기술적)
 1. 마이크로소프트의 익스플로러 11의 지원이 종료되고 엣지 브라우저로 대체  https://www.boannews.com/media/view.asp?idx=97976
 2. 윈도우 11의 출시 및 윈도우 10 사용자 대상 무료 업데이트로 윈도우 11 사용자 증가
-3. 윈도우 서버 2016 메인 스트림 지원 종료
-4. 한국형 달 궤도선 발사
-5. 지구 저궤도 인공위성 2차 발사
-6. KF21 전투기 첫 비행
+3. 윈도우 서버 2016 메인 스트림 지원 종료 https://www.ciokorea.com/news/205514
+4. 한국형 달 궤도선 발사 https://ko.wikipedia.org/wiki/%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD_%EB%8B%AC_%EA%B6%A4%EB%8F%84%EC%84%A0
+5. KF21 전투기 첫 비행 https://ko.wikipedia.org/wiki/KF-21_%EB%B3%B4%EB%9D%BC%EB%A7%A4
 ## Economic (경제적)    
 1. 퐁의 저작권 보호 종료  
 2. 동해선 신설 개통  
