@@ -22,8 +22,8 @@
 ## Ecological (생태학적)
 1. 일회용컵 보증금제 시행 http://www.me.go.kr/home/web/board/read.do?boardMasterId=1&boardId=1375060&menuId=286
 2. 일회용 비닐봉지 금지 대상 업종 확대 https://www.ntoday.co.kr/news/articleView.html?idxno=76439
-3. 빨대 사용시 소비자가 별도 구매
+
 ## Political (정치적)   
-1. 대한민국 20대 대통령 선거  
-2. 제 8회 전국 동시 지방선거 
-3. 국회의원 재보궐 선거
+1. 대한민국 20대 대통령 선거  https://ko.wikipedia.org/wiki/%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD_%EC%A0%9C20%EB%8C%80_%EB%8C%80%ED%86%B5%EB%A0%B9_%EC%84%A0%EA%B1%B0
+2. 제 8회 전국 동시 지방선거 https://ko.wikipedia.org/wiki/%EC%A0%9C8%ED%9A%8C_%EC%A0%84%EA%B5%AD%EB%8F%99%EC%8B%9C%EC%A7%80%EB%B0%A9%EC%84%A0%EA%B1%B0
+3. 국회의원 재보궐 선거 https://ko.wikipedia.org/wiki/2022%EB%85%84_%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD_%EC%9E%AC%EB%B3%B4%EA%B6%90%EC%84%A0%EA%B1%B0
