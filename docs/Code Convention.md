@@ -26,18 +26,19 @@
 3. 타입 이름  
    * 타입 이름은 대문자로 시작하며 언더스코어 없이 단어마다 첫 글자로 대문자를 사용한다.(CamelCased)  
     ex) MyExcitingClass, MyExcitingEnum
+   * 타입 이름의 첫 글자로 타입의 이니셜을 대문자로 사용한다.
    * 클래스, 구조체, typedef, 열거형(enum)을 포함한 모든 타입에 대해 같은 규칙이 적용된다.
     ``` C++
     // 클래스와 구조체
-    class UrlTable {...}
-    class UrlTableProperties {...}
-    struct UrlTableProperties {...}
+    class CUrlTable {...}
+    class CUrlTableProperties {...}
+    struct CUrlTableProperties {...}
 
     // typedef
-    typedef hash_map<UrlTableProperties*, std::string> PropertiesMap;
+    typedef hash_map<UrlTableProperties*, std::string> HPPropertiesMap;
     
     // 열거형(enum)
-    enum UrlTableErrors {...}
+    enum EUrlTableErrors {...}
     ```
 4. 변수 이름  
     * 변수의 이름은 모두 소문자로 작성하며 단어 사이에 언더스코어를 사용한다.(under_scored)
