@@ -46,31 +46,31 @@
     * 클래스 멤버 변수는 이름의 앞에 m_ 접두어를 사용한다.  
      ex) my_exciting_local_variable, m_my_exciting_member_variable  
    
-    <u>공통사항</u>
-    ``` C++
-    std::string table_name; // 좋음 - 언더스코어를 사용한다.
-    std::string tablename;  // 좋음 - 모두 소문자이다.
+    * 공통사항
+        ``` C++
+        std::string table_name; // 좋음 - 언더스코어를 사용한다.
+        std::string tablename;  // 좋음 - 모두 소문자이다.
 
-    std::string tableName;  // 불가 - 대문자 사용
-    ```
-    <u>클래스 데이터 멤버</u>  
-    데이터 멤버(인스턴스 변수 또는 멤버 변수)의 이름은 보통 변수처럼 소문자와 선택적인 언더스코어로 작성하지만, 항상 앞에 m_ 접두어를 붙인다.
-    ``` C++
-    std::string m_table_name;   // 좋음 - 앞에 m_가 있다.
-    std::string m_tablename;    // 좋음
-    ```
-    <u>구조체 변수</u>  
-    구조체 안에 있는 데이터 멤버는 클래스에 있는 데이터 멤버와 다르게 앞에 m_ 접두어를 붙이지 않고 보통 변수처럼 이름짓는다.
-    ``` C++
-    struct UrlTableProperties
-    {
-        std::string name;
-        int num_entries;
-    }
-    ```
-    어떤 경우에 클래스와 구조체를 써야 할 지에 대해서는 구조체 대 클래스를 참고하라.  
-    <u>전역 변수</u>
-    * 제한적으로 사용되어야 하는 전역 변수의 이름에 대한 특별한 규칙은 없다. 하지만 전역 변수를 사용할 때에는 g_와 같이 로컬 변수와 쉽게 구분할 수 있는 접두어를 사용하는 것이 좋다.
+        std::string tableName;  // 불가 - 대문자 사용
+        ```
+    * 클래스 데이터 멤버
+        * 데이터 멤버(인스턴스 변수 또는 멤버 변수)의 이름은 보통 변수처럼 소문자와 선택적인 언더스코어로 작성하지만, 항상 앞에 m_ 접두어를 붙인다.
+        ``` C++
+        std::string m_table_name;   // 좋음 - 앞에 m_가 있다.
+        std::string m_tablename;    // 좋음
+        ```
+    * 구조체 변수
+        * 구조체 안에 있는 데이터 멤버는 클래스에 있는 데이터 멤버와 다르게 앞에 m_ 접두어를 붙이지 않고 보통 변수처럼 이름짓는다.
+        ``` C++
+        struct UrlTableProperties
+        {
+            std::string name;
+            int num_entries;
+        }
+        ```
+        * 어떤 경우에 클래스와 구조체를 써야 할 지에 대해서는 구조체 대 클래스를 참고하라.  
+    * 전역 변수
+        * 제한적으로 사용되어야 하는 전역 변수의 이름에 대한 특별한 규칙은 없다. 하지만 전역 변수를 사용할 때에는 g_와 같이 로컬 변수와 쉽게 구분할 수 있는 접두어를 사용하는 것이 좋다.
 5. 상수 이름
     * 지역변수인지, 전역변수인지, 클래스의 일부인지와 상관없이 모든 컴파일 시점 상수들은 다른 변수들과 조금 다른 이름 규칙을 사용한다. k로 시작하여 매 단어의 첫 글자를 대문자로 쓴다.(kCamelCased)
     ``` C++
@@ -80,29 +80,28 @@
     * 일반 함수들은 대문자로 시작하며 언더스코어 없이 단어마다 첫 글자로 대문자를 사용한다. 접근자와 변경자는 해당하는 변수의 이름과 같은 것을 쓴다.(CamelCased)  
      ex) MyExcitingFunction(), MyExcitingMethod()  
     
-    <u>일반 함수</u>  
-      * 함수 이름은 대문자로 시작하여 각 단어의 첫 글자를 대문자로 쓰고, 언더스코어는 사용하지 않는다.
-      * 함수의 실행 중 크래시가 발생할 수 있다면 함수의 이름 뒤에 OrDie를 붙인다. 이 규칙은 프로덕션 코드에서도 에러가 발생할 가능성이 어느 정도 있는 함수에 한해 적용한다.
-    ``` C++
-    AddTableEntry()
-    DeleteUrl()
-    OpenFileOrDie()
-    ```
+    * 일반 함수
+        * 함수 이름은 대문자로 시작하여 각 단어의 첫 글자를 대문자로 쓰고, 언더스코어는 사용하지 않는다.
+        * 함수의 실행 중 크래시가 발생할 수 있다면 함수의 이름 뒤에 OrDie를 붙인다. 이 규칙은 프로덕션 코드에서도 에러가 발생할 가능성이 어느 정도 있는 함수에 한해 적용한다.
+        ``` C++
+        AddTableEntry()
+        DeleteUrl()
+        OpenFileOrDie()
+        ```
+    * 접근자와 변경자
+        * 접근자와 변경자 (get과 set 함수)는 접근 또는 변경을 하려는 변수의 이름과 일치하는 이름을 사용한다.
+        ``` C++
+        class MyClass
+        {
+        public:
+        ...
+            int NumEntries() const { return m_num_entries; }
+            void SetNumEntries(int num_entries) { m_num_entries = num_entries; }
 
-    <u>접근자와 변경자</u>  
-      * 접근자와 변경자 (get과 set 함수)는 접근 또는 변경을 하려는 변수의 이름과 일치하는 이름을 사용한다.
-    ``` C++
-    class MyClass
-    {
-    public:
-    ...
-        int NumEntries() const { return m_num_entries; }
-        void SetNumEntries(int num_entries) { m_num_entries = num_entries; }
-
-    private:
-        int m_num_entries;
-    };
-    ```
+        private:
+            int m_num_entries;
+        };
+        ```
 7. 네임스페이스 이름  
     * 네임스페이스 이름은 모두 소문자로 하며, 프로젝트의 이름과 아마도 디렉토리 구조에 기반하여 작성한다.(under_scored)
      ex) kpu_final_game
