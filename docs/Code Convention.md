@@ -147,6 +147,204 @@
         INT_MAX와 비슷한 상수
     ```
 
+**포매팅**
+-----
+코딩 스타일과 포매팅은 제멋대로인 경우가 많지만, 모두가 통일된 스타일을 쓴다면 프로젝트를 파악하기가 훨씬 쉬워진다. 개개인이 모든 포매팅 규칙에 다 동의하기는 어렵고, 어떤 규칙은 익숙해지는데 시간이 걸리지만, 프로젝트의 구성원들이 규칙을 따라서 다른 사람의 코드를 쉽게 이해하도록 하는 것은 중요하다.
+1. 함수 선언과 정의
+   * 가능하면 리턴 타입과 함수 이름, 인자를 같은 줄에 작성하라.
+   ``` C++
+   ReturnType ClassName::FunctionName(Type par_name1, Type par_name2)
+   {
+        DoSomething();
+        ...
+   ```
+   * 한 줄에 넣기에 글자가 너무 많다면
+   ``` C++
+   ReturnType ClassName::ReallyLongFunctionName(Type par_name1, Type par_name2,
+                                             Type par_name3)
+   {
+        DoSomething();
+        ...
+   }
+   ```
+   * 혹은 첫번째 인자도 맞추기 힘들다면
+   ``` C++
+   ReturnType LongClassName::ReallyReallyReallyLongFunctionName(
+    Type par_name1,  // Tab indent
+    Type par_name2,
+    Type par_name3)
+   {
+        DoSomething();  // Tab indent
+        ...
+   }
+   ```
+   * 몇 가지 주의할 점
+     * 리턴 타입과 함수 이름을 한 줄에 적을 수 없다면, 그 사이를 줄바꿈하라.
+     * 함수 정의의 리턴 타입 뒤에 줄바꿈을 한다면, 들여쓰기를 하지 말라.
+     * 여는 괄호는 항상 함수 이름과 같은 줄에 작성하라.
+     * 함수 이름과 여는 괄호 사이에는 절대로 스페이스를 넣지 않는다.
+     * 괄호와 인자 사이에는 절대로 스페이스를 넣지 않는다.
+     * 여는 중괄호({)는 마지막 인자의 다음 줄에 작성하거나, (다른 규칙들이 허용한다면) 인자와 같은 줄에 위치할 수 있다.
+     * 닫는 중괄호(})는 혼자 마지막 줄에 위치하거나, (다른 규칙들이 허용한다면) 여는 중괄호와 같은 줄에 위치한다.
+     * 모든 인자는 이름을 가져야 하며, 선언과 구현에서 같은 이름을 가지게 하라.
+     * 모든 인자들은 가능한 한 정렬되어야 한다.
+     * 기본 들여쓰기는 탭 스페이스이다.
+     * 인자들이 다음 줄로 이동할 경우 탭 스페이스 들여쓰기를 사용한다.
+   * 만약 몇몇 인자들이 사용되지 않으면, 함수 선언에서 변수 이름을 주석처리하라.
+   ``` C++
+   // 인터페이스에서는 항상 이름이 있는 인자를 가진다.
+   class Shape
+   {
+    public:
+        virtual void Rotate(double radians) = 0;
+   }
+   
+   // 선언에서 항상 이름이 있는 인자를 가진다.
+   class Circle : public Shape
+   {
+    public:
+        virtual void Rotate(double radians);
+   }
+   
+   // 정의에서 사용하지 않는 이름을 주석처리하라.
+   void Circle::Rotate(double /*radians*/) {}
+
+   // 나쁨 - 누군가 나중에 구현을 하려고 하더라도,
+   // 변수가 무엇을 의미하는지 명확하게 알 수 없다.
+   void Circle::Rotate(double) {}
+   ```
+2. 함수 호출
+   * 함수 호출은 다음과 같은 형식으로 작성한다.
+   ``` C++
+   bool retval = DoSomething(argument1, argument2, argument3);
+   ```
+   * 인자들이 모두 한 줄에 들어갈 자리가 없다면 여러 줄로 나누어 쓰되 이어지는 줄은 첫번째 인자와 같은 열에 오도록 한다.
+   * 여는 괄호 다음과 닫는 괄호 앞에는 스페이스를 추가하지 않는다.
+   ``` C++
+   bool retval = DoSomething(averyveryveryverylongargument1,
+                             argument2, argument3);
+   ```
+   * 함수의 인자가 많은 경우 가독성을 위해 인자마다 한 줄씩 쓰는 것을 고려하라
+   ``` C++
+   bool retval = DoSomething(argument1,
+                             argument2,
+                             argument3,
+                             argument4);
+   ```
+   * 모든 인자들마다 줄바꿈하여 한 줄에 하나씩 쓰는 것도 가능하다.
+   ``` C++
+   if (...)
+   {
+       ...
+       ...
+       if (...)
+       {
+            DoSomething(
+                        argument1,
+                        argument2,
+                        argument3,
+                        argument4);
+   }
+   ```
+3. 중괄호 초기화 리스트
+   * 중괄호로 된 초기화 리스트는 함수 호출에서와 완전히 같은 방식으로 작성한다.
+   * 중괄호 리스트가 어떤 이름(타입이나 변수 이름)에 이어져서 사용되는 경우 {}가 그 이름을 가진 함수를 호출하는 괄호인 것처럼 작성한다.
+   * 만약 그러한 이름이 없으면 길이가 0인 이름이 있다고 가정한다.
+   ``` C++
+   // 중괄호 초기화 리스트를 한 줄에 사용한 예
+   return {foo, bar};
+   functioncall({foo, bar});
+   pair<int, int> p{foo, bar};
+   
+   // 줄바꿈을 해야 할 때
+   SomeFunction(
+           {"assume a zero-length name before {"},
+            some_other_function_parameter);
+   SomeType variable{
+       some, other, values,
+       {"assume a zero-length name before {"},
+   SomeOtherType{
+       "Very long string requiring the surrounding breaks.",
+       some, other values},
+        SomeOtherType{"Slightly shorter string",
+                      some, other, values}};
+        SomeType variable{
+            "This is too long to fit all in one line"};
+    MyType m = {  // 여기선 { 다음에도 줄바꿈을 할 수 있다
+        superlongvariablename1,
+        superlongvariablename2,
+        {short, interior, list},
+        {interiorwrappinglist,
+         interiorwrappinglist2}};
+   ```
+4. 조건문
+   * 괄호 안에서는 스페이스를 사용하지 않을 것을 권장한다.
+   * else 키워드는 새 줄에서 사용한다.
+   * 어떤 파일을 수정하고 있다면 그 파일에 이미 사용되고 있는 형식을 사용하라.
+   * 새로운 코드를 작성하고 있다면 해당 디렉터리나 프로젝트의 다른 파일에서 사용하고 있는 형식을 사용하라.
+   * 이미 사용되고 있는 형식을 알 수 없고 개인적인 선호도 없는 경우 스페이스를 넣지 말라.
+   ``` C++
+   if (condition)   // 괄호 안에 스페이스 없음
+   {
+       ...
+   }
+   else if (...)
+   {
+       ...
+   }
+   else
+   {
+       ...
+   }
+   ```
+   * 일반적으로 한 줄짜리 구문의 경우 중괄호를 꼭 사용하지 않아도 되며, 선호하는 경우 사용하여도 된다.
+   * 복잡한 조건이나 구문들로 이루어진 조건문과 반복문의 경우 중괄호가 있을 때 가독성이 더 좋을 수 있다.
+   * 어떤 프로젝트는 if 문에 항상 중괄호를 사용할 것을 요구하기도 한다.
+   ``` C++
+   if (condition)
+        DoSomething();
+   ```
+   * 하지만 만약 if-else 문 중 한 쪽이 중괄호를 사용하고 있다면 다른 쪽도 반드시 사용해야 한다.
+   ``` C++
+   // 안됨 - IF에는 중괄호가 있지만 ELSE에는 없음
+   if (condition)
+   {
+       foo;
+   }
+   else
+       bar;
+   // 안됨 - ELSE에는 중괄호가 있지만 IF에는 없음
+   if (condition)
+        foo;
+   else
+   {
+        bar;
+   }
+
+   // 한 쪽에 중괄호를 사용하였으면 IF 와 ELSE 모두 중괄호가 있어야 함
+   if (condition)
+   {
+       foo;
+   }
+   else
+   {
+        bar;
+   }
+   ```
+5. 반복문과 switch문
+   * switch 문은 블록마다 중괄호를 사용할 수 있다.
+   * 단순하지 않게 이어지는 case 문들은 주석을 달아야 한다.
+   * 비어 있는 반복문은 {} 또는 continue를 사용해야 한다.
+   * switch문의 case 블록은 선호에 따라 중괄호를 사용할 수도 있고 그렇지 않을 수 있다.
+   * 중괄호를 사용하는 경우엔 아래와 같은 위치에 사용해야 한다.
+   * 열거형 값에 대한 조건이 아닌 경우, switch 문은 항상 default 케이스를 포함하는 것이 좋다.(열거형의 경우 처리하지 않은 값에 대해 컴파일러가 경고할 것이다.)
+   * 만약 default 케이스가 실행되지 말아야 할 경우 간단히 assert하라.
+
+
+
+
+
+
 **주석**
 -----
 작성하는 것이 쉽지 않지만, 주석은 코드의 가독성을 유지하는 데 절대적으로 중요한 역할을 한다. 다음 규칙은 어디에 무엇을 주석으로 달아야 할 지를 설명한다. 하지만 기억할 점은 주석은 매우 중요하지만, 가장 좋은 코드는 스스로에 대해 설명을 할 수 있는 코드라는 것이다. 타입과 변수에 이해할 수 있는 이름을 짓는 것이 이상한 이름을 짓고 주석으로 설명하는 것보다 훨씬 좋다. 주석을 작성할 때에는 주석을 읽는 이를 위해서, 즉 그 코드를 보고 이해해야 하는 다음 작업자를 위해 작성하라. 관대함을 가지라 - 다음 작업자는 본인일 수도 있다!
