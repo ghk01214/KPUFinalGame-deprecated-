@@ -38,4 +38,4 @@ FPS장르는 꾸준히 사랑을 받아온 장르이기 때문에 2022년에서�
 협동 FPS를 제작하게 되면 흥행할 가능성이 높다고 추측된다.
 
 슬라이드 쉐어 링크    
-https://www.slideshare.net/secret/lhljxB3ZuoM1XX
+https://www.slideshare.net/secret/1dVNHIYfYI470V
