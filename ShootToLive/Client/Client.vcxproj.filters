@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -25,6 +22,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Client.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ClientFramework.h">
