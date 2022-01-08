@@ -1,4 +1,4 @@
-// Server.cpp : 애플리케이션에 대한 진입점을 정의합니다.
+﻿// Server.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
 
 #include "pch.h"
@@ -27,7 +27,6 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK	ChildProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    DlgProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    CliLog(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
@@ -40,33 +39,33 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	// TODO: 여기에 코드를 입력합니다.
 
 	// 전역 문자열을 초기화합니다.
-	//LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-	//LoadStringW(hInstance, IDC_SERVER, szWindowClass, MAX_LOADSTRING);
-	//MyRegisterClass(hInstance);
+	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+	LoadStringW(hInstance, IDC_SERVER, szWindowClass, MAX_LOADSTRING);
+	MyRegisterClass(hInstance);
 
-	//// 애플리케이션 초기화를 수행합니다:
-	//if (!InitInstance(hInstance, nCmdShow))
-	//{
-	//	return FALSE;
-	//}
+	// 애플리케이션 초기화를 수행합니다:
+	if (!InitInstance(hInstance, nCmdShow))
+	{
+		return FALSE;
+	}
 
-	//HACCEL hAccelTable{ LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_SERVER)) };
+	HACCEL hAccelTable{ LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_SERVER)) };
 
-	//MSG msg{};
+	MSG msg{};
 
-	//// 기본 메시지 루프입니다:
-	//while (GetMessage(&msg, nullptr, 0, 0))
-	//{
-	//	if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-	//	{
-	//		TranslateMessage(&msg);
-	//		DispatchMessage(&msg);
-	//	}
-	//}
+	// 기본 메시지 루프입니다:
+	while (GetMessage(&msg, nullptr, 0, 0))
+	{
+		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
 
-	DialogBox(hInstance, MAKEINTRESOURCE(IDD_MASTER), nullptr, DlgProc);
+	//DialogBox(hInstance, MAKEINTRESOURCE(IDD_MASTER), nullptr, DlgProc);
 
-	//return (int)msg.wParam;
+	return (int)msg.wParam;
 }
 
 
@@ -149,7 +148,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// 연결 로그를 출력하는 에디트 컨트롤 자식 윈도우 생성
 		connectionLog = CreateWindowW(L"edit", nullptr, WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL | ES_AUTOVSCROLL | ES_MULTILINE | ES_READONLY,
 			0, 0, rc.right - 110, rc.bottom, hWnd, (HMENU)IDC_CONNECTION, hInst, nullptr);
-		
+
 		// 각 클라이언트 로그 및 종료 버튼 자식 윈도우 생성
 		hClient1 = CreateWindowW(L"button", L"Client 1", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
 			rc.right - 105, rc.top + 10, 100, 30, hWnd, (HMENU)IDC_CLIENT1, hInst, nullptr);
@@ -159,6 +158,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			rc.right - 105, rc.top + 90, 100, 30, hWnd, (HMENU)IDC_CLIENT3, hInst, nullptr);
 		hClient4 = CreateWindowW(L"button", L"Client 4", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
 			rc.right - 105, rc.top + 130, 100, 30, hWnd, (HMENU)IDC_CLIENT4, hInst, nullptr);
+
 		hEnd = CreateWindowW(L"button", L"종료", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_DEFPUSHBUTTON,
 			rc.right - 105, rc.bottom - 40, 100, 30, hWnd, (HMENU)IDC_EXIT, hInst, nullptr);
 	}
@@ -193,6 +193,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		PAINTSTRUCT ps;
 		HDC hdc{ BeginPaint(hWnd, &ps) };
 		// TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+		//SendMessage(connectionLog, 0, 0, TEXT("TextOut이다. ㅜㅜ 우리 텍스트 아웃되버렸지만 수고했어."), 34);
 		EndPaint(hWnd, &ps);
 	}
 	break;
