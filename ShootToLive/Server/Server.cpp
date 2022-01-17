@@ -49,21 +49,21 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		return FALSE;
 	}
 
-	HACCEL hAccelTable{ LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_SERVER)) };
+	HACCEL hAccelTable{ LoadAcceleratorsW(hInstance, MAKEINTRESOURCEW(IDC_SERVER)) };
 
 	MSG msg{};
 
 	// 기본 메시지 루프입니다:
 	while (GetMessage(&msg, nullptr, 0, 0))
 	{
-		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+		if (!TranslateAcceleratorW(msg.hwnd, hAccelTable, &msg))
 		{
 			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+			DispatchMessageW(&msg);
 		}
 	}
 
-	//DialogBox(hInstance, MAKEINTRESOURCE(IDD_MASTER), nullptr, DlgProc);
+	//DialogBox(hInstance, MAKEINTRESOURCEW(IDD_MASTER), nullptr, DlgProc);
 
 	return (int)msg.wParam;
 }
@@ -86,12 +86,12 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = hInstance;
-	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SERVER));
-	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	wcex.hIcon = LoadIconW(hInstance, MAKEINTRESOURCEW(IDI_SERVER));
+	wcex.hCursor = LoadCursorW(nullptr, IDC_ARROW);
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_SERVER);
 	wcex.lpszClassName = szWindowClass;
-	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+	wcex.hIconSm = LoadIconW(wcex.hInstance, MAKEINTRESOURCEW(IDI_SMALL));
 
 	return RegisterClassExW(&wcex);
 }
@@ -169,22 +169,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (LOWORD(wParam))
 		{
 		case IDC_CLIENT1:
-			ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_CLIENT1), hWnd, DlgProc), SW_SHOW);
+			ShowWindow(CreateDialogW(hInst, MAKEINTRESOURCEW(IDD_CLIENT1), hWnd, DlgProc), SW_SHOW);
 			break;
 		case IDC_CLIENT2:
-			ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_CLIENT2), hWnd, DlgProc), SW_SHOW);
+			ShowWindow(CreateDialogW(hInst, MAKEINTRESOURCEW(IDD_CLIENT2), hWnd, DlgProc), SW_SHOW);
 			break;
 		case IDC_CLIENT3:
-			ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_CLIENT3), hWnd, DlgProc), SW_SHOW);
+			ShowWindow(CreateDialogW(hInst, MAKEINTRESOURCEW(IDD_CLIENT3), hWnd, DlgProc), SW_SHOW);
 			break;
 		case IDC_CLIENT4:
-			ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_CLIENT4), hWnd, DlgProc), SW_SHOW);
+			ShowWindow(CreateDialogW(hInst, MAKEINTRESOURCEW(IDD_CLIENT4), hWnd, DlgProc), SW_SHOW);
 			break;
 		case IDC_EXIT:
 			DestroyWindow(hWnd);
 			break;
 		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
+			return DefWindowProcW(hWnd, message, wParam, lParam);
 		}
 	}
 	break;
@@ -201,7 +201,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);
 		break;
 	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
+		return DefWindowProcW(hWnd, message, wParam, lParam);
 	}
 	return 0;
 }
@@ -222,16 +222,16 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (LOWORD(wParam))
 		{
 		case IDC_CLIENT1:
-			ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_CLIENT1), hDlg, DlgProc), SW_SHOW);
+			ShowWindow(CreateDialogW(hInst, MAKEINTRESOURCEW(IDD_CLIENT1), hDlg, DlgProc), SW_SHOW);
 			break;
 		case IDC_CLIENT2:
-			ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_CLIENT2), hDlg, DlgProc), SW_SHOW);
+			ShowWindow(CreateDialogW(hInst, MAKEINTRESOURCEW(IDD_CLIENT2), hDlg, DlgProc), SW_SHOW);
 			break;
 		case IDC_CLIENT3:
-			ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_CLIENT3), hDlg, DlgProc), SW_SHOW);
+			ShowWindow(CreateDialogW(hInst, MAKEINTRESOURCEW(IDD_CLIENT3), hDlg, DlgProc), SW_SHOW);
 			break;
 		case IDC_CLIENT4:
-			ShowWindow(CreateDialog(hInst, MAKEINTRESOURCE(IDD_CLIENT4), hDlg, DlgProc), SW_SHOW);
+			ShowWindow(CreateDialogW(hInst, MAKEINTRESOURCEW(IDD_CLIENT4), hDlg, DlgProc), SW_SHOW);
 			break;
 		case IDOK: case IDCANCEL:
 			EndDialog(hDlg, LOWORD(wParam));
