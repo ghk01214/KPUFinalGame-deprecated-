@@ -1,4 +1,4 @@
-// pch.h: 표준 시스템 포함 파일
+﻿// pch.h: 표준 시스템 포함 파일
 // 또는 프로젝트 특정 포함 파일이 들어 있는 포함 파일입니다.
 //
 
@@ -14,15 +14,19 @@
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
-#include <WinSock2.h>
+#include <WS2tcpip.h>
+#include <MSWSock.h>
 // C++ 런타임 헤더 파일입니다.
-#include <iostream>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <algorithm>
+#include <memory>
 #include <random>
 #include <thread>
+#include <mutex>
 
-
+// string_view를 위한 네임스페이스
+using namespace std::literals;
 
 #endif // !_PCH_H_
