@@ -17,6 +17,7 @@
 #include <WS2tcpip.h>
 #include <MSWSock.h>
 // C++ 런타임 헤더 파일입니다.
+#include <iostream>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -25,6 +26,9 @@
 #include <random>
 #include <thread>
 #include <mutex>
+
+#pragma comment(lib, "ws2_32")
+#pragma comment(lib, "MSWSock")
 
 // string_view를 위한 네임스페이스
 using namespace std::literals;
