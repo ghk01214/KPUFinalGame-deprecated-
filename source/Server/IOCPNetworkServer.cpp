@@ -1,4 +1,4 @@
-﻿#include "ServerFramework.h"
+﻿#include "IOCPNetworkServer.h"
 
 ExOverlapped::ExOverlapped(OPERATION op, char bytes, char* msg) : oper(op)
 {
@@ -25,7 +25,7 @@ void Client::Recv()
 	WSARecv(cSocket, &recvOver.WSAbuf, 1, 0, &flag, &recvOver.WSAover, nullptr);
 }
 
-bool CServerFramework::Initialize()
+bool CIOCPNetworkServer::Initialize()
 {
 	if (WSADATA wsa; WSAStartup(MAKEWORD(2, 2), &wsa) != NOERROR)
 		return false;
@@ -67,7 +67,11 @@ bool CServerFramework::Initialize()
 	return true;
 }
 
-void CServerFramework::ErrorQuit(std::wstring msg)
+void CIOCPNetworkServer::Run()
+{
+}
+
+void CIOCPNetworkServer::ErrorQuit(std::wstring msg)
 {
 	std::wstring msgBuf;
 
@@ -80,7 +84,7 @@ void CServerFramework::ErrorQuit(std::wstring msg)
 	exit(1);
 }
 
-void CServerFramework::ErrorDisplay(std::wstring msg, int ErrorNum)
+void CIOCPNetworkServer::ErrorDisplay(std::wstring msg, int ErrorNum)
 {
 	std::wstring msgBuf;
 
@@ -92,7 +96,7 @@ void CServerFramework::ErrorDisplay(std::wstring msg, int ErrorNum)
 	LocalFree(msgBuf.data());
 }
 
-DWORD WINAPI CServerFramework::WorkerThread(LPVOID arg)
+DWORD WINAPI CIOCPNetworkServer::WorkerThread(LPVOID arg)
 {
 	std::unique_ptr<SOCKET> sock{ reinterpret_cast<SOCKET*>(arg) };
 

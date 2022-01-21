@@ -1,5 +1,5 @@
-﻿#ifndef _SERVER_FRAMEWORK_H_
-#define _SERVER_FRAMEWORK_H_
+﻿#ifndef _IOCP_NETWORK_SERVER_H_
+#define _IOCP_NETWORK_SERVER_H_
 
 #include "pch.h"
 #include "packets.h"
@@ -44,13 +44,14 @@ private:
 	short			 x, y;
 };
 
-class CServerFramework
+class CIOCPNetworkServer
 {
 public:
-	CServerFramework() {}
-	~CServerFramework() {}
+	CIOCPNetworkServer() {}
+	~CIOCPNetworkServer() {}
 public:
 	bool Initialize();
+	void Run();
 	void ErrorQuit(std::wstring msg);
 	void ErrorDisplay(std::wstring msg, int ErrorNum);
 public:
@@ -62,4 +63,4 @@ private:
 	Client client;
 };
 
-#endif // !_SERVER_FRAMEWORK_H_
+#endif // !_IOCP_NETWORK_SERVER_H_
