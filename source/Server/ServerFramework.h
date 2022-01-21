@@ -1,4 +1,4 @@
-#ifndef _SERVER_FRAMEWORK_H_
+﻿#ifndef _SERVER_FRAMEWORK_H_
 #define _SERVER_FRAMEWORK_H_
 
 #include "pch.h"
@@ -50,9 +50,11 @@ public:
 	CServerFramework() {}
 	~CServerFramework() {}
 public:
-	void Initialize();
+	bool Initialize();
 	void ErrorQuit(std::wstring msg);
 	void ErrorDisplay(std::wstring msg, int ErrorNum);
+public:
+	DWORD WINAPI WorkerThread(LPVOID arg);
 private:
 	SOCKET lSocket;
 	sockaddr_in serverAddr;

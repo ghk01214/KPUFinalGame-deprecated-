@@ -1,11 +1,11 @@
 ﻿#include "ServerFramework.h"
 
-ExOverlapped::ExOverlapped(OPERATION op, char size, char* msg) : oper(op)
+ExOverlapped::ExOverlapped(OPERATION op, char bytes, char* msg) : oper(op)
 {
 	ZeroMemory(&WSAover, sizeof(WSAover));
 	WSAbuf.buf = sendMsg;
-	WSAbuf.len = size;
-	memcpy(sendMsg, msg, size);
+	WSAbuf.len = bytes;
+	memcpy(sendMsg, msg, bytes);
 }
 
 void Client::Send(int size, char* msg)
@@ -25,15 +25,20 @@ void Client::Recv()
 	WSARecv(cSocket, &recvOver.WSAbuf, 1, 0, &flag, &recvOver.WSAover, nullptr);
 }
 
-void CServerFramework::Initialize()
+bool CServerFramework::Initialize()
 {
 	if (WSADATA wsa; WSAStartup(MAKEWORD(2, 2), &wsa) != NOERROR)
-		return;
+		return false;
+
+	HANDLE hIocp{ CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, NULL, 0) };
 
 	lSocket = WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);
 
 	if (lSocket == INVALID_SOCKET)
 		ErrorQuit(L"WSASocket()");
+
+	if (BOOL option{ TRUE }; setsockopt(lSocket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&option), sizeof(option)) == SOCKET_ERROR)
+		ErrorQuit(L"setsockopt()");
 
 	ZeroMemory(&serverAddr, sizeof(serverAddr));
 	serverAddr.sin_family = AF_INET;
@@ -46,7 +51,6 @@ void CServerFramework::Initialize()
 	if (listen(lSocket, SOMAXCONN) == SOCKET_ERROR)
 		ErrorQuit(L"listen()");
 
-	HANDLE hIocp{ CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, NULL, 0) };
 	CreateIoCompletionPort(reinterpret_cast<HANDLE>(lSocket), hIocp, 0, 0);
 
 	SOCKET cSocket{ WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED) };
@@ -59,6 +63,8 @@ void CServerFramework::Initialize()
 	{
 		GetQueuedCompletionStatus(hIocp, &size, &client, &wsaover, INFINITE);
 	}
+
+	return true;
 }
 
 void CServerFramework::ErrorQuit(std::wstring msg)
@@ -84,4 +90,11 @@ void CServerFramework::ErrorDisplay(std::wstring msg, int ErrorNum)
 	std::wcout << msg << L" 에러" << msgBuf << std::endl;
 
 	LocalFree(msgBuf.data());
+}
+
+DWORD WINAPI CServerFramework::WorkerThread(LPVOID arg)
+{
+	std::unique_ptr<SOCKET> sock{ reinterpret_cast<SOCKET*>(arg) };
+
+
 }
