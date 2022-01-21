@@ -1,4 +1,4 @@
-﻿#include "IOCPNetworkServer.h"
+﻿#include "NetworkServer.h"
 
 ExOverlapped::ExOverlapped(OPERATION op, char bytes, char* msg) : oper(op)
 {
@@ -25,12 +25,12 @@ void Client::Recv()
 	WSARecv(cSocket, &recvOver.WSAbuf, 1, 0, &flag, &recvOver.WSAover, nullptr);
 }
 
-bool CIOCPNetworkServer::Initialize()
+bool CNetworkServer::Initialize()
 {
 	if (WSADATA wsa; WSAStartup(MAKEWORD(2, 2), &wsa) != NOERROR)
 		return false;
 
-	HANDLE hIocp{ CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, NULL, 0) };
+	hIocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, NULL, 0);
 
 	lSocket = WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);
 
@@ -51,6 +51,11 @@ bool CIOCPNetworkServer::Initialize()
 	if (listen(lSocket, SOMAXCONN) == SOCKET_ERROR)
 		ErrorQuit(L"listen()");
 
+	return true;
+}
+
+void CNetworkServer::Run()
+{
 	CreateIoCompletionPort(reinterpret_cast<HANDLE>(lSocket), hIocp, 0, 0);
 
 	SOCKET cSocket{ WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED) };
@@ -64,14 +69,9 @@ bool CIOCPNetworkServer::Initialize()
 		GetQueuedCompletionStatus(hIocp, &size, &client, &wsaover, INFINITE);
 	}
 
-	return true;
 }
 
-void CIOCPNetworkServer::Run()
-{
-}
-
-void CIOCPNetworkServer::ErrorQuit(std::wstring msg)
+void CNetworkServer::ErrorQuit(std::wstring msg)
 {
 	std::wstring msgBuf;
 
@@ -84,7 +84,7 @@ void CIOCPNetworkServer::ErrorQuit(std::wstring msg)
 	exit(1);
 }
 
-void CIOCPNetworkServer::ErrorDisplay(std::wstring msg, int ErrorNum)
+void CNetworkServer::ErrorDisplay(std::wstring msg, int ErrorNum)
 {
 	std::wstring msgBuf;
 
@@ -94,11 +94,4 @@ void CIOCPNetworkServer::ErrorDisplay(std::wstring msg, int ErrorNum)
 	std::wcout << msg << L" 에러" << msgBuf << std::endl;
 
 	LocalFree(msgBuf.data());
-}
-
-DWORD WINAPI CIOCPNetworkServer::WorkerThread(LPVOID arg)
-{
-	std::unique_ptr<SOCKET> sock{ reinterpret_cast<SOCKET*>(arg) };
-
-
 }
