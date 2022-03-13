@@ -31,6 +31,6 @@
 #pragma comment(lib, "MSWSock")
 
 // string_view를 위한 네임스페이스
-using namespace std::literals;
+using namespace std::string_view_literals;
 
 #endif // !_PCH_H_

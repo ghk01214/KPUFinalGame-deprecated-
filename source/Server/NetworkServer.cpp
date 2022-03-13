@@ -1,44 +1,37 @@
 ﻿#include "NetworkServer.h"
 
-ExOverlapped::ExOverlapped(OPERATION op, char bytes, char* msg) : oper(op)
+Client::Client() : sock(INVALID_SOCKET)
 {
-	ZeroMemory(&WSAover, sizeof(WSAover));
-	WSAbuf.buf = sendMsg;
-	WSAbuf.len = bytes;
-	memcpy(sendMsg, msg, bytes);
+	ZeroMemory(&sendOver, sizeof(sendOver));
+	ZeroMemory(&recvOver, sizeof(recvOver));
 }
 
-void Client::Send(int size, char* msg)
+CNetworkServer::CNetworkServer() : hIocp(INVALID_HANDLE_VALUE), workerRun(true), acceptRun(true)
 {
-	std::unique_ptr<ExOverlapped> exOver{ std::make_unique<ExOverlapped>(static_cast<OPERATION>(OPERATION::SEND), size, msg) };
-
-	WSASend(cSocket, &exOver->WSAbuf, 1, 0, 0, &exOver->WSAover, nullptr);
 }
 
-void Client::Recv()
+CNetworkServer::~CNetworkServer()
 {
-	DWORD flag{ 0 };
-
-	ZeroMemory(&recvOver.WSAover, sizeof(recvOver.WSAover));
-	recvOver.WSAbuf.buf = recvOver.sendMsg + prevSize;
-	recvOver.WSAbuf.len = sizeof(recvOver.WSAbuf.buf) - prevSize;
-	WSARecv(cSocket, &recvOver.WSAbuf, 1, 0, &flag, &recvOver.WSAover, nullptr);
+	WSACleanup();
 }
 
 bool CNetworkServer::Initialize()
 {
 	if (WSADATA wsa; WSAStartup(MAKEWORD(2, 2), &wsa) != NOERROR)
-		return false;
+		ErrorQuit(L"WSAStartup()");
 
 	hIocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, NULL, 0);
+
+	if (hIocp == INVALID_HANDLE_VALUE)
+		ErrorQuit(L"CreateIoCompletionPort(IOCP kernel)");
 
 	lSocket = WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);
 
 	if (lSocket == INVALID_SOCKET)
-		ErrorQuit(L"WSASocket()");
+		ErrorQuit(L"WSASocket(listen socket)");
 
 	if (BOOL option{ TRUE }; setsockopt(lSocket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&option), sizeof(option)) == SOCKET_ERROR)
-		ErrorQuit(L"setsockopt()");
+		ErrorQuit(L"setsockopt(SO_REUSEADDR)");
 
 	ZeroMemory(&serverAddr, sizeof(serverAddr));
 	serverAddr.sin_family = AF_INET;
@@ -46,7 +39,7 @@ bool CNetworkServer::Initialize()
 	serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	if (bind(lSocket, reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) == SOCKET_ERROR)
-		ErrorQuit(L"bind()");
+		ErrorQuit(L"bind(listen socket)");
 
 	if (listen(lSocket, SOMAXCONN) == SOCKET_ERROR)
 		ErrorQuit(L"listen()");
@@ -56,6 +49,20 @@ bool CNetworkServer::Initialize()
 
 void CNetworkServer::Run()
 {
+	clients.reserve(100);
+
+	for (int i = 0; i < 100; ++i)
+	{
+		clients.emplace_back();
+	}
+
+	workerThreads.reserve(4);
+
+	for (int i = 0; i < 4; ++i)
+	{
+		workerThreads.emplace([this]() {WorkerThread(); });
+	}
+
 	CreateIoCompletionPort(reinterpret_cast<HANDLE>(lSocket), hIocp, 0, 0);
 
 	SOCKET cSocket{ WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED) };
@@ -64,11 +71,50 @@ void CNetworkServer::Run()
 
 	AcceptEx(lSocket, cSocket, acceptBuf, 0, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, nullptr, &acceptEx.WSAover);
 
-	while (true)
-	{
-		GetQueuedCompletionStatus(hIocp, &size, &client, &wsaover, INFINITE);
-	}
 
+
+}
+
+void CNetworkServer::OnSend(Client* client, char* message, int length)
+{
+	DWORD recvByte;
+
+
+}
+
+void CNetworkServer::OnReceive()
+{
+}
+
+void CNetworkServer::OnDisconnect()
+{
+}
+
+void CNetworkServer::WorkerThread()
+{
+	Client*			 client{ nullptr };			// CompletionKey를 받을 포인터
+	DWORD			 ioSize;					// Overlapped I/O 작업에서 전송된 데이터 크기
+	LPOVERLAPPED	 lpOverlapped{ nullptr };	// I/O 작업을 위해 요청한 Overlapped 구조체를 받을 포인터
+
+	while (workerRun)
+	{
+		GetQueuedCompletionStatus(hIocp, &ioSize, reinterpret_cast<PULONG_PTR>(&client), &lpOverlapped, INFINITE);
+
+		ExOverlapped* exOver{ reinterpret_cast<ExOverlapped*>(lpOverlapped) };
+
+		if (exOver->oper == OPERATION::RECV)
+		{
+			exOver->msg[ioSize] = NULL;
+			std::cout << "[수신] : " << ioSize << " 바이트, " << exOver->msg << std::endl;
+
+			SendMsg(client, exOver->msg, ioSize);
+			
+		}
+	}
+}
+
+void CNetworkServer::AcceptThread()
+{
 }
 
 void CNetworkServer::ErrorQuit(std::wstring msg)
@@ -94,4 +140,16 @@ void CNetworkServer::ErrorDisplay(std::wstring msg, int ErrorNum)
 	std::wcout << msg << L" 에러" << msgBuf << std::endl;
 
 	LocalFree(msgBuf.data());
+}
+
+bool CNetworkServer::CreateWorkerThread()
+{
+
+
+	return false;
+}
+
+bool CNetworkServer::CreateAcceptThread()
+{
+	return false;
 }

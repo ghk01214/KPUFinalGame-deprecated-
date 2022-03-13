@@ -4,7 +4,7 @@
 #include "pch.h"
 #include "packets.h"
 
-enum class OPERATION
+enum class OPERATION : int
 {
 	SEND,
 	RECV,
@@ -14,45 +14,36 @@ enum class OPERATION
 constexpr int SERVER_PORT{ 4000 };
 constexpr int BUF_SIZE{ 256 };
 
-DWORD WINAPI AcceptThread(LPVOID arg);
-DWORD WINAPI WorkerThread(LPVOID arg);
+//DWORD WINAPI AcceptThread(LPVOID arg);
+//DWORD WINAPI WorkerThread(LPVOID arg);
 
-class ExOverlapped
+// OVERLAPPED 구조체를 확장시킨 구조체
+struct ExOverlapped
 {
-public:
-	ExOverlapped(OPERATION op = static_cast<OPERATION>(OPERATION::RECV)) : oper(op) {}
-	ExOverlapped(OPERATION op, char bytes, char* msg);
-
 	OVERLAPPED		 WSAover;				// 확장된 Overlapped 구조체
-	OPERATION		 oper;					// send/recv/accept 구별
-	WSABUF			 WSAbuf;
-	char			 sendMsg[BUF_SIZE];		// IOCP send/recv 버퍼
+	SOCKET			 sock;					// 클라이언트 소켓
+	OPERATION		 oper;					// 작업 동작 종류
+	WSABUF			 WSAbuf;				// Overlapped I/O 작업 버퍼
+	char			 msg[BUF_SIZE];			// 데이터 버퍼
 };
 
+// 클라이언트 정보를 담은 구조체
 class Client
 {
 public:
-	Client() : x(0), y(0), prevSize(0) {}
-	Client(int id, SOCKET s) : x(0), y(0), prevSize(0), id(id), cSocket(s) {}
-	~Client() { closesocket(cSocket); }
+	Client();
+	~Client() { closesocket(sock); }
 
-	void Send(int size, char* msg);
-	void Recv();
-
-private:
+	ExOverlapped	 sendOver;
 	ExOverlapped	 recvOver;
-	SOCKET			 cSocket;
-	int				 prevSize;
-
-	int				 id;
-	short			 x, y;
+	SOCKET			 sock;
 };
 
 class CNetworkServer
 {
 public:
-	CNetworkServer() {}
-	virtual ~CNetworkServer() {}
+	CNetworkServer();
+	virtual ~CNetworkServer();
 
 	bool Initialize();
 	bool Release();
@@ -60,22 +51,33 @@ public:
 	void Run();
 
 	virtual void OnAccept() = 0;
-	virtual void OnReceive() = 0;
-	virtual void OnSend() = 0;
-	virtual void OnDisconnect() = 0;
+	virtual void OnSend(Client* client, char* message, int length);
+	virtual void OnReceive();
+	virtual void OnDisconnect();
+
+	void WorkerThread();
+	void AcceptThread();
 
 	void ErrorQuit(std::wstring msg);
 	void ErrorDisplay(std::wstring msg, int ErrorNum);
 
-	friend DWORD WINAPI AcceptThread(LPVOID arg);
-	friend DWORD WINAPI WorkerThread(LPVOID arg);
+	//friend DWORD WINAPI AcceptThread(LPVOID arg);
+	//friend DWORD WINAPI WorkerThread(LPVOID arg);
+	bool CreateWorkerThread();
+	bool CreateAcceptThread();
+
 
 private:
 	HANDLE hIocp;
 	SOCKET lSocket;
 	sockaddr_in serverAddr;
 
-	Client client;
+	std::vector<Client> clients;
+	std::vector<std::thread> workerThreads;
+	std::thread acceptThread;
+
+	bool workerRun;
+	bool acceptRun;
 };
 
 #endif // !_NETWORK_SERVER_H_
