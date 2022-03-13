@@ -2,3 +2,6 @@ root = true
 
 [*]
 charset = utf-8-bom
+
+indent_style = tab
+indent_size = 4
