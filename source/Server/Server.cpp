@@ -29,39 +29,39 @@ LRESULT CALLBACK	ChildProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    DlgProc(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-	_In_opt_ HINSTANCE hPrevInstance,
-	_In_ LPWSTR    lpCmdLine,
-	_In_ int       nCmdShow)
+                     _In_opt_ HINSTANCE hPrevInstance,
+                     _In_ LPWSTR    lpCmdLine,
+                     _In_ int       nCmdShow)
 {
-	UNREFERENCED_PARAMETER(hPrevInstance);
-	UNREFERENCED_PARAMETER(lpCmdLine);
+    UNREFERENCED_PARAMETER(hPrevInstance);
+    UNREFERENCED_PARAMETER(lpCmdLine);
 
-	// TODO: 여기에 코드를 입력합니다.
+    // TODO: 여기에 코드를 입력합니다.
 
-	// 전역 문자열을 초기화합니다.
-	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-	LoadStringW(hInstance, IDC_SERVER, szWindowClass, MAX_LOADSTRING);
-	MyRegisterClass(hInstance);
+    // 전역 문자열을 초기화합니다.
+    LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+    LoadStringW(hInstance, IDC_SERVER, szWindowClass, MAX_LOADSTRING);
+    MyRegisterClass(hInstance);
 
-	// 애플리케이션 초기화를 수행합니다:
+    // 애플리케이션 초기화를 수행합니다:
 	if (!InitInstance(hInstance, nCmdShow))
-	{
-		return FALSE;
-	}
+    {
+        return FALSE;
+    }
 
 	HACCEL hAccelTable{ LoadAcceleratorsW(hInstance, MAKEINTRESOURCEW(IDC_SERVER)) };
 
 	MSG msg{};
 
-	// 기본 메시지 루프입니다:
-	while (GetMessage(&msg, nullptr, 0, 0))
-	{
+    // 기본 메시지 루프입니다:
+    while (GetMessage(&msg, nullptr, 0, 0))
+    {
 		if (!TranslateAcceleratorW(msg.hwnd, hAccelTable, &msg))
-		{
-			TranslateMessage(&msg);
+        {
+            TranslateMessage(&msg);
 			DispatchMessageW(&msg);
-		}
-	}
+        }
+    }
 
 	//DialogBox(hInstance, MAKEINTRESOURCEW(IDD_MASTER), nullptr, DlgProc);
 
@@ -77,9 +77,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 //
 ATOM MyRegisterClass(HINSTANCE hInstance)
 {
-	WNDCLASSEXW wcex;
+    WNDCLASSEXW wcex;
 
-	wcex.cbSize = sizeof(WNDCLASSEX);
+    wcex.cbSize = sizeof(WNDCLASSEX);
 
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
 	wcex.lpfnWndProc = WndProc;
@@ -93,7 +93,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.lpszClassName = szWindowClass;
 	wcex.hIconSm = LoadIconW(wcex.hInstance, MAKEINTRESOURCEW(IDI_SMALL));
 
-	return RegisterClassExW(&wcex);
+    return RegisterClassExW(&wcex);
 }
 
 //
@@ -108,22 +108,22 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-	hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
+   hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
 	// 화면의 해상도에 따라서 윈도우의 크기 및 위치 결정
 	HWND hWnd{ CreateWindowW(szWindowClass, szTitle, WS_SYSMENU | WS_MINIMIZEBOX,
 		(GetSystemMetrics(SM_CXSCREEN) - (int)WndSize::WIDTH * 0.75) / 2, (GetSystemMetrics(SM_CYSCREEN) - (int)WndSize::HEIGHT * 0.75) / 2,
 		(int)WndSize::WIDTH * 0.75, (int)WndSize::HEIGHT * 0.75, nullptr, nullptr, hInstance, nullptr) };
 
-	if (!hWnd)
-	{
-		return FALSE;
-	}
+   if (!hWnd)
+   {
+      return FALSE;
+   }
 
-	ShowWindow(hWnd, nCmdShow);
-	UpdateWindow(hWnd);
+   ShowWindow(hWnd, nCmdShow);
+   UpdateWindow(hWnd);
 
-	return TRUE;
+   return TRUE;
 }
 
 //
@@ -138,8 +138,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch (message)
-	{
+    switch (message)
+    {
 	case WM_CREATE:
 	{
 		RECT rc;
@@ -163,11 +163,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			rc.right - 105, rc.bottom - 40, 100, 30, hWnd, (HMENU)IDC_EXIT, hInst, nullptr);
 	}
 	break;
-	case WM_COMMAND:
-	{
-		// 메뉴 선택을 구문 분석합니다:
+    case WM_COMMAND:
+        {
+            int wmId = LOWORD(wParam);
+            // 메뉴 선택을 구문 분석합니다:
 		switch (LOWORD(wParam))
-		{
+            {
 		case IDC_CLIENT1:
 			ShowWindow(CreateDialogW(hInst, MAKEINTRESOURCEW(IDD_CLIENT1), hWnd, DlgProc), SW_SHOW);
 			break;
@@ -179,48 +180,49 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case IDC_CLIENT4:
 			ShowWindow(CreateDialogW(hInst, MAKEINTRESOURCEW(IDD_CLIENT4), hWnd, DlgProc), SW_SHOW);
-			break;
+                break;
 		case IDC_EXIT:
-			DestroyWindow(hWnd);
-			break;
-		default:
+                DestroyWindow(hWnd);
+                break;
+            default:
 			return DefWindowProcW(hWnd, message, wParam, lParam);
-		}
-	}
-	break;
-	case WM_PAINT:
-	{
-		PAINTSTRUCT ps;
+            }
+        }
+        break;
+    case WM_PAINT:
+        {
+            PAINTSTRUCT ps;
 		HDC hdc{ BeginPaint(hWnd, &ps) };
-		// TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+            // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
 		//SendMessage(connectionLog, 0, 0, TEXT("TextOut이다. ㅜㅜ 우리 텍스트 아웃되버렸지만 수고했어."), 34);
-		EndPaint(hWnd, &ps);
-	}
-	break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-	default:
+            EndPaint(hWnd, &ps);
+        }
+        break;
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        break;
+    default:
 		return DefWindowProcW(hWnd, message, wParam, lParam);
-	}
-	return 0;
+    }
+    return 0;
 }
 
 INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch (message)
-	{
-	case WM_INITDIALOG:
+    UNREFERENCED_PARAMETER(lParam);
+    switch (message)
+    {
+    case WM_INITDIALOG:
 	{
 		//SendMessage(connectionLog, EM_SETLIMITTEXT, 512, 0);
 	}
-	return (INT_PTR)TRUE;
+        return (INT_PTR)TRUE;
 
-	case WM_COMMAND:
+    case WM_COMMAND:
 	{
 		// 메뉴 선택을 구문 분석합니다:
 		switch (LOWORD(wParam))
-		{
+        {
 		case IDC_CLIENT1:
 			ShowWindow(CreateDialogW(hInst, MAKEINTRESOURCEW(IDD_CLIENT1), hDlg, DlgProc), SW_SHOW);
 			break;
@@ -234,11 +236,11 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			ShowWindow(CreateDialogW(hInst, MAKEINTRESOURCEW(IDD_CLIENT4), hDlg, DlgProc), SW_SHOW);
 			break;
 		case IDOK: case IDCANCEL:
-			EndDialog(hDlg, LOWORD(wParam));
-			return (INT_PTR)TRUE;
-		}
+            EndDialog(hDlg, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+        }
 	}
 	return (INT_PTR)FALSE;
-	}
-	return (INT_PTR)FALSE;
+    }
+    return (INT_PTR)FALSE;
 }
