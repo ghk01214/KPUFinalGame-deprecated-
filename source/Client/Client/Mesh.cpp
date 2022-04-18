@@ -1,11 +1,11 @@
-//-----------------------------------------------------------------------------
+ï»¿//-----------------------------------------------------------------------------
 // File: CGameObject.cpp
 //-----------------------------------------------------------------------------
 
-#include "stdafx.h"
+#include "pch.h"
 #include "Mesh.h"
 
-CMesh::CMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, char *pstrFileName, bool bTextFile)
+CMesh::CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName, bool bTextFile)
 {
 	if (pstrFileName) LoadMeshFromFile(pd3dDevice, pd3dCommandList, pstrFileName, bTextFile);
 }
@@ -26,17 +26,17 @@ CMesh::~CMesh()
 	if (m_pd3dIndexBuffer) m_pd3dIndexBuffer->Release();
 }
 
-void CMesh::ReleaseUploadBuffers() 
+void CMesh::ReleaseUploadBuffers()
 {
 	if (m_pd3dPositionUploadBuffer) m_pd3dPositionUploadBuffer->Release();
 	if (m_pd3dNormalUploadBuffer) m_pd3dNormalUploadBuffer->Release();
 	if (m_pd3dTextureCoordUploadBuffer) m_pd3dTextureCoordUploadBuffer->Release();
 	if (m_pd3dIndexUploadBuffer) m_pd3dIndexUploadBuffer->Release();
 
-	m_pd3dPositionUploadBuffer = NULL;
-	m_pd3dNormalUploadBuffer = NULL;
-	m_pd3dTextureCoordUploadBuffer = NULL;
-	m_pd3dIndexUploadBuffer = NULL;
+	m_pd3dPositionUploadBuffer = nullptr;
+	m_pd3dNormalUploadBuffer = nullptr;
+	m_pd3dTextureCoordUploadBuffer = nullptr;
+	m_pd3dIndexUploadBuffer = nullptr;
 }
 
 BoundingOrientedBox CMesh::GetBoundingBox()
@@ -45,7 +45,7 @@ BoundingOrientedBox CMesh::GetBoundingBox()
 }
 ;
 
-void CMesh::Render(ID3D12GraphicsCommandList *pd3dCommandList)
+void CMesh::Render(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
 	pd3dCommandList->IASetVertexBuffers(m_nSlot, m_nVertexBufferViews, m_pd3dVertexBufferViews);
@@ -60,13 +60,13 @@ void CMesh::Render(ID3D12GraphicsCommandList *pd3dCommandList)
 	}
 }
 
-void CMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, char *pstrFileName, bool bTextFile)
+void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName, bool bTextFile)
 {
 	char pstrToken[64] = { '\0' };
 
 	if (bTextFile)
 	{
-		ifstream InFile(pstrFileName);
+		std::ifstream InFile(pstrFileName);
 
 		for (; ; )
 		{
@@ -101,7 +101,7 @@ void CMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList
 	}
 	else
 	{
-		FILE* pFile = NULL;
+		FILE* pFile = nullptr;
 		::fopen_s(&pFile, pstrFileName, "rb");
 		::rewind(pFile);
 
@@ -175,11 +175,11 @@ CHeightMapImage::CHeightMapImage(LPCTSTR pFileName, int nWidth, int nLength, XMF
 	m_xmf3Scale = xmf3Scale;
 
 	BYTE* pHeightMapPixels = new BYTE[m_nWidth * m_nLength];
-	//ÆÄÀÏÀ» ¿­°í ÀĞ´Â´Ù. ³ôÀÌ ¸Ê ÀÌ¹ÌÁö´Â ÆÄÀÏ Çì´õ°¡ ¾ø´Â RAW ÀÌ¹ÌÁöÀÌ´Ù. 
-	HANDLE hFile = ::CreateFile(pFileName, GENERIC_READ, 0, NULL, OPEN_EXISTING, 
-	FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_READONLY, NULL);
+	//íŒŒì¼ì„ ì—´ê³  ì½ëŠ”ë‹¤. ë†’ì´ ë§µ ì´ë¯¸ì§€ëŠ” íŒŒì¼ í—¤ë”ê°€ ì—†ëŠ” RAW ì´ë¯¸ì§€ì´ë‹¤. 
+	HANDLE hFile = ::CreateFile(pFileName, GENERIC_READ, 0, nullptr, OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_READONLY, nullptr);
 	DWORD dwBytesRead;
-	::ReadFile(hFile, pHeightMapPixels, (m_nWidth * m_nLength), &dwBytesRead, NULL);
+	::ReadFile(hFile, pHeightMapPixels, (m_nWidth * m_nLength), &dwBytesRead, nullptr);
 	::CloseHandle(hFile);
 
 	m_pHeightMapPixels = new BYTE[m_nWidth * m_nLength];
@@ -197,15 +197,15 @@ CHeightMapImage::CHeightMapImage(LPCTSTR pFileName, int nWidth, int nLength, XMF
 CHeightMapImage::~CHeightMapImage()
 {
 	if (m_pHeightMapPixels) delete[] m_pHeightMapPixels;
-	m_pHeightMapPixels = NULL;
+	m_pHeightMapPixels = nullptr;
 }
 
 float CHeightMapImage::GetHeight(float fx, float fz)
 {
-	/*ÁöÇüÀÇ ÁÂÇ¥ (fx, fz)´Â ÀÌ¹ÌÁö ÁÂÇ¥°èÀÌ´Ù. ³ôÀÌ ¸ÊÀÇ x-ÁÂÇ¥¿Í z-ÁÂÇ¥°¡ ³ôÀÌ ¸ÊÀÇ ¹üÀ§¸¦ ¹ş¾î³ª¸é ÁöÇüÀÇ ³ôÀÌ´Â
-0ÀÌ´Ù.*/
+	/*ì§€í˜•ì˜ ì¢Œí‘œ (fx, fz)ëŠ” ì´ë¯¸ì§€ ì¢Œí‘œê³„ì´ë‹¤. ë†’ì´ ë§µì˜ x-ì¢Œí‘œì™€ z-ì¢Œí‘œê°€ ë†’ì´ ë§µì˜ ë²”ìœ„ë¥¼ ë²—ì–´ë‚˜ë©´ ì§€í˜•ì˜ ë†’ì´ëŠ”
+0ì´ë‹¤.*/
 	if ((fx < 0.0f) || (fz < 0.0f) || (fx >= m_nWidth) || (fz >= m_nLength)) return(0.0f);
-	//³ôÀÌ ¸ÊÀÇ ÁÂÇ¥ÀÇ Á¤¼ö ºÎºĞ°ú ¼Ò¼ö ºÎºĞÀ» °è»êÇÑ´Ù. 
+	//ë†’ì´ ë§µì˜ ì¢Œí‘œì˜ ì •ìˆ˜ ë¶€ë¶„ê³¼ ì†Œìˆ˜ ë¶€ë¶„ì„ ê³„ì‚°í•œë‹¤. 
 	int x = (int)fx;
 	int z = (int)fz;
 	float fxPercent = fx - x;
@@ -216,7 +216,7 @@ float CHeightMapImage::GetHeight(float fx, float fz)
 	float fTopLeft = (float)m_pHeightMapPixels[x + ((z + 1) * m_nWidth)];
 	float fTopRight = (float)m_pHeightMapPixels[(x + 1) + ((z + 1) * m_nWidth)];
 #ifdef _WITH_APPROXIMATE_OPPOSITE_CORNER
-	//z-ÁÂÇ¥°¡ 1, 3, 5, ...ÀÎ °æ¿ì ÀÎµ¦½º°¡ ¿À¸¥ÂÊ¿¡¼­ ¿ŞÂÊÀ¸·Î ³ª¿­µÈ´Ù. 
+	//z-ì¢Œí‘œê°€ 1, 3, 5, ...ì¸ ê²½ìš° ì¸ë±ìŠ¤ê°€ ì˜¤ë¥¸ìª½ì—ì„œ ì™¼ìª½ìœ¼ë¡œ ë‚˜ì—´ëœë‹¤. 
 	bool bRightToLeft = ((z % 2) != 0);
 	if (bRightToLeft)
 	{
@@ -233,7 +233,7 @@ float CHeightMapImage::GetHeight(float fx, float fz)
 			fBottomLeft = fTopLeft + (fBottomRight - fTopRight);
 	}
 #endif
-	//»ç°¢ÇüÀÇ ³× Á¡À» º¸°£ÇÏ¿© ³ôÀÌ(ÇÈ¼¿ °ª)¸¦ °è»êÇÑ´Ù. 
+	//ì‚¬ê°í˜•ì˜ ë„¤ ì ì„ ë³´ê°„í•˜ì—¬ ë†’ì´(í”½ì…€ ê°’)ë¥¼ ê³„ì‚°í•œë‹¤. 
 	float fTopHeight = fTopLeft * (1 - fxPercent) + fTopRight * fxPercent;
 	float fBottomHeight = fBottomLeft * (1 - fxPercent) + fBottomRight * fxPercent;
 	float fHeight = fBottomHeight * (1 - fzPercent) + fTopHeight * fzPercent;
@@ -242,41 +242,41 @@ float CHeightMapImage::GetHeight(float fx, float fz)
 
 XMFLOAT3 CHeightMapImage::GetHeightMapNormal(int x, int z)
 {
-	//x-ÁÂÇ¥¿Í z-ÁÂÇ¥°¡ ³ôÀÌ ¸ÊÀÇ ¹üÀ§¸¦ ¹ş¾î³ª¸é ÁöÇüÀÇ ¹ı¼± º¤ÅÍ´Â y-Ãà ¹æÇâ º¤ÅÍÀÌ´Ù. 
-	if ((x < 0.0f) || (z < 0.0f) || (x >= m_nWidth) || (z >= m_nLength)) 
-	return(XMFLOAT3(0.0f, 1.0f, 0.0f));
+	//x-ì¢Œí‘œì™€ z-ì¢Œí‘œê°€ ë†’ì´ ë§µì˜ ë²”ìœ„ë¥¼ ë²—ì–´ë‚˜ë©´ ì§€í˜•ì˜ ë²•ì„  ë²¡í„°ëŠ” y-ì¶• ë°©í–¥ ë²¡í„°ì´ë‹¤. 
+	if ((x < 0.0f) || (z < 0.0f) || (x >= m_nWidth) || (z >= m_nLength))
+		return(XMFLOAT3(0.0f, 1.0f, 0.0f));
 
-	/*³ôÀÌ ¸Ê¿¡¼­ (x, z) ÁÂÇ¥ÀÇ ÇÈ¼¿ °ª°ú ÀÎÁ¢ÇÑ µÎ °³ÀÇ Á¡ (x+1, z), (z, z+1)¿¡ ´ëÇÑ ÇÈ¼¿ °ªÀ» »ç¿ëÇÏ¿© ¹ı¼± º¤ÅÍ¸¦
-	°è»êÇÑ´Ù.*/
+	/*ë†’ì´ ë§µì—ì„œ (x, z) ì¢Œí‘œì˜ í”½ì…€ ê°’ê³¼ ì¸ì ‘í•œ ë‘ ê°œì˜ ì  (x+1, z), (z, z+1)ì— ëŒ€í•œ í”½ì…€ ê°’ì„ ì‚¬ìš©í•˜ì—¬ ë²•ì„  ë²¡í„°ë¥¼
+	ê³„ì‚°í•œë‹¤.*/
 	int nHeightMapIndex = x + (z * m_nWidth);
 	int xHeightMapAdd = (x < (m_nWidth - 1)) ? 1 : -1;
 	int zHeightMapAdd = (z < (m_nLength - 1)) ? m_nWidth : -m_nWidth;
 
-	//(x, z), (x+1, z), (z, z+1)ÀÇ ÇÈ¼¿¿¡¼­ ÁöÇüÀÇ ³ôÀÌ¸¦ ±¸ÇÑ´Ù. 
+	//(x, z), (x+1, z), (z, z+1)ì˜ í”½ì…€ì—ì„œ ì§€í˜•ì˜ ë†’ì´ë¥¼ êµ¬í•œë‹¤. 
 	float y1 = (float)m_pHeightMapPixels[nHeightMapIndex] * m_xmf3Scale.y;
 	float y2 = (float)m_pHeightMapPixels[nHeightMapIndex + xHeightMapAdd] * m_xmf3Scale.y;
 	float y3 = (float)m_pHeightMapPixels[nHeightMapIndex + zHeightMapAdd] * m_xmf3Scale.y;
 
-	//xmf3Edge1Àº (0, y3, m_xmf3Scale.z) - (0, y1, 0) º¤ÅÍÀÌ´Ù. 
+	//xmf3Edge1ì€ (0, y3, m_xmf3Scale.z) - (0, y1, 0) ë²¡í„°ì´ë‹¤. 
 	XMFLOAT3 xmf3Edge1 = XMFLOAT3(0.0f, y3 - y1, m_xmf3Scale.z);
 
-	//xmf3Edge2´Â (m_xmf3Scale.x, y2, 0) - (0, y1, 0) º¤ÅÍÀÌ´Ù. 
+	//xmf3Edge2ëŠ” (m_xmf3Scale.x, y2, 0) - (0, y1, 0) ë²¡í„°ì´ë‹¤. 
 	XMFLOAT3 xmf3Edge2 = XMFLOAT3(m_xmf3Scale.x, y2 - y1, 0.0f);
 
-	//¹ı¼± º¤ÅÍ´Â xmf3Edge1°ú xmf3Edge2ÀÇ ¿ÜÀûÀ» Á¤±ÔÈ­ÇÏ¸é µÈ´Ù. 
+	//ë²•ì„  ë²¡í„°ëŠ” xmf3Edge1ê³¼ xmf3Edge2ì˜ ì™¸ì ì„ ì •ê·œí™”í•˜ë©´ ëœë‹¤. 
 	XMFLOAT3 xmf3Normal = Vector3::CrossProduct(xmf3Edge1, xmf3Edge2, true);
 
 	return(xmf3Normal);
 }
 
-CHeightMapGridMesh::CHeightMapGridMesh(ID3D12Device* pd3dDevice, 
-	ID3D12GraphicsCommandList* pd3dCommandList, int xStart, int zStart, int nWidth, int nLength, 
+CHeightMapGridMesh::CHeightMapGridMesh(ID3D12Device* pd3dDevice,
+	ID3D12GraphicsCommandList* pd3dCommandList, int xStart, int zStart, int nWidth, int nLength,
 	XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color, void* pContext) : CMesh(pd3dDevice, pd3dCommandList)
 {
-	//°İÀÚÀÇ ±³Á¡(Á¤Á¡)ÀÇ °³¼ö´Â (nWidth * nLength)ÀÌ´Ù. 
-	m_nVertices = nWidth * nLength;m_nStride = sizeof(CDiffusedVertex);
+	//ê²©ìì˜ êµì (ì •ì )ì˜ ê°œìˆ˜ëŠ” (nWidth * nLength)ì´ë‹¤. 
+	m_nVertices = nWidth * nLength; m_nStride = sizeof(CDiffusedVertex);
 
-//°İÀÚ´Â »ï°¢Çü ½ºÆ®¸³À¸·Î ±¸¼ºÇÑ´Ù. 
+	//ê²©ìëŠ” ì‚¼ê°í˜• ìŠ¤íŠ¸ë¦½ìœ¼ë¡œ êµ¬ì„±í•œë‹¤. 
 	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
 
 	m_nWidth = nWidth;
@@ -284,16 +284,16 @@ CHeightMapGridMesh::CHeightMapGridMesh(ID3D12Device* pd3dDevice,
 	m_xmf3Scale = xmf3Scale;
 
 	CDiffusedVertex* pVertices = new CDiffusedVertex[m_nVertices];
-	/*xStart¿Í zStart´Â °İÀÚÀÇ ½ÃÀÛ À§Ä¡(x-ÁÂÇ¥¿Í z-ÁÂÇ¥)¸¦ ³ªÅ¸³½´Ù. Ä¿´Ù¶õ ÁöÇüÀº °İÀÚµéÀÇ ÀÌÂ÷¿ø ¹è¿­·Î ¸¸µé ÇÊ
-	¿ä°¡ ÀÖ±â ¶§¹®¿¡ ÀüÃ¼ ÁöÇü¿¡¼­ °¢ °İÀÚÀÇ ½ÃÀÛ À§Ä¡¸¦ ³ªÅ¸³»´Â Á¤º¸°¡ ÇÊ¿äÇÏ´Ù.*/
+	/*xStartì™€ zStartëŠ” ê²©ìì˜ ì‹œì‘ ìœ„ì¹˜(x-ì¢Œí‘œì™€ z-ì¢Œí‘œ)ë¥¼ ë‚˜íƒ€ë‚¸ë‹¤. ì»¤ë‹¤ë€ ì§€í˜•ì€ ê²©ìë“¤ì˜ ì´ì°¨ì› ë°°ì—´ë¡œ ë§Œë“¤ í•„
+	ìš”ê°€ ìˆê¸° ë•Œë¬¸ì— ì „ì²´ ì§€í˜•ì—ì„œ ê° ê²©ìì˜ ì‹œì‘ ìœ„ì¹˜ë¥¼ ë‚˜íƒ€ë‚´ëŠ” ì •ë³´ê°€ í•„ìš”í•˜ë‹¤.*/
 	float fHeight = 0.0f, fMinHeight = +FLT_MAX, fMaxHeight = -FLT_MAX;
 	for (int i = 0, z = zStart; z < (zStart + nLength); z++)
 	{
 		for (int x = xStart; x < (xStart + nWidth); x++, i++)
 		{
-			//Á¤Á¡ÀÇ ³ôÀÌ¿Í »ö»óÀ» ³ôÀÌ ¸ÊÀ¸·ÎºÎÅÍ ±¸ÇÑ´Ù. 
-			XMFLOAT3 xmf3Position = XMFLOAT3((x*m_xmf3Scale.x), OnGetHeight(x, z, pContext), 
-			(z * m_xmf3Scale.z));
+			//ì •ì ì˜ ë†’ì´ì™€ ìƒ‰ìƒì„ ë†’ì´ ë§µìœ¼ë¡œë¶€í„° êµ¬í•œë‹¤. 
+			XMFLOAT3 xmf3Position = XMFLOAT3((x * m_xmf3Scale.x), OnGetHeight(x, z, pContext),
+				(z * m_xmf3Scale.z));
 			XMFLOAT4 xmf3Color = Vector4::Add(OnGetColor(x, z, pContext), xmf4Color);
 			pVertices[i] = CDiffusedVertex(xmf3Position, xmf3Color);
 			if (fHeight < fMinHeight) fMinHeight = fHeight;
@@ -319,25 +319,25 @@ CHeightMapGridMesh::CHeightMapGridMesh(ID3D12Device* pd3dDevice,
 	{
 		if ((z % 2) == 0)
 		{
-			//È¦¼ö ¹øÂ° ÁÙÀÌ¹Ç·Î(z = 0, 2, 4, ...) ÀÎµ¦½ºÀÇ ³ª¿­ ¼ø¼­´Â ¿ŞÂÊ¿¡¼­ ¿À¸¥ÂÊ ¹æÇâÀÌ´Ù. 
+			//í™€ìˆ˜ ë²ˆì§¸ ì¤„ì´ë¯€ë¡œ(z = 0, 2, 4, ...) ì¸ë±ìŠ¤ì˜ ë‚˜ì—´ ìˆœì„œëŠ” ì™¼ìª½ì—ì„œ ì˜¤ë¥¸ìª½ ë°©í–¥ì´ë‹¤. 
 			for (int x = 0; x < nWidth; x++)
 			{
-				//Ã¹ ¹øÂ° ÁÙÀ» Á¦¿ÜÇÏ°í ÁÙÀÌ ¹Ù²ğ ¶§¸¶´Ù(x == 0) Ã¹ ¹øÂ° ÀÎµ¦½º¸¦ Ãß°¡ÇÑ´Ù. 
+				//ì²« ë²ˆì§¸ ì¤„ì„ ì œì™¸í•˜ê³  ì¤„ì´ ë°”ë€” ë•Œë§ˆë‹¤(x == 0) ì²« ë²ˆì§¸ ì¸ë±ìŠ¤ë¥¼ ì¶”ê°€í•œë‹¤. 
 				if ((x == 0) && (z > 0)) pnIndices[j++] = (UINT)(x + (z * nWidth));
-				//¾Æ·¡(x, z), À§(x, z+1)ÀÇ ¼ø¼­·Î ÀÎµ¦½º¸¦ Ãß°¡ÇÑ´Ù. 
+				//ì•„ë˜(x, z), ìœ„(x, z+1)ì˜ ìˆœì„œë¡œ ì¸ë±ìŠ¤ë¥¼ ì¶”ê°€í•œë‹¤. 
 				pnIndices[j++] = (UINT)(x + (z * nWidth));
 				pnIndices[j++] = (UINT)((x + (z * nWidth)) + nWidth);
 			}
 		}
 		else
 		{
-			//Â¦¼ö ¹øÂ° ÁÙÀÌ¹Ç·Î(z = 1, 3, 5, ...) ÀÎµ¦½ºÀÇ ³ª¿­ ¼ø¼­´Â ¿À¸¥ÂÊ¿¡¼­ ¿ŞÂÊ ¹æÇâÀÌ´Ù. 
+			//ì§ìˆ˜ ë²ˆì§¸ ì¤„ì´ë¯€ë¡œ(z = 1, 3, 5, ...) ì¸ë±ìŠ¤ì˜ ë‚˜ì—´ ìˆœì„œëŠ” ì˜¤ë¥¸ìª½ì—ì„œ ì™¼ìª½ ë°©í–¥ì´ë‹¤. 
 			for (int x = nWidth - 1; x >= 0; x--)
 			{
-				//ÁÙÀÌ ¹Ù²ğ ¶§¸¶´Ù(x == (nWidth-1)) Ã¹ ¹øÂ° ÀÎµ¦½º¸¦ Ãß°¡ÇÑ´Ù. 
+				//ì¤„ì´ ë°”ë€” ë•Œë§ˆë‹¤(x == (nWidth-1)) ì²« ë²ˆì§¸ ì¸ë±ìŠ¤ë¥¼ ì¶”ê°€í•œë‹¤. 
 				if (x == (nWidth - 1)) pnIndices[j++] = (UINT)(x + (z * nWidth));
 
-				//¾Æ·¡(x, z), À§(x, z+1)ÀÇ ¼ø¼­·Î ÀÎµ¦½º¸¦ Ãß°¡ÇÑ´Ù. 
+				//ì•„ë˜(x, z), ìœ„(x, z+1)ì˜ ìˆœì„œë¡œ ì¸ë±ìŠ¤ë¥¼ ì¶”ê°€í•œë‹¤. 
 				pnIndices[j++] = (UINT)(x + (z * nWidth));
 				pnIndices[j++] = (UINT)((x + (z * nWidth)) + nWidth);
 			}
@@ -364,23 +364,23 @@ float CHeightMapGridMesh::OnGetHeight(int x, int z, void* pContext)
 	CHeightMapImage* pHeightMapImage = (CHeightMapImage*)pContext;
 	BYTE* pHeightMapPixels = pHeightMapImage->GetHeightMapPixels();
 	XMFLOAT3 xmf3Scale = pHeightMapImage->GetScale();
-	int nWidth = pHeightMapImage->GetHeightMapWidth(); 
+	int nWidth = pHeightMapImage->GetHeightMapWidth();
 	float fHeight = pHeightMapPixels[x + (z * nWidth)] * xmf3Scale.y;
 	return(fHeight);
 }
 
 XMFLOAT4 CHeightMapGridMesh::OnGetColor(int x, int z, void* pContext)
 {
-	//Á¶¸íÀÇ ¹æÇâ º¤ÅÍ(Á¤Á¡¿¡¼­ Á¶¸í±îÁöÀÇ º¤ÅÍ)ÀÌ´Ù. 
+	//ì¡°ëª…ì˜ ë°©í–¥ ë²¡í„°(ì •ì ì—ì„œ ì¡°ëª…ê¹Œì§€ì˜ ë²¡í„°)ì´ë‹¤. 
 	XMFLOAT3 xmf3LightDirection = XMFLOAT3(-1.0f, 1.0f, 1.0f);
 	xmf3LightDirection = Vector3::Normalize(xmf3LightDirection);
 	CHeightMapImage* pHeightMapImage = (CHeightMapImage*)pContext;
 	XMFLOAT3 xmf3Scale = pHeightMapImage->GetScale();
-	//Á¶¸íÀÇ »ö»ó(¼¼±â, ¹à±â)ÀÌ´Ù. 
+	//ì¡°ëª…ì˜ ìƒ‰ìƒ(ì„¸ê¸°, ë°ê¸°)ì´ë‹¤. 
 	XMFLOAT4 xmf4IncidentLightColor(0.9f, 0.8f, 0.4f, 1.0f);
-	/*Á¤Á¡ (x, z)¿¡¼­ Á¶¸íÀÌ ¹İ»çµÇ´Â ¾ç(ºñÀ²)Àº Á¤Á¡ (x, z)ÀÇ ¹ı¼± º¤ÅÍ¿Í Á¶¸íÀÇ ¹æÇâ º¤ÅÍÀÇ ³»Àû(cos)°ú ÀÎÁ¢ÇÑ 3°³
-	ÀÇ Á¤Á¡ (x+1, z), (x, z+1), (x+1, z+1)ÀÇ ¹ı¼± º¤ÅÍ¿Í Á¶¸íÀÇ ¹æÇâ º¤ÅÍÀÇ ³»ÀûÀ» Æò±ÕÇÏ¿© ±¸ÇÑ´Ù. Á¤Á¡ (x, z)ÀÇ »ö
-	»óÀº Á¶¸í »ö»ó(¼¼±â)°ú ¹İ»çµÇ´Â ¾ç(ºñÀ²)À» °öÇÑ °ªÀÌ´Ù.*/
+	/*ì •ì  (x, z)ì—ì„œ ì¡°ëª…ì´ ë°˜ì‚¬ë˜ëŠ” ì–‘(ë¹„ìœ¨)ì€ ì •ì  (x, z)ì˜ ë²•ì„  ë²¡í„°ì™€ ì¡°ëª…ì˜ ë°©í–¥ ë²¡í„°ì˜ ë‚´ì (cos)ê³¼ ì¸ì ‘í•œ 3ê°œ
+	ì˜ ì •ì  (x+1, z), (x, z+1), (x+1, z+1)ì˜ ë²•ì„  ë²¡í„°ì™€ ì¡°ëª…ì˜ ë°©í–¥ ë²¡í„°ì˜ ë‚´ì ì„ í‰ê· í•˜ì—¬ êµ¬í•œë‹¤. ì •ì  (x, z)ì˜ ìƒ‰
+	ìƒì€ ì¡°ëª… ìƒ‰ìƒ(ì„¸ê¸°)ê³¼ ë°˜ì‚¬ë˜ëŠ” ì–‘(ë¹„ìœ¨)ì„ ê³±í•œ ê°’ì´ë‹¤.*/
 	float fScale = Vector3::DotProduct(pHeightMapImage->GetHeightMapNormal(x, z),
 		xmf3LightDirection);
 	fScale += Vector3::DotProduct(pHeightMapImage->GetHeightMapNormal(x + 1, z),
@@ -392,7 +392,7 @@ XMFLOAT4 CHeightMapGridMesh::OnGetColor(int x, int z, void* pContext)
 	fScale = (fScale / 4.0f) + 0.05f;
 	if (fScale > 1.0f) fScale = 1.0f;
 	if (fScale < 0.25f) fScale = 0.25f;
-	//fScaleÀº Á¶¸í »ö»ó(¹à±â)ÀÌ ¹İ»çµÇ´Â ºñÀ²ÀÌ´Ù. 
+	//fScaleì€ ì¡°ëª… ìƒ‰ìƒ(ë°ê¸°)ì´ ë°˜ì‚¬ë˜ëŠ” ë¹„ìœ¨ì´ë‹¤. 
 	XMFLOAT4 xmf4Color = Vector4::Multiply(fScale, xmf4IncidentLightColor);
 	return(xmf4Color);
 }

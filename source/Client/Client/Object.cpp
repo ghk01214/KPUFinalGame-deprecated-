@@ -1,8 +1,8 @@
-//-----------------------------------------------------------------------------
+ï»¿//-----------------------------------------------------------------------------
 // File: CGameObject.cpp
 //-----------------------------------------------------------------------------
 
-#include "stdafx.h"
+#include "pch.h"
 #include "Object.h"
 #include "Shader.h"
 
@@ -10,11 +10,11 @@ CGameObject::CGameObject(int nMeshes)
 {
 	m_xmf4x4World = Matrix4x4::Identity();
 	m_nMeshes = nMeshes;
-	m_ppMeshes = NULL;
+	m_ppMeshes = nullptr;
 	if (m_nMeshes > 0)
 	{
 		m_ppMeshes = new CMesh * [m_nMeshes];
-		for (int i = 0; i < m_nMeshes; i++) m_ppMeshes[i] = NULL;
+		for (int i = 0; i < m_nMeshes; i++) m_ppMeshes[i] = nullptr;
 	}
 }
 
@@ -24,7 +24,7 @@ CGameObject::~CGameObject()
 		for (int i = 0; i < m_nMeshes; i++)
 		{
 			if (m_ppMeshes[i]) m_ppMeshes[i]->Release();
-			m_ppMeshes[i] = NULL;
+			m_ppMeshes[i] = nullptr;
 		}
 		delete[] m_ppMeshes;
 	}
@@ -223,52 +223,52 @@ CUfoObject::~CUfoObject()
 
 void CUfoObject::Animate(float fTimeElapsed)
 {
-	if (type == 1) //¿ì»ó
+	if (type == 1) //ìš°ìƒ
 	{
-		CGameObject::MoveForward(m_fMovingSpeed+ m_ObjectsAcceleration);  // ¼¼·Î
-		CGameObject::MoveStrafe(m_fMovingSpeed+ m_ObjectsAcceleration);   // °¡·Î
+		CGameObject::MoveForward(m_fMovingSpeed + m_ObjectsAcceleration);  // ì„¸ë¡œ
+		CGameObject::MoveStrafe(m_fMovingSpeed + m_ObjectsAcceleration);   // ê°€ë¡œ
 		m_ObjectsAcceleration += (fTimeElapsed * 0.1f);
 	}
-	else if (type == 2) //ÁÂ»ó
+	else if (type == 2) //ì¢Œìƒ
 	{
-		CGameObject::MoveForward(m_fMovingSpeed+m_ObjectsAcceleration);  // ¼¼·Î
-		CGameObject::MoveStrafe(-(m_fMovingSpeed+ m_ObjectsAcceleration));   // °¡·Î 
+		CGameObject::MoveForward(m_fMovingSpeed + m_ObjectsAcceleration);  // ì„¸ë¡œ
+		CGameObject::MoveStrafe(-(m_fMovingSpeed + m_ObjectsAcceleration));   // ê°€ë¡œ 
 		m_ObjectsAcceleration += (fTimeElapsed * 0.1f);
 	}
-	else if (type == 3) //ÁÂÇÏ
+	else if (type == 3) //ì¢Œí•˜
 	{
-		CGameObject::MoveForward(-(m_fMovingSpeed+ m_ObjectsAcceleration));  // ¼¼·Î
-		CGameObject::MoveStrafe(-(m_fMovingSpeed+ m_ObjectsAcceleration));   // °¡·Î 
+		CGameObject::MoveForward(-(m_fMovingSpeed + m_ObjectsAcceleration));  // ì„¸ë¡œ
+		CGameObject::MoveStrafe(-(m_fMovingSpeed + m_ObjectsAcceleration));   // ê°€ë¡œ 
 		m_ObjectsAcceleration += (fTimeElapsed * 0.1f);
 	}
-	else if (type == 4) //¿ìÇÏ
+	else if (type == 4) //ìš°í•˜
 	{
-		CGameObject::MoveForward(-(m_fMovingSpeed+ m_ObjectsAcceleration));  // ¼¼·Î
-		CGameObject::MoveStrafe(m_fMovingSpeed+ m_ObjectsAcceleration);   // °¡·Î 
+		CGameObject::MoveForward(-(m_fMovingSpeed + m_ObjectsAcceleration));  // ì„¸ë¡œ
+		CGameObject::MoveStrafe(m_fMovingSpeed + m_ObjectsAcceleration);   // ê°€ë¡œ 
 		m_ObjectsAcceleration += (fTimeElapsed * 0.1f);
 	}
 	else if (type == 5)
 	{
-		CGameObject::MoveForward(m_fMovingSpeed+ m_ObjectsAcceleration);  // ¼¼·Î
+		CGameObject::MoveForward(m_fMovingSpeed + m_ObjectsAcceleration);  // ì„¸ë¡œ
 		m_ObjectsAcceleration += (fTimeElapsed * 0.1f);
 	}
 
 	else if (type == 6)
 	{
 
-		CGameObject::MoveStrafe(-(m_fMovingSpeed+ m_ObjectsAcceleration));   // °¡·Î 
+		CGameObject::MoveStrafe(-(m_fMovingSpeed + m_ObjectsAcceleration));   // ê°€ë¡œ 
 		m_ObjectsAcceleration += (fTimeElapsed * 0.1f);
 	}
 
 	else if (type == 7)
 	{
-		CGameObject::MoveForward(-(m_fMovingSpeed+ m_ObjectsAcceleration));  // ¼¼·Î
+		CGameObject::MoveForward(-(m_fMovingSpeed + m_ObjectsAcceleration));  // ì„¸ë¡œ
 		m_ObjectsAcceleration += (fTimeElapsed * 0.1f);
 	}
 
 	else if (type == 8)
 	{
-		CGameObject::MoveStrafe(m_fMovingSpeed+ m_ObjectsAcceleration);   // °¡·Î
+		CGameObject::MoveStrafe(m_fMovingSpeed + m_ObjectsAcceleration);   // ê°€ë¡œ
 		m_ObjectsAcceleration += (fTimeElapsed * 0.25f);
 	}
 	CGameObject::Animate(fTimeElapsed);
@@ -279,47 +279,47 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	nWidth, int nLength, int nBlockWidth, int nBlockLength, XMFLOAT3 xmf3Scale, XMFLOAT4
 	xmf4Color) : CGameObject(0)
 {
-	//ÁöÇü¿¡ »ç¿ëÇÒ ³ôÀÌ ¸ÊÀÇ °¡·Î, ¼¼·ÎÀÇ Å©±âÀÌ´Ù. 
+	//ì§€í˜•ì— ì‚¬ìš©í•  ë†’ì´ ë§µì˜ ê°€ë¡œ, ì„¸ë¡œì˜ í¬ê¸°ì´ë‹¤. 
 	m_nWidth = nWidth;
 	m_nLength = nLength;
 
-	/*ÁöÇü °´Ã¼´Â °İÀÚ ¸Ş½¬µéÀÇ ¹è¿­·Î ¸¸µé °ÍÀÌ´Ù. nBlockWidth, nBlockLength´Â °İÀÚ ¸Ş½¬ ÇÏ³ªÀÇ °¡·Î, ¼¼·Î Å©
-	±âÀÌ´Ù. cxQuadsPerBlock, czQuadsPerBlockÀº °İÀÚ ¸Ş½¬ÀÇ °¡·Î ¹æÇâ°ú ¼¼·Î ¹æÇâ »ç°¢ÇüÀÇ °³¼öÀÌ´Ù.*/
+	/*ì§€í˜• ê°ì²´ëŠ” ê²©ì ë©”ì‰¬ë“¤ì˜ ë°°ì—´ë¡œ ë§Œë“¤ ê²ƒì´ë‹¤. nBlockWidth, nBlockLengthëŠ” ê²©ì ë©”ì‰¬ í•˜ë‚˜ì˜ ê°€ë¡œ, ì„¸ë¡œ í¬
+	ê¸°ì´ë‹¤. cxQuadsPerBlock, czQuadsPerBlockì€ ê²©ì ë©”ì‰¬ì˜ ê°€ë¡œ ë°©í–¥ê³¼ ì„¸ë¡œ ë°©í–¥ ì‚¬ê°í˜•ì˜ ê°œìˆ˜ì´ë‹¤.*/
 	int cxQuadsPerBlock = nBlockWidth - 1;
 	int czQuadsPerBlock = nBlockLength - 1;
 
-	//xmf3Scale´Â ÁöÇüÀ» ½ÇÁ¦·Î ¸î ¹è È®´ëÇÒ °ÍÀÎ°¡¸¦ ³ªÅ¸³½´Ù. 
+	//xmf3ScaleëŠ” ì§€í˜•ì„ ì‹¤ì œë¡œ ëª‡ ë°° í™•ëŒ€í•  ê²ƒì¸ê°€ë¥¼ ë‚˜íƒ€ë‚¸ë‹¤. 
 	m_xmf3Scale = xmf3Scale;
 
-	//ÁöÇü¿¡ »ç¿ëÇÒ ³ôÀÌ ¸ÊÀ» »ı¼ºÇÑ´Ù. 
+	//ì§€í˜•ì— ì‚¬ìš©í•  ë†’ì´ ë§µì„ ìƒì„±í•œë‹¤. 
 	m_pHeightMapImage = new CHeightMapImage(pFileName, nWidth, nLength, xmf3Scale);
 
-	//ÁöÇü¿¡¼­ °¡·Î ¹æÇâ, ¼¼·Î ¹æÇâÀ¸·Î °İÀÚ ¸Ş½¬°¡ ¸î °³°¡ ÀÖ´Â °¡¸¦ ³ªÅ¸³½´Ù. 
+	//ì§€í˜•ì—ì„œ ê°€ë¡œ ë°©í–¥, ì„¸ë¡œ ë°©í–¥ìœ¼ë¡œ ê²©ì ë©”ì‰¬ê°€ ëª‡ ê°œê°€ ìˆëŠ” ê°€ë¥¼ ë‚˜íƒ€ë‚¸ë‹¤. 
 	long cxBlocks = (m_nWidth - 1) / cxQuadsPerBlock;
 	long czBlocks = (m_nLength - 1) / czQuadsPerBlock;
 
-	//ÁöÇü ÀüÃ¼¸¦ Ç¥ÇöÇÏ±â À§ÇÑ °İÀÚ ¸Ş½¬ÀÇ °³¼öÀÌ´Ù. 
+	//ì§€í˜• ì „ì²´ë¥¼ í‘œí˜„í•˜ê¸° ìœ„í•œ ê²©ì ë©”ì‰¬ì˜ ê°œìˆ˜ì´ë‹¤. 
 	m_nMeshes = cxBlocks * czBlocks;
 
-	//ÁöÇü ÀüÃ¼¸¦ Ç¥ÇöÇÏ±â À§ÇÑ °İÀÚ ¸Ş½¬¿¡ ´ëÇÑ Æ÷ÀÎÅÍ ¹è¿­À» »ı¼ºÇÑ´Ù. 
+	//ì§€í˜• ì „ì²´ë¥¼ í‘œí˜„í•˜ê¸° ìœ„í•œ ê²©ì ë©”ì‰¬ì— ëŒ€í•œ í¬ì¸í„° ë°°ì—´ì„ ìƒì„±í•œë‹¤. 
 	m_ppMeshes = new CMesh * [m_nMeshes];
-	for (int i = 0; i < m_nMeshes; i++)m_ppMeshes[i] = NULL;
+	for (int i = 0; i < m_nMeshes; i++)m_ppMeshes[i] = nullptr;
 
-	CHeightMapGridMesh* pHeightMapGridMesh = NULL;
+	CHeightMapGridMesh* pHeightMapGridMesh = nullptr;
 	for (int z = 0, zStart = 0; z < czBlocks; z++)
 	{
 		for (int x = 0, xStart = 0; x < cxBlocks; x++)
 		{
-			//ÁöÇüÀÇ ÀÏºÎºĞÀ» ³ªÅ¸³»´Â °İÀÚ ¸Ş½¬ÀÇ ½ÃÀÛ À§Ä¡(ÁÂÇ¥)ÀÌ´Ù. 
+			//ì§€í˜•ì˜ ì¼ë¶€ë¶„ì„ ë‚˜íƒ€ë‚´ëŠ” ê²©ì ë©”ì‰¬ì˜ ì‹œì‘ ìœ„ì¹˜(ì¢Œí‘œ)ì´ë‹¤. 
 			xStart = x * (nBlockWidth - 1);
 			zStart = z * (nBlockLength - 1);
-			//ÁöÇüÀÇ ÀÏºÎºĞÀ» ³ªÅ¸³»´Â °İÀÚ ¸Ş½¬¸¦ »ı¼ºÇÏ¿© ÁöÇü ¸Ş½¬¿¡ ÀúÀåÇÑ´Ù. 
+			//ì§€í˜•ì˜ ì¼ë¶€ë¶„ì„ ë‚˜íƒ€ë‚´ëŠ” ê²©ì ë©”ì‰¬ë¥¼ ìƒì„±í•˜ì—¬ ì§€í˜• ë©”ì‰¬ì— ì €ì¥í•œë‹¤. 
 			pHeightMapGridMesh = new CHeightMapGridMesh(pd3dDevice, pd3dCommandList, xStart,
 				zStart, nBlockWidth, nBlockLength, xmf3Scale, xmf4Color, m_pHeightMapImage);
 			SetMesh(x + (z * cxBlocks), pHeightMapGridMesh);
 		}
 	}
-	//ÁöÇüÀ» ·»´õ¸µÇÏ±â À§ÇÑ ¼ÎÀÌ´õ¸¦ »ı¼ºÇÑ´Ù. 
+	//ì§€í˜•ì„ ë Œë”ë§í•˜ê¸° ìœ„í•œ ì…°ì´ë”ë¥¼ ìƒì„±í•œë‹¤. 
 	//CPseudoLightingShader* pShader = new CPseudoLightingShader();
 	CTerrainShader* pShader = new CTerrainShader();
 	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);

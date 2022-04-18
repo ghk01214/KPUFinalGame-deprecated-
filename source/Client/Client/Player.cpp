@@ -1,8 +1,8 @@
-//-----------------------------------------------------------------------------
+ï»¿//-----------------------------------------------------------------------------
 // File: CPlayer.cpp
 //-----------------------------------------------------------------------------
 
-#include "stdafx.h"
+#include "pch.h"
 #include "Player.h"
 #include "Shader.h"
 
@@ -11,7 +11,7 @@
 
 CPlayer::CPlayer(int nMeshes) : CGameObject(nMeshes)
 {
-	m_pCamera = NULL;
+	m_pCamera = nullptr;
 
 	m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
@@ -28,8 +28,8 @@ CPlayer::CPlayer(int nMeshes) : CGameObject(nMeshes)
 	m_fRoll = 0.0f;
 	m_fYaw = 0.0f;
 
-	m_pPlayerUpdatedContext = NULL;
-	m_pCameraUpdatedContext = NULL;
+	m_pPlayerUpdatedContext = nullptr;
+	m_pCameraUpdatedContext = nullptr;
 }
 
 CPlayer::~CPlayer()
@@ -39,14 +39,14 @@ CPlayer::~CPlayer()
 	if (m_pCamera) delete m_pCamera;
 }
 
-void CPlayer::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+void CPlayer::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	if (m_pCamera) m_pCamera->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	CGameObject::CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
-void CPlayer::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
+void CPlayer::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	if (m_pCamera) m_pCamera->UpdateShaderVariables(pd3dCommandList);
 
@@ -166,7 +166,7 @@ void CPlayer::Update(float fTimeElapsed)
 
 	if (m_pPlayerUpdatedContext) {
 		UpdateBoundingBox();
-		OnPlayerUpdateCallback(fTimeElapsed); 
+		OnPlayerUpdateCallback(fTimeElapsed);
 	}
 
 	DWORD nCurrentCameraMode = m_pCamera->GetMode();
@@ -181,20 +181,20 @@ void CPlayer::Update(float fTimeElapsed)
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 }
 
-CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
+CCamera* CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 {
-	CCamera *pNewCamera = NULL;
+	CCamera* pNewCamera = nullptr;
 	switch (nNewCameraMode)
 	{
-		case FIRST_PERSON_CAMERA:
-			pNewCamera = new CFirstPersonCamera(m_pCamera);
-			break;
-		case THIRD_PERSON_CAMERA:
-			pNewCamera = new CThirdPersonCamera(m_pCamera);
-			break;
-		case SPACESHIP_CAMERA:
-			pNewCamera = new CSpaceShipCamera(m_pCamera);
-			break;
+	case FIRST_PERSON_CAMERA:
+		pNewCamera = new CFirstPersonCamera(m_pCamera);
+		break;
+	case THIRD_PERSON_CAMERA:
+		pNewCamera = new CThirdPersonCamera(m_pCamera);
+		break;
+	case SPACESHIP_CAMERA:
+		pNewCamera = new CSpaceShipCamera(m_pCamera);
+		break;
 	}
 	if (nCurrentCameraMode == SPACESHIP_CAMERA)
 	{
@@ -232,17 +232,17 @@ void CPlayer::OnPrepareRender()
 	m_xmf4x4World._41 = m_xmf3Position.x; m_xmf4x4World._42 = m_xmf3Position.y; m_xmf4x4World._43 = m_xmf3Position.z;
 }
 
-void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
 	if (nCameraMode == THIRD_PERSON_CAMERA) CGameObject::Render(pd3dCommandList, pCamera);
 }
 
-CAirplanePlayer::CAirplanePlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, 
-	ID3D12RootSignature *pd3dGraphicsRootSignature, int nMeshes):CPlayer(nMeshes)
+CAirplanePlayer::CAirplanePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
+	ID3D12RootSignature* pd3dGraphicsRootSignature, int nMeshes) :CPlayer(nMeshes)
 {
-	CMesh *pAirplaneMesh = new CMesh(pd3dDevice, pd3dCommandList, "Models/FlyerPlayership.bin", false);
-//	CMesh *pAirplaneMesh = new CMesh(pd3dDevice, pd3dCommandList, "Models/FlyerPlayership.txt", true);
+	CMesh* pAirplaneMesh = new CMesh(pd3dDevice, pd3dCommandList, "Models/FlyerPlayership.bin", false);
+	//	CMesh *pAirplaneMesh = new CMesh(pd3dDevice, pd3dCommandList, "Models/FlyerPlayership.txt", true);
 
 	SetMesh(0, pAirplaneMesh);
 
@@ -253,7 +253,7 @@ CAirplanePlayer::CAirplanePlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	CPseudoLightingShader *pShader = new CPseudoLightingShader();
+	CPseudoLightingShader* pShader = new CPseudoLightingShader();
 	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
 	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
@@ -269,7 +269,7 @@ void CAirplanePlayer::OnPrepareRender()
 	CPlayer::OnPrepareRender();
 }
 
-CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
+CCamera* CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 {
 	DWORD nCurrentCameraMode = (m_pCamera) ? m_pCamera->GetMode() : 0x00;
 	if (nCurrentCameraMode == nNewCameraMode) return(m_pCamera);
@@ -328,18 +328,18 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
 	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)pContext;
-	/*ÇÃ·¹ÀÌ¾îÀÇ À§Ä¡¸¦ ÁöÇüÀÇ °¡¿îµ¥(y-Ãà ÁÂÇ¥´Â ÁöÇüÀÇ ³ôÀÌº¸´Ù 1500 ³ô°Ô)·Î ¼³Á¤ÇÑ´Ù. ÇÃ·¹ÀÌ¾î À§Ä¡ º¤ÅÍÀÇ y-
-	ÁÂÇ¥°¡ ÁöÇüÀÇ ³ôÀÌº¸´Ù Å©°í Áß·ÂÀÌ ÀÛ¿ëÇÏµµ·Ï ÇÃ·¹ÀÌ¾î¸¦ ¼³Á¤ÇÏ¿´À¸¹Ç·Î ÇÃ·¹ÀÌ¾î´Â Á¡Â÷ÀûÀ¸·Î ÇÏ°­ÇÏ°Ô µÈ´Ù.*/
+	/*í”Œë ˆì´ì–´ì˜ ìœ„ì¹˜ë¥¼ ì§€í˜•ì˜ ê°€ìš´ë°(y-ì¶• ì¢Œí‘œëŠ” ì§€í˜•ì˜ ë†’ì´ë³´ë‹¤ 1500 ë†’ê²Œ)ë¡œ ì„¤ì •í•œë‹¤. í”Œë ˆì´ì–´ ìœ„ì¹˜ ë²¡í„°ì˜ y-
+	ì¢Œí‘œê°€ ì§€í˜•ì˜ ë†’ì´ë³´ë‹¤ í¬ê³  ì¤‘ë ¥ì´ ìž‘ìš©í•˜ë„ë¡ í”Œë ˆì´ì–´ë¥¼ ì„¤ì •í•˜ì˜€ìœ¼ë¯€ë¡œ í”Œë ˆì´ì–´ëŠ” ì ì°¨ì ìœ¼ë¡œ í•˜ê°•í•˜ê²Œ ëœë‹¤.*/
 	float fHeight = pTerrain->GetHeight(pTerrain->GetWidth() * 0.5f,
 		pTerrain->GetLength() * 0.5f);
-	SetPosition(XMFLOAT3(pTerrain->GetWidth() * 0.5f, fHeight + 80  ,
+	SetPosition(XMFLOAT3(pTerrain->GetWidth() * 0.5f, fHeight + 80,
 		pTerrain->GetLength() * 0.5f));
-	//ÇÃ·¹ÀÌ¾îÀÇ À§Ä¡°¡ º¯°æµÉ ¶§ ÁöÇüÀÇ Á¤º¸¿¡ µû¶ó ÇÃ·¹ÀÌ¾îÀÇ À§Ä¡¸¦ º¯°æÇÒ ¼ö ÀÖµµ·Ï ¼³Á¤ÇÑ´Ù. 
+	//í”Œë ˆì´ì–´ì˜ ìœ„ì¹˜ê°€ ë³€ê²½ë  ë•Œ ì§€í˜•ì˜ ì •ë³´ì— ë”°ë¼ í”Œë ˆì´ì–´ì˜ ìœ„ì¹˜ë¥¼ ë³€ê²½í•  ìˆ˜ ìžˆë„ë¡ ì„¤ì •í•œë‹¤. 
 	SetPlayerUpdatedContext(pTerrain);
-	//Ä«¸Þ¶óÀÇ À§Ä¡°¡ º¯°æµÉ ¶§ ÁöÇüÀÇ Á¤º¸¿¡ µû¶ó Ä«¸Þ¶óÀÇ À§Ä¡¸¦ º¯°æÇÒ ¼ö ÀÖµµ·Ï ¼³Á¤ÇÑ´Ù. 
+	//ì¹´ë©”ë¼ì˜ ìœ„ì¹˜ê°€ ë³€ê²½ë  ë•Œ ì§€í˜•ì˜ ì •ë³´ì— ë”°ë¼ ì¹´ë©”ë¼ì˜ ìœ„ì¹˜ë¥¼ ë³€ê²½í•  ìˆ˜ ìžˆë„ë¡ ì„¤ì •í•œë‹¤. 
 	SetCameraUpdatedContext(pTerrain);
 
-	SetMesh(0, pAirplaneMesh);//ÇÃ·¹ÀÌ¾î¸¦ ·»´õ¸µÇÒ ¼ÎÀÌ´õ¸¦ »ý¼ºÇÑ´Ù. 
+	SetMesh(0, pAirplaneMesh);//í”Œë ˆì´ì–´ë¥¼ ë Œë”ë§í•  ì…°ì´ë”ë¥¼ ìƒì„±í•œë‹¤. 
 
 	CPseudoLightingShader* pShader = new CPseudoLightingShader();
 	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
@@ -347,7 +347,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	SetShader(pShader);
 
-	m_missile = new CMissileObject *[m_missileNum];
+	m_missile = new CMissileObject * [m_missileNum];
 
 	for (int i = 0; i < m_missileNum; ++i) {
 		m_missile[i] = new CMissileObject();
@@ -371,7 +371,7 @@ CCamera* CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 	{
 	case FIRST_PERSON_CAMERA:
 		SetFriction(250.0f);
-		//1ÀÎÄª Ä«¸Þ¶óÀÏ ¶§ ÇÃ·¹ÀÌ¾î¿¡ y-Ãà ¹æÇâÀ¸·Î Áß·ÂÀÌ ÀÛ¿ëÇÑ´Ù. 
+		//1ì¸ì¹­ ì¹´ë©”ë¼ì¼ ë•Œ í”Œë ˆì´ì–´ì— y-ì¶• ë°©í–¥ìœ¼ë¡œ ì¤‘ë ¥ì´ ìž‘ìš©í•œë‹¤. 
 		SetGravity(XMFLOAT3(0.0f, -250.0f, 0.0f));
 		SetMaxVelocityXZ(300.0f);
 		SetMaxVelocityY(400.0f);
@@ -382,7 +382,7 @@ CCamera* CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		break;
 	case SPACESHIP_CAMERA:
 		SetFriction(125.0f);
-		//½ºÆäÀÌ½º ½± Ä«¸Þ¶óÀÏ ¶§ ÇÃ·¹ÀÌ¾î¿¡ Áß·ÂÀÌ ÀÛ¿ëÇÏÁö ¾Ê´Â´Ù. 
+		//ìŠ¤íŽ˜ì´ìŠ¤ ì‰½ ì¹´ë©”ë¼ì¼ ë•Œ í”Œë ˆì´ì–´ì— ì¤‘ë ¥ì´ ìž‘ìš©í•˜ì§€ ì•ŠëŠ”ë‹¤. 
 		SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
 		SetMaxVelocityXZ(300.0f);
 		SetMaxVelocityY(400.0f);
@@ -393,7 +393,7 @@ CCamera* CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		break;
 	case THIRD_PERSON_CAMERA:
 		SetFriction(500.0f);
-		//3ÀÎÄª Ä«¸Þ¶óÀÏ ¶§ ÇÃ·¹ÀÌ¾î¿¡ y-Ãà ¹æÇâÀ¸·Î Áß·ÂÀÌ ÀÛ¿ëÇÑ´Ù. 
+		//3ì¸ì¹­ ì¹´ë©”ë¼ì¼ ë•Œ í”Œë ˆì´ì–´ì— y-ì¶• ë°©í–¥ìœ¼ë¡œ ì¤‘ë ¥ì´ ìž‘ìš©í•œë‹¤. 
 		SetGravity(XMFLOAT3(0.0f, -0.0f, 0.0f));
 		SetMaxVelocityXZ(300.0f);
 		SetMaxVelocityY(400.0f);
@@ -413,14 +413,14 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 {
 	XMFLOAT3 xmf3PlayerPosition = GetPosition();
 	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)m_pPlayerUpdatedContext;
-	/*ÁöÇü¿¡¼­ ÇÃ·¹ÀÌ¾îÀÇ ÇöÀç À§Ä¡ (x, z)ÀÇ ÁöÇü ³ôÀÌ(y)¸¦ ±¸ÇÑ´Ù. ±×¸®°í ÇÃ·¹ÀÌ¾î ¸Þ½¬ÀÇ ³ôÀÌ°¡ 12ÀÌ°í ÇÃ·¹ÀÌ¾îÀÇ
-	Áß½ÉÀÌ Á÷À°¸éÃ¼ÀÇ °¡¿îµ¥ÀÌ¹Ç·Î y °ª¿¡ ¸Þ½¬ÀÇ ³ôÀÌÀÇ Àý¹ÝÀ» ´õÇÏ¸é ÇÃ·¹ÀÌ¾îÀÇ À§Ä¡°¡ µÈ´Ù.*/
+	/*ì§€í˜•ì—ì„œ í”Œë ˆì´ì–´ì˜ í˜„ìž¬ ìœ„ì¹˜ (x, z)ì˜ ì§€í˜• ë†’ì´(y)ë¥¼ êµ¬í•œë‹¤. ê·¸ë¦¬ê³  í”Œë ˆì´ì–´ ë©”ì‰¬ì˜ ë†’ì´ê°€ 12ì´ê³  í”Œë ˆì´ì–´ì˜
+	ì¤‘ì‹¬ì´ ì§ìœ¡ë©´ì²´ì˜ ê°€ìš´ë°ì´ë¯€ë¡œ y ê°’ì— ë©”ì‰¬ì˜ ë†’ì´ì˜ ì ˆë°˜ì„ ë”í•˜ë©´ í”Œë ˆì´ì–´ì˜ ìœ„ì¹˜ê°€ ëœë‹¤.*/
 	float fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x, xmf3PlayerPosition.z) + 6.0f;
-	/*ÇÃ·¹ÀÌ¾îÀÇ À§Ä¡ º¤ÅÍÀÇ y-°ªÀÌ À½¼öÀÌ¸é(¿¹¸¦ µé¾î, Áß·ÂÀÌ Àû¿ëµÇ´Â °æ¿ì) ÇÃ·¹ÀÌ¾îÀÇ À§Ä¡ º¤ÅÍÀÇ y-°ªÀÌ Á¡Á¡
-	ÀÛ¾ÆÁö°Ô µÈ´Ù. ÀÌ¶§ ÇÃ·¹ÀÌ¾îÀÇ ÇöÀç À§Ä¡ º¤ÅÍÀÇ y °ªÀÌ ÁöÇüÀÇ ³ôÀÌ(½ÇÁ¦·Î ÁöÇüÀÇ ³ôÀÌ + 6)º¸´Ù ÀÛÀ¸¸é ÇÃ·¹ÀÌ¾î
-	ÀÇ ÀÏºÎ°¡ ÁöÇü ¾Æ·¡¿¡ ÀÖ°Ô µÈ´Ù. ÀÌ·¯ÇÑ °æ¿ì¸¦ ¹æÁöÇÏ·Á¸é ÇÃ·¹ÀÌ¾îÀÇ ¼Óµµ º¤ÅÍÀÇ y °ªÀ» 0À¸·Î ¸¸µé°í ÇÃ·¹ÀÌ¾î
-	ÀÇ À§Ä¡ º¤ÅÍÀÇ y-°ªÀ» ÁöÇüÀÇ ³ôÀÌ(½ÇÁ¦·Î ÁöÇüÀÇ ³ôÀÌ + 6)·Î ¼³Á¤ÇÑ´Ù. ±×·¯¸é ÇÃ·¹ÀÌ¾î´Â Ç×»ó ÁöÇü À§¿¡ ÀÖ°Ô µÈ
-	´Ù.*/
+	/*í”Œë ˆì´ì–´ì˜ ìœ„ì¹˜ ë²¡í„°ì˜ y-ê°’ì´ ìŒìˆ˜ì´ë©´(ì˜ˆë¥¼ ë“¤ì–´, ì¤‘ë ¥ì´ ì ìš©ë˜ëŠ” ê²½ìš°) í”Œë ˆì´ì–´ì˜ ìœ„ì¹˜ ë²¡í„°ì˜ y-ê°’ì´ ì ì 
+	ìž‘ì•„ì§€ê²Œ ëœë‹¤. ì´ë•Œ í”Œë ˆì´ì–´ì˜ í˜„ìž¬ ìœ„ì¹˜ ë²¡í„°ì˜ y ê°’ì´ ì§€í˜•ì˜ ë†’ì´(ì‹¤ì œë¡œ ì§€í˜•ì˜ ë†’ì´ + 6)ë³´ë‹¤ ìž‘ìœ¼ë©´ í”Œë ˆì´ì–´
+	ì˜ ì¼ë¶€ê°€ ì§€í˜• ì•„ëž˜ì— ìžˆê²Œ ëœë‹¤. ì´ëŸ¬í•œ ê²½ìš°ë¥¼ ë°©ì§€í•˜ë ¤ë©´ í”Œë ˆì´ì–´ì˜ ì†ë„ ë²¡í„°ì˜ y ê°’ì„ 0ìœ¼ë¡œ ë§Œë“¤ê³  í”Œë ˆì´ì–´
+	ì˜ ìœ„ì¹˜ ë²¡í„°ì˜ y-ê°’ì„ ì§€í˜•ì˜ ë†’ì´(ì‹¤ì œë¡œ ì§€í˜•ì˜ ë†’ì´ + 6)ë¡œ ì„¤ì •í•œë‹¤. ê·¸ëŸ¬ë©´ í”Œë ˆì´ì–´ëŠ” í•­ìƒ ì§€í˜• ìœ„ì— ìžˆê²Œ ëœ
+	ë‹¤.*/
 	if (xmf3PlayerPosition.y < fHeight)
 	{
 		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
@@ -434,11 +434,11 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 {
 	XMFLOAT3 xmf3CameraPosition = m_pCamera->GetPosition();
-	/*³ôÀÌ ¸Ê¿¡¼­ Ä«¸Þ¶óÀÇ ÇöÀç À§Ä¡ (x, z)¿¡ ´ëÇÑ ÁöÇüÀÇ ³ôÀÌ(y °ª)¸¦ ±¸ÇÑ´Ù. ÀÌ °ªÀÌ Ä«¸Þ¶óÀÇ À§Ä¡ º¤ÅÍÀÇ y-°ª º¸
-	´Ù Å©¸é Ä«¸Þ¶ó°¡ ÁöÇüÀÇ ¾Æ·¡¿¡ ÀÖ°Ô µÈ´Ù. ÀÌ·¸°Ô µÇ¸é ´ÙÀ½ ±×¸²ÀÇ ¿ÞÂÊ°ú °°ÀÌ ÁöÇüÀÌ ±×·ÁÁöÁö ¾Ê´Â °æ¿ì°¡ ¹ß»ý
-	ÇÑ´Ù(Ä«¸Þ¶ó°¡ ÁöÇü ¾È¿¡ ÀÖÀ¸¹Ç·Î »ï°¢ÇüÀÇ ¿ÍÀÎµù ¼ø¼­°¡ ¹Ù²ï´Ù). ÀÌ·¯ÇÑ °æ¿ì°¡ ¹ß»ýÇÏÁö ¾Êµµ·Ï Ä«¸Þ¶óÀÇ À§Ä¡ º¤
-	ÅÍÀÇ y-°ªÀÇ ÃÖ¼Ò°ªÀº (ÁöÇüÀÇ ³ôÀÌ + 5)·Î ¼³Á¤ÇÑ´Ù. Ä«¸Þ¶óÀÇ À§Ä¡ º¤ÅÍÀÇ y-°ªÀÇ ÃÖ¼Ò°ªÀº ÁöÇüÀÇ ¸ðµç À§Ä¡¿¡¼­
-	Ä«¸Þ¶ó°¡ ÁöÇü ¾Æ·¡¿¡ À§Ä¡ÇÏÁö ¾Êµµ·Ï ¼³Á¤ÇØ¾ß ÇÑ´Ù.*/
+	/*ë†’ì´ ë§µì—ì„œ ì¹´ë©”ë¼ì˜ í˜„ìž¬ ìœ„ì¹˜ (x, z)ì— ëŒ€í•œ ì§€í˜•ì˜ ë†’ì´(y ê°’)ë¥¼ êµ¬í•œë‹¤. ì´ ê°’ì´ ì¹´ë©”ë¼ì˜ ìœ„ì¹˜ ë²¡í„°ì˜ y-ê°’ ë³´
+	ë‹¤ í¬ë©´ ì¹´ë©”ë¼ê°€ ì§€í˜•ì˜ ì•„ëž˜ì— ìžˆê²Œ ëœë‹¤. ì´ë ‡ê²Œ ë˜ë©´ ë‹¤ìŒ ê·¸ë¦¼ì˜ ì™¼ìª½ê³¼ ê°™ì´ ì§€í˜•ì´ ê·¸ë ¤ì§€ì§€ ì•ŠëŠ” ê²½ìš°ê°€ ë°œìƒ
+	í•œë‹¤(ì¹´ë©”ë¼ê°€ ì§€í˜• ì•ˆì— ìžˆìœ¼ë¯€ë¡œ ì‚¼ê°í˜•ì˜ ì™€ì¸ë”© ìˆœì„œê°€ ë°”ë€ë‹¤). ì´ëŸ¬í•œ ê²½ìš°ê°€ ë°œìƒí•˜ì§€ ì•Šë„ë¡ ì¹´ë©”ë¼ì˜ ìœ„ì¹˜ ë²¡
+	í„°ì˜ y-ê°’ì˜ ìµœì†Œê°’ì€ (ì§€í˜•ì˜ ë†’ì´ + 5)ë¡œ ì„¤ì •í•œë‹¤. ì¹´ë©”ë¼ì˜ ìœ„ì¹˜ ë²¡í„°ì˜ y-ê°’ì˜ ìµœì†Œê°’ì€ ì§€í˜•ì˜ ëª¨ë“  ìœ„ì¹˜ì—ì„œ
+	ì¹´ë©”ë¼ê°€ ì§€í˜• ì•„ëž˜ì— ìœ„ì¹˜í•˜ì§€ ì•Šë„ë¡ ì„¤ì •í•´ì•¼ í•œë‹¤.*/
 	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)m_pCameraUpdatedContext;
 	float fHeight = pTerrain->GetHeight(xmf3CameraPosition.x, xmf3CameraPosition.z) +
 		5.0f;
@@ -448,7 +448,7 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 		m_pCamera->SetPosition(xmf3CameraPosition);
 		if (m_pCamera->GetMode() == THIRD_PERSON_CAMERA)
 		{
-			//3ÀÎÄª Ä«¸Þ¶óÀÇ °æ¿ì Ä«¸Þ¶ó À§Ä¡(y-ÁÂÇ¥)°¡ º¯°æµÇ¾úÀ¸¹Ç·Î Ä«¸Þ¶ó°¡ ÇÃ·¹ÀÌ¾î¸¦ ¹Ù¶óº¸µµ·Ï ÇÑ´Ù. 
+			//3ì¸ì¹­ ì¹´ë©”ë¼ì˜ ê²½ìš° ì¹´ë©”ë¼ ìœ„ì¹˜(y-ì¢Œí‘œ)ê°€ ë³€ê²½ë˜ì—ˆìœ¼ë¯€ë¡œ ì¹´ë©”ë¼ê°€ í”Œë ˆì´ì–´ë¥¼ ë°”ë¼ë³´ë„ë¡ í•œë‹¤. 
 			CThirdPersonCamera* p3rdPersonCamera = (CThirdPersonCamera*)m_pCamera;
 			p3rdPersonCamera->SetLookAt(GetPosition());
 		}

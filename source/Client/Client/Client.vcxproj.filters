@@ -13,79 +13,91 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="클래스">
+      <UniqueIdentifier>{53518d4f-0a6d-464f-8108-a235dd1d0262}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="클래스\cpp">
+      <UniqueIdentifier>{4789c34a-41e0-4e6f-9efa-3fbf5ba9e619}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="클래스\h">
+      <UniqueIdentifier>{932e4675-ea94-4d71-a00b-251423e6ebed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="셰이더">
+      <UniqueIdentifier>{f300d83d-0568-407d-b552-3aacfdbf9bb2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="3DGPMF.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GameFramework.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Object.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Timer.h">
+    <ClInclude Include="Client.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
+      <Filter>클래스\h</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFramework.h">
+      <Filter>클래스\h</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>클래스\h</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>클래스\h</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>클래스\h</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>클래스\h</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>클래스\h</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>클래스\h</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Camera.cpp">
+    <ClCompile Include="Client.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>클래스\cpp</Filter>
     </ClCompile>
     <ClCompile Include="GameFramework.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>클래스\cpp</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>클래스\cpp</Filter>
     </ClCompile>
     <ClCompile Include="Object.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>클래스\cpp</Filter>
     </ClCompile>
     <ClCompile Include="Player.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>클래스\cpp</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>클래스\cpp</Filter>
     </ClCompile>
     <ClCompile Include="Shader.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>클래스\cpp</Filter>
     </ClCompile>
     <ClCompile Include="Timer.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>클래스\cpp</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="pch.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="3DGPMF.rc">
+    <ResourceCompile Include="Client.rc">
       <Filter>리소스 파일</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -93,16 +105,16 @@
     <Image Include="small.ico">
       <Filter>리소스 파일</Filter>
     </Image>
-    <Image Include="3DGPMF.ico">
+    <Image Include="Client.ico">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders.hlsl">
-      <Filter>헤더 파일</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders_T.hlsl">
-      <Filter>헤더 파일</Filter>
-    </FxCompile>
+    <None Include="Shaders.hlsl">
+      <Filter>셰이더</Filter>
+    </None>
+    <None Include="Shaders_T.hlsl">
+      <Filter>셰이더</Filter>
+    </None>
   </ItemGroup>
 </Project>

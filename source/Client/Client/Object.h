@@ -1,4 +1,4 @@
-//------------------------------------------------------- ----------------------
+ï»¿//------------------------------------------------------- ----------------------
 // File: Object.h
 //-----------------------------------------------------------------------------
 
@@ -17,10 +17,10 @@ public:
 
 public:
 	XMFLOAT4X4						m_xmf4x4World;
-	CMesh**							m_ppMeshes = NULL;
+	CMesh** m_ppMeshes = nullptr;
 	int								m_nMeshes = 0;
 
-	CShader							*m_pShader = NULL;
+	CShader* m_pShader = nullptr;
 
 	XMFLOAT3						m_xmf3Color = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
@@ -28,8 +28,8 @@ public:
 
 	bool							Hit = true;
 
-	void SetMesh(int nIndex, CMesh *pMesh);
-	void SetShader(CShader *pShader);
+	void SetMesh(int nIndex, CMesh* pMesh);
+	void SetShader(CShader* pShader);
 
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
@@ -37,7 +37,7 @@ public:
 
 	virtual void Animate(float fTimeElapsed);
 	virtual void OnPrepareRender() { }
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = nullptr);
 	virtual void UpdateBoundingBox();
 
 	virtual void ReleaseUploadBuffers();
@@ -61,7 +61,7 @@ public:
 	void MoveForward(float fDistance = 1.0f);
 	void MoveBack(float fDistance = 1.0f);
 	void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
-	void Rotate(XMFLOAT3 *pxmf3Axis, float fAngle);
+	void Rotate(XMFLOAT3* pxmf3Axis, float fAngle);
 };
 
 class CUfoObject : public CGameObject
@@ -88,21 +88,21 @@ public:
 	virtual ~CHeightMapTerrain();
 
 private:
-	//ÁöÇüÀÇ ³ôÀÌ ¸ÊÀ¸·Î »ç¿ëÇÒ ÀÌ¹ÌÁöÀÌ´Ù. 
+	//ì§€í˜•ì˜ ë†’ì´ ë§µìœ¼ë¡œ ì‚¬ìš©í•  ì´ë¯¸ì§€ì´ë‹¤. 
 	CHeightMapImage* m_pHeightMapImage;
-	//³ôÀÌ ¸ÊÀÇ °¡·Î¿Í ¼¼·Î Å©±âÀÌ´Ù. 
+	//ë†’ì´ ë§µì˜ ê°€ë¡œì™€ ì„¸ë¡œ í¬ê¸°ì´ë‹¤. 
 	int m_nWidth;
 	int m_nLength;
-	//ÁöÇüÀ» ½ÇÁ¦·Î ¸î ¹è È®´ëÇÒ °ÍÀÎ°¡¸¦ ³ªÅ¸³»´Â ½ºÄÉÀÏ º¤ÅÍÀÌ´Ù.
+	//ì§€í˜•ì„ ì‹¤ì œë¡œ ëª‡ ë°° í™•ëŒ€í•  ê²ƒì¸ê°€ë¥¼ ë‚˜íƒ€ë‚´ëŠ” ìŠ¤ì¼€ì¼ ë²¡í„°ì´ë‹¤.
 	XMFLOAT3 m_xmf3Scale;
 
 public:
-	//ÁöÇüÀÇ ³ôÀÌ¸¦ °è»êÇÏ´Â ÇÔ¼öÀÌ´Ù(¿ùµå ÁÂÇ¥°è). ³ôÀÌ ¸ÊÀÇ ³ôÀÌ¿¡ ½ºÄÉÀÏÀÇ y¸¦ °öÇÑ °ªÀÌ´Ù. 
+	//ì§€í˜•ì˜ ë†’ì´ë¥¼ ê³„ì‚°í•˜ëŠ” í•¨ìˆ˜ì´ë‹¤(ì›”ë“œ ì¢Œí‘œê³„). ë†’ì´ ë§µì˜ ë†’ì´ì— ìŠ¤ì¼€ì¼ì˜ yë¥¼ ê³±í•œ ê°’ì´ë‹¤. 
 	float GetHeight(float x, float z) {
 		return(m_pHeightMapImage->GetHeight(x /
 			m_xmf3Scale.x, z / m_xmf3Scale.z) * m_xmf3Scale.y);
 	}
-	//ÁöÇüÀÇ ¹ı¼± º¤ÅÍ¸¦ °è»êÇÏ´Â ÇÔ¼öÀÌ´Ù(¿ùµå ÁÂÇ¥°è). ³ôÀÌ ¸ÊÀÇ ¹ı¼± º¤ÅÍ¸¦ »ç¿ëÇÑ´Ù. 
+	//ì§€í˜•ì˜ ë²•ì„  ë²¡í„°ë¥¼ ê³„ì‚°í•˜ëŠ” í•¨ìˆ˜ì´ë‹¤(ì›”ë“œ ì¢Œí‘œê³„). ë†’ì´ ë§µì˜ ë²•ì„  ë²¡í„°ë¥¼ ì‚¬ìš©í•œë‹¤. 
 	XMFLOAT3 GetNormal(float x, float z) {
 		return(m_pHeightMapImage->GetHeightMapNormal(int(x / m_xmf3Scale.x), int(z /
 			m_xmf3Scale.z)));
@@ -111,7 +111,7 @@ public:
 	int GetHeightMapLength() { return(m_pHeightMapImage->GetHeightMapLength()); }
 
 	XMFLOAT3 GetScale() { return(m_xmf3Scale); }
-	//ÁöÇüÀÇ Å©±â(°¡·Î/¼¼·Î)¸¦ ¹İÈ¯ÇÑ´Ù. ³ôÀÌ ¸ÊÀÇ Å©±â¿¡ ½ºÄÉÀÏÀ» °öÇÑ °ªÀÌ´Ù. 
+	//ì§€í˜•ì˜ í¬ê¸°(ê°€ë¡œ/ì„¸ë¡œ)ë¥¼ ë°˜í™˜í•œë‹¤. ë†’ì´ ë§µì˜ í¬ê¸°ì— ìŠ¤ì¼€ì¼ì„ ê³±í•œ ê°’ì´ë‹¤. 
 	float GetWidth() { return(m_nWidth * m_xmf3Scale.x); }
 	float GetLength() { return(m_nLength * m_xmf3Scale.z); }
 };

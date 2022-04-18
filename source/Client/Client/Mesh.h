@@ -1,4 +1,4 @@
-//------------------------------------------------------- ----------------------
+ï»¿//------------------------------------------------------- ----------------------
 // File: Mesh.h
 //-----------------------------------------------------------------------------
 
@@ -9,7 +9,7 @@
 class CVertex
 {
 protected:
-    XMFLOAT3						m_xmf3Position;	
+	XMFLOAT3						m_xmf3Position;
 
 public:
 	CVertex() { m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); }
@@ -20,7 +20,7 @@ public:
 class CDiffusedVertex : public CVertex
 {
 protected:
-    XMFLOAT4						m_xmf4Diffuse;		
+	XMFLOAT4						m_xmf4Diffuse;
 
 public:
 	CDiffusedVertex() { m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); m_xmf4Diffuse = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f); }
@@ -34,14 +34,14 @@ public:
 class CMesh
 {
 public:
-	CMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, char *pstrFileName = NULL, bool bTextFile = true);
-    virtual ~CMesh();
+	CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName = nullptr, bool bTextFile = true);
+	virtual ~CMesh();
 
 private:
 	int								m_nReferences = 0;
 
 public:
-	void AddRef() { m_nReferences++; }
+	void AddRef() { ++m_nReferences; }
 	void Release() { if (--m_nReferences <= 0) delete this; }
 
 	void ReleaseUploadBuffers();
@@ -52,28 +52,28 @@ protected:
 	BoundingOrientedBox				m_xmBoundingBox;
 
 	UINT							m_nVertices = 0;
-	XMFLOAT3						*m_pxmf3Positions = NULL;
-	ID3D12Resource					*m_pd3dPositionBuffer = NULL;
-	ID3D12Resource					*m_pd3dPositionUploadBuffer = NULL;
+	XMFLOAT3* m_pxmf3Positions = nullptr;
+	ID3D12Resource* m_pd3dPositionBuffer = nullptr;
+	ID3D12Resource* m_pd3dPositionUploadBuffer = nullptr;
 
-	XMFLOAT3						*m_pxmf3Normals = NULL;
-	ID3D12Resource					*m_pd3dNormalBuffer = NULL;
-	ID3D12Resource					*m_pd3dNormalUploadBuffer = NULL;
+	XMFLOAT3* m_pxmf3Normals = nullptr;
+	ID3D12Resource* m_pd3dNormalBuffer = nullptr;
+	ID3D12Resource* m_pd3dNormalUploadBuffer = nullptr;
 
-	XMFLOAT2						*m_pxmf2TextureCoords = NULL;
-	ID3D12Resource					*m_pd3dTextureCoordBuffer = NULL;
-	ID3D12Resource					*m_pd3dTextureCoordUploadBuffer = NULL;
+	XMFLOAT2* m_pxmf2TextureCoords = nullptr;
+	ID3D12Resource* m_pd3dTextureCoordBuffer = nullptr;
+	ID3D12Resource* m_pd3dTextureCoordUploadBuffer = nullptr;
 
 	UINT							m_nIndices = 0;
-	UINT							*m_pnIndices = NULL;
-	ID3D12Resource					*m_pd3dIndexBuffer = NULL;
-	ID3D12Resource					*m_pd3dIndexUploadBuffer = NULL;
+	UINT* m_pnIndices = nullptr;
+	ID3D12Resource* m_pd3dIndexBuffer = nullptr;
+	ID3D12Resource* m_pd3dIndexUploadBuffer = nullptr;
 
-	ID3D12Resource					*m_pd3dVertexBuffer = NULL;
-	ID3D12Resource					*m_pd3dVertexUploadBuffer = NULL;
+	ID3D12Resource* m_pd3dVertexBuffer = nullptr;
+	ID3D12Resource* m_pd3dVertexUploadBuffer = nullptr;
 
 	UINT							m_nVertexBufferViews = 0;
-	D3D12_VERTEX_BUFFER_VIEW		*m_pd3dVertexBufferViews = NULL;
+	D3D12_VERTEX_BUFFER_VIEW* m_pd3dVertexBufferViews = nullptr;
 
 	D3D12_INDEX_BUFFER_VIEW			m_d3dIndexBufferView;
 
@@ -86,31 +86,31 @@ protected:
 	int								m_nBaseVertex = 0;
 
 public:
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList);
 
-	void LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, char *pstrFileName, bool bTextFile);
+	void LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName, bool bTextFile);
 };
 
 class CHeightMapImage
 {
 private:
-	//³ôÀÌ ¸Ê ÀÌ¹ÌÁö ÇÈ¼¿(8-ºñÆ®)µéÀÇ ÀÌÂ÷¿ø ¹è¿­ÀÌ´Ù. °¢ ÇÈ¼¿Àº 0~255ÀÇ °ªÀ» °®´Â´Ù. 
-	BYTE *m_pHeightMapPixels;
+	//ë†’ì´ ë§µ ì´ë¯¸ì§€ í”½ì…€(8-ë¹„íŠ¸)ë“¤ì˜ ì´ì°¨ì› ë°°ì—´ì´ë‹¤. ê° í”½ì…€ì€ 0~255ì˜ ê°’ì„ ê°–ëŠ”ë‹¤. 
+	BYTE* m_pHeightMapPixels;
 
-	//³ôÀÌ ¸Ê ÀÌ¹ÌÁöÀÇ °¡·Î¿Í ¼¼·Î Å©±âÀÌ´Ù. 
+	//ë†’ì´ ë§µ ì´ë¯¸ì§€ì˜ ê°€ë¡œì™€ ì„¸ë¡œ í¬ê¸°ì´ë‹¤. 
 	int m_nWidth;
 	int m_nLength;
 
-	//³ôÀÌ ¸Ê ÀÌ¹ÌÁö¸¦ ½ÇÁ¦·Î ¸î ¹è È®´ëÇÏ¿© »ç¿ëÇÒ °ÍÀÎ°¡¸¦ ³ªÅ¸³»´Â ½ºÄÉÀÏ º¤ÅÍÀÌ´Ù. 
-	XMFLOAT3 m_xmf3Scale;public:
+	//ë†’ì´ ë§µ ì´ë¯¸ì§€ë¥¼ ì‹¤ì œë¡œ ëª‡ ë°° í™•ëŒ€í•˜ì—¬ ì‚¬ìš©í•  ê²ƒì¸ê°€ë¥¼ ë‚˜íƒ€ë‚´ëŠ” ìŠ¤ì¼€ì¼ ë²¡í„°ì´ë‹¤. 
+XMFLOAT3 m_xmf3Scale; public:
 
 	CHeightMapImage(LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale);
 	~CHeightMapImage();
 
-	//³ôÀÌ ¸Ê ÀÌ¹ÌÁö¿¡¼­ (x, z) À§Ä¡ÀÇ ÇÈ¼¿ °ª¿¡ ±â¹ÝÇÑ ÁöÇüÀÇ ³ôÀÌ¸¦ ¹ÝÈ¯ÇÑ´Ù. 
+	//ë†’ì´ ë§µ ì´ë¯¸ì§€ì—ì„œ (x, z) ìœ„ì¹˜ì˜ í”½ì…€ ê°’ì— ê¸°ë°˜í•œ ì§€í˜•ì˜ ë†’ì´ë¥¼ ë°˜í™˜í•œë‹¤. 
 	float GetHeight(float x, float z);
 
-	//³ôÀÌ ¸Ê ÀÌ¹ÌÁö¿¡¼­ (x, z) À§Ä¡ÀÇ ¹ý¼± º¤ÅÍ¸¦ ¹ÝÈ¯ÇÑ´Ù. 
+	//ë†’ì´ ë§µ ì´ë¯¸ì§€ì—ì„œ (x, z) ìœ„ì¹˜ì˜ ë²•ì„  ë²¡í„°ë¥¼ ë°˜í™˜í•œë‹¤. 
 	XMFLOAT3 GetHeightMapNormal(int x, int z);
 
 	XMFLOAT3 GetScale() { return(m_xmf3Scale); }
@@ -122,29 +122,29 @@ private:
 class CHeightMapGridMesh : public CMesh
 {
 protected:
-	//°ÝÀÚÀÇ Å©±â(°¡·Î: x-¹æÇâ, ¼¼·Î: z-¹æÇâ)ÀÌ´Ù. 
+	//ê²©ìžì˜ í¬ê¸°(ê°€ë¡œ: x-ë°©í–¥, ì„¸ë¡œ: z-ë°©í–¥)ì´ë‹¤. 
 	int m_nWidth;
 	int m_nLength;
 
-	/*°ÝÀÚÀÇ ½ºÄÉÀÏ(°¡·Î: x-¹æÇâ, ¼¼·Î: z-¹æÇâ, ³ôÀÌ: y-¹æÇâ) º¤ÅÍÀÌ´Ù. ½ÇÁ¦ °ÝÀÚ ¸Þ½¬ÀÇ °¢ Á¤Á¡ÀÇ x-ÁÂÇ¥, y-ÁÂÇ¥,
-	z-ÁÂÇ¥´Â ½ºÄÉÀÏ º¤ÅÍÀÇ x-ÁÂÇ¥, y-ÁÂÇ¥, z-ÁÂÇ¥·Î °öÇÑ °ªÀ» °®´Â´Ù. Áï, ½ÇÁ¦ °ÝÀÚÀÇ x-Ãà ¹æÇâÀÇ °£°ÝÀº 1ÀÌ ¾Æ´Ï
-	¶ó ½ºÄÉÀÏ º¤ÅÍÀÇ x-ÁÂÇ¥°¡ µÈ´Ù. ÀÌ·¸°Ô ÇÏ¸é ÀÛÀº °ÝÀÚ(ÀûÀº Á¤Á¡)¸¦ »ç¿ëÇÏ´õ¶óµµ Å« Å©±âÀÇ °ÝÀÚ(ÁöÇü)¸¦ »ý¼ºÇÒ
-	¼ö ÀÖ´Ù.*/
+	/*ê²©ìžì˜ ìŠ¤ì¼€ì¼(ê°€ë¡œ: x-ë°©í–¥, ì„¸ë¡œ: z-ë°©í–¥, ë†’ì´: y-ë°©í–¥) ë²¡í„°ì´ë‹¤. ì‹¤ì œ ê²©ìž ë©”ì‰¬ì˜ ê° ì •ì ì˜ x-ì¢Œí‘œ, y-ì¢Œí‘œ,
+	z-ì¢Œí‘œëŠ” ìŠ¤ì¼€ì¼ ë²¡í„°ì˜ x-ì¢Œí‘œ, y-ì¢Œí‘œ, z-ì¢Œí‘œë¡œ ê³±í•œ ê°’ì„ ê°–ëŠ”ë‹¤. ì¦‰, ì‹¤ì œ ê²©ìžì˜ x-ì¶• ë°©í–¥ì˜ ê°„ê²©ì€ 1ì´ ì•„ë‹ˆ
+	ë¼ ìŠ¤ì¼€ì¼ ë²¡í„°ì˜ x-ì¢Œí‘œê°€ ëœë‹¤. ì´ë ‡ê²Œ í•˜ë©´ ìž‘ì€ ê²©ìž(ì ì€ ì •ì )ë¥¼ ì‚¬ìš©í•˜ë”ë¼ë„ í° í¬ê¸°ì˜ ê²©ìž(ì§€í˜•)ë¥¼ ìƒì„±í• 
+	ìˆ˜ ìžˆë‹¤.*/
 	XMFLOAT3 m_xmf3Scale;
 public:
 	CHeightMapGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		* pd3dCommandList, int xStart, int zStart, int nWidth, int nLength, XMFLOAT3 xmf3Scale =
 		XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT4 xmf4Color = XMFLOAT4(1.0f, 1.0f, 0.0f, 0.0f), void
-		* pContext = NULL);
+		* pContext = nullptr);
 	virtual ~CHeightMapGridMesh();
 
 	XMFLOAT3 GetScale() { return(m_xmf3Scale); }
 	int GetWidth() { return(m_nWidth); }
 	int GetLength() { return(m_nLength); }
 
-	//°ÝÀÚÀÇ ÁÂÇ¥°¡ (x, z)ÀÏ ¶§ ±³Á¡(Á¤Á¡)ÀÇ ³ôÀÌ¸¦ ¹ÝÈ¯ÇÏ´Â ÇÔ¼öÀÌ´Ù. 
-	virtual float OnGetHeight(int x, int z, void *pContext);
+	//ê²©ìžì˜ ì¢Œí‘œê°€ (x, z)ì¼ ë•Œ êµì (ì •ì )ì˜ ë†’ì´ë¥¼ ë°˜í™˜í•˜ëŠ” í•¨ìˆ˜ì´ë‹¤. 
+	virtual float OnGetHeight(int x, int z, void* pContext);
 
-	//°ÝÀÚÀÇ ÁÂÇ¥°¡ (x, z)ÀÏ ¶§ ±³Á¡(Á¤Á¡)ÀÇ »ö»óÀ» ¹ÝÈ¯ÇÏ´Â ÇÔ¼öÀÌ´Ù. 
-	virtual XMFLOAT4 OnGetColor(int x, int z, void *pContext);
+	//ê²©ìžì˜ ì¢Œí‘œê°€ (x, z)ì¼ ë•Œ êµì (ì •ì )ì˜ ìƒ‰ìƒì„ ë°˜í™˜í•˜ëŠ” í•¨ìˆ˜ì´ë‹¤. 
+	virtual XMFLOAT4 OnGetColor(int x, int z, void* pContext);
 };

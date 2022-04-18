@@ -1,12 +1,12 @@
-//-----------------------------------------------------------------------------
+ï»¿//-----------------------------------------------------------------------------
 // File: CScene.cpp
 //-----------------------------------------------------------------------------
 
-// ÁÂÇ¥ Ã£±â
-// µğÆæ½º °ÔÀÓ
-// µµ½Ã ´À³¦ ³ª°Ô °Ç¹° ¹èÄ¡
+// ì¢Œí‘œ ì°¾ê¸°
+// ë””íœìŠ¤ ê²Œì„
+// ë„ì‹œ ëŠë‚Œ ë‚˜ê²Œ ê±´ë¬¼ ë°°ì¹˜
 
-#include "stdafx.h"
+#include "pch.h"
 #include "Player.h"
 #include "Scene.h"
 
@@ -24,9 +24,9 @@ CScene::~CScene()
 void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-	
-	uniform_int_distribution<int>rd(0, 255);
-	default_random_engine dre;
+
+	std::uniform_int_distribution<int>rd(0, 255);
+	std::default_random_engine dre;
 
 #ifdef _WITH_TEXT_MODEL_FILE
 	CMesh* pUfoMesh = new CMesh(pd3dDevice, pd3dCommandList, "Models/UFO.txt", true);
@@ -38,18 +38,18 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	CMesh* pHouseMesh = new CMesh(pd3dDevice, pd3dCommandList, "Assets/Models/ams_house3.bin", false);
 	CMesh* pFlyerMesh = new CMesh(pd3dDevice, pd3dCommandList, "Assets/Models/FlyerPlayership.bin", false);
 #endif
-	//ÁöÇüÀ» È®´ëÇÒ ½ºÄÉÀÏ º¤ÅÍÀÌ´Ù. x-Ãà°ú z-ÃàÀº 8¹è, y-ÃàÀº 2¹è È®´ëÇÑ´Ù. 
+	//ì§€í˜•ì„ í™•ëŒ€í•  ìŠ¤ì¼€ì¼ ë²¡í„°ì´ë‹¤. x-ì¶•ê³¼ z-ì¶•ì€ 8ë°°, y-ì¶•ì€ 2ë°° í™•ëŒ€í•œë‹¤. 
 	XMFLOAT3 xmf3Scale(9.0f, 1.0f, 9.0f);
 	XMFLOAT4 xmf4Color(0.0f, 0.2f, 0.0f, 0.0f);
-	//ÁöÇüÀ» ³ôÀÌ ¸Ê ÀÌ¹ÌÁö ÆÄÀÏ(HeightMap.raw)À» »ç¿ëÇÏ¿© »ı¼ºÇÑ´Ù. ³ôÀÌ ¸ÊÀÇ Å©±â´Â °¡·Îx¼¼·Î(257x257)ÀÌ´Ù. 
+	//ì§€í˜•ì„ ë†’ì´ ë§µ ì´ë¯¸ì§€ íŒŒì¼(HeightMap.raw)ì„ ì‚¬ìš©í•˜ì—¬ ìƒì„±í•œë‹¤. ë†’ì´ ë§µì˜ í¬ê¸°ëŠ” ê°€ë¡œxì„¸ë¡œ(257x257)ì´ë‹¤. 
 #ifdef _WITH_TERRAIN_PARTITION
-	/*ÇÏ³ªÀÇ °İÀÚ ¸Ş½¬ÀÇ Å©±â´Â °¡·Îx¼¼·Î(17x17)ÀÌ´Ù. ÁöÇü ÀüÃ¼´Â °¡·Î ¹æÇâÀ¸·Î 16°³, ¼¼·Î ¹æÇâÀ¸·Î 16ÀÇ °İÀÚ ¸Ş
-	½¬¸¦ °¡Áø´Ù. ÁöÇüÀ» ±¸¼ºÇÏ´Â °İÀÚ ¸Ş½¬ÀÇ °³¼ö´Â ÃÑ 256(16x16)°³°¡ µÈ´Ù.*/
+	/*í•˜ë‚˜ì˜ ê²©ì ë©”ì‰¬ì˜ í¬ê¸°ëŠ” ê°€ë¡œxì„¸ë¡œ(17x17)ì´ë‹¤. ì§€í˜• ì „ì²´ëŠ” ê°€ë¡œ ë°©í–¥ìœ¼ë¡œ 16ê°œ, ì„¸ë¡œ ë°©í–¥ìœ¼ë¡œ 16ì˜ ê²©ì ë©”
+	ì‰¬ë¥¼ ê°€ì§„ë‹¤. ì§€í˜•ì„ êµ¬ì„±í•˜ëŠ” ê²©ì ë©”ì‰¬ì˜ ê°œìˆ˜ëŠ” ì´ 256(16x16)ê°œê°€ ëœë‹¤.*/
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList,
 		m_pd3dGraphicsRootSignature, _T("../Assets/Image/Terrain/HeightMap.raw"), 257, 257, 17,
 		17, xmf3Scale, xmf4Color);
 #else
-//ÁöÇüÀ» ÇÏ³ªÀÇ °İÀÚ ¸Ş½¬(257x257)·Î »ı¼ºÇÑ´Ù. 
+//ì§€í˜•ì„ í•˜ë‚˜ì˜ ê²©ì ë©”ì‰¬(257x257)ë¡œ ìƒì„±í•œë‹¤. 
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList,
 		m_pd3dGraphicsRootSignature, _T("Assets/Image/Terrain/Plain.raw"), 257, 257, 257,
 		257, xmf3Scale, xmf4Color);
@@ -61,9 +61,9 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	CPseudoLightingShader* pShader = new CPseudoLightingShader();
 	pShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
 	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-			  
-	//ufo ¸¦ ÇÑ 4¼ÂÆ® Á¤µµ Á¦ÀÛ Á¡Á¡ Å©±â°¡ ÀÛ¾îÁ®¼­ ³­ÀÌµµ »ó½Â
-	//1¹ø ¼¼Æ®
+
+	//ufo ë¥¼ í•œ 4ì…‹íŠ¸ ì •ë„ ì œì‘ ì ì  í¬ê¸°ê°€ ì‘ì–´ì ¸ì„œ ë‚œì´ë„ ìƒìŠ¹
+	//1ë²ˆ ì„¸íŠ¸
 	{
 		m_ppObjects[0] = new CUfoObject(1);
 		m_ppObjects[0]->SetMesh(0, pUfoMesh);
@@ -121,7 +121,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		m_ppObjects[7]->SetPosition(0.0f, m_pTerrain->GetHeight(100.0f, 100.0f), 1150.0f);
 		m_ppObjects[7]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
 	}
-	//2¹ø ¼¼Æ®
+	//2ë²ˆ ì„¸íŠ¸
 	{
 		m_ppObjects[8] = new CUfoObject(1);
 		m_ppObjects[8]->SetMesh(0, pUfoMesh);
@@ -136,7 +136,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		m_ppObjects[9]->SetScale(30.0f);
 		m_ppObjects[9]->SetPosition(2800.0f, m_pTerrain->GetHeight(100.0f, 100.0f), -500.0f); // + -
 		m_ppObjects[9]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-		
+
 		m_ppObjects[10] = new CUfoObject(3);
 		m_ppObjects[10]->SetMesh(0, pUfoMesh);
 		m_ppObjects[10]->SetShader(pShader);
@@ -179,7 +179,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		m_ppObjects[15]->SetPosition(-500.0f, m_pTerrain->GetHeight(100.0f, 100.0f), 1150.0f);   //   -   x
 		m_ppObjects[15]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
 	}
-	//3¹ø ¼¼Æ®
+	//3ë²ˆ ì„¸íŠ¸
 	{
 		m_ppObjects[16] = new CUfoObject(1);
 		m_ppObjects[16]->SetMesh(0, pUfoMesh);
@@ -237,7 +237,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		m_ppObjects[23]->SetPosition(-1000.0f, m_pTerrain->GetHeight(100.0f, 100.0f), 1150.0f);   //   -   x
 		m_ppObjects[23]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
 	}
-	//4¹ø ¼¼Æ®
+	//4ë²ˆ ì„¸íŠ¸
 	{
 		m_ppObjects[24] = new CUfoObject(1);
 		m_ppObjects[24]->SetMesh(0, pUfoMesh);
@@ -297,9 +297,9 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	}
 }
 
-ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevice)
+ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
 {
-	ID3D12RootSignature *pd3dGraphicsRootSignature = NULL;
+	ID3D12RootSignature* pd3dGraphicsRootSignature = nullptr;
 
 	D3D12_ROOT_PARAMETER pd3dRootParameters[3];
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
@@ -326,13 +326,13 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	d3dRootSignatureDesc.NumParameters = _countof(pd3dRootParameters);
 	d3dRootSignatureDesc.pParameters = pd3dRootParameters;
 	d3dRootSignatureDesc.NumStaticSamplers = 0;
-	d3dRootSignatureDesc.pStaticSamplers = NULL;
+	d3dRootSignatureDesc.pStaticSamplers = nullptr;
 	d3dRootSignatureDesc.Flags = d3dRootSignatureFlags;
 
-	ID3DBlob *pd3dSignatureBlob = NULL;
-	ID3DBlob *pd3dErrorBlob = NULL;
+	ID3DBlob* pd3dSignatureBlob = nullptr;
+	ID3DBlob* pd3dErrorBlob = nullptr;
 	D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &pd3dSignatureBlob, &pd3dErrorBlob);
-	pd3dDevice->CreateRootSignature(0, pd3dSignatureBlob->GetBufferPointer(), pd3dSignatureBlob->GetBufferSize(), __uuidof(ID3D12RootSignature), (void **)&pd3dGraphicsRootSignature);
+	pd3dDevice->CreateRootSignature(0, pd3dSignatureBlob->GetBufferPointer(), pd3dSignatureBlob->GetBufferSize(), __uuidof(ID3D12RootSignature), (void**)&pd3dGraphicsRootSignature);
 	if (pd3dSignatureBlob) pd3dSignatureBlob->Release();
 	if (pd3dErrorBlob) pd3dErrorBlob->Release();
 
@@ -380,11 +380,11 @@ void CScene::CheckMissileByObjectCollisions()
 	for (int i = 0; i < m_nObjects; i++)
 		if (m_ppObjects[i]->Hit)
 		{
-			for (int j = 0; j < Player->GetMissileNum(); ++j) 
+			for (int j = 0; j < Player->GetMissileNum(); ++j)
 			{
 				CMissileObject* Missile = Player->GetMissile(j);
 				if (Missile->GetFire())
-					if (m_ppObjects[i]->m_xmOOBB.Intersects(Missile->m_xmOOBB)) 
+					if (m_ppObjects[i]->m_xmOOBB.Intersects(Missile->m_xmOOBB))
 					{
 						Missile->SetFire(false);
 						Missile->SetPosition(0.0f, -1000.0f, 0.0f);
@@ -403,7 +403,7 @@ void CScene::CheckMissileByTerrainCollisions()
 		if (Missile->GetFire() && m_pTerrain->GetHeight(posi.x, posi.z) > posi.y) {
 			Missile->SetFire(false);
 			Missile->SetPosition(0.0f, -1000.0f, 0.0f);
-		}		
+		}
 	}
 }
 
@@ -433,13 +433,13 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	CheckMissileByObjectCollisions();
 }
 
-void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 	pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 	pCamera->UpdateShaderVariables(pd3dCommandList);
 
-	if (m_pTerrain) 
+	if (m_pTerrain)
 		m_pTerrain->Render(pd3dCommandList, pCamera);
 
 	for (int j = 0; j < m_nObjects; j++)

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "pch.h"
 #include "Player.h"
 #include "Camera.h"
 
@@ -19,10 +19,10 @@ CCamera::CCamera()
 	m_fTimeLag = 0.0f;
 	m_xmf3LookAtWorld = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_nMode = 0x00;
-	m_pPlayer = NULL;
+	m_pPlayer = nullptr;
 }
 
-CCamera::CCamera(CCamera *pCamera)
+CCamera::CCamera(CCamera* pCamera)
 {
 	if (pCamera)
 	{
@@ -45,7 +45,7 @@ CCamera::CCamera(CCamera *pCamera)
 		m_fTimeLag = 0.0f;
 		m_xmf3LookAtWorld = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		m_nMode = 0x00;
-		m_pPlayer = NULL;
+		m_pPlayer = nullptr;
 	}
 }
 
@@ -85,7 +85,7 @@ void CCamera::GenerateProjectionMatrix(float fNearPlaneDistance, float fFarPlane
 void CCamera::CalculateFrustumPlanes()
 {
 #ifdef _WITH_DIERECTX_MATH_FRUSTUM
-	m_xmFrustumView.Transform(m_xmFrustumWorld, XMMatrixInverse(NULL, XMLoadFloat4x4(&m_xmf4x4View)));
+	m_xmFrustumView.Transform(m_xmFrustumWorld, XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_xmf4x4View)));
 #else
 	XMFLOAT4X4 mtxViewProjection = Matrix4x4::Multiply(m_xmf4x4View, m_xmf4x4Projection);
 
@@ -234,11 +234,11 @@ void CCamera::RegenerateViewMatrix()
 	m_xmFrustumView.Transform(m_xmFrustumWorld, XMLoadFloat4x4(&m_xmf4x4InverseView));
 }
 
-void CCamera::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+void CCamera::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 }
 
-void CCamera::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
+void CCamera::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	XMFLOAT4X4 xmf4x4View;
 	XMStoreFloat4x4(&xmf4x4View, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4View)));
@@ -255,7 +255,7 @@ void CCamera::ReleaseShaderVariables()
 {
 }
 
-void CCamera::SetViewportsAndScissorRects(ID3D12GraphicsCommandList *pd3dCommandList)
+void CCamera::SetViewportsAndScissorRects(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	pd3dCommandList->RSSetViewports(1, &m_d3dViewport);
 	pd3dCommandList->RSSetScissorRects(1, &m_d3dScissorRect);
@@ -263,7 +263,7 @@ void CCamera::SetViewportsAndScissorRects(ID3D12GraphicsCommandList *pd3dCommand
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CSpaceShipCamera::CSpaceShipCamera(CCamera *pCamera) : CCamera(pCamera)
+CSpaceShipCamera::CSpaceShipCamera(CCamera* pCamera) : CCamera(pCamera)
 {
 	m_nMode = SPACESHIP_CAMERA;
 }
@@ -307,7 +307,7 @@ void CSpaceShipCamera::Rotate(float x, float y, float z)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CFirstPersonCamera::CFirstPersonCamera(CCamera *pCamera) : CCamera(pCamera)
+CFirstPersonCamera::CFirstPersonCamera(CCamera* pCamera) : CCamera(pCamera)
 {
 	m_nMode = FIRST_PERSON_CAMERA;
 	if (pCamera)
@@ -355,7 +355,7 @@ void CFirstPersonCamera::Rotate(float x, float y, float z)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CThirdPersonCamera::CThirdPersonCamera(CCamera *pCamera) : CCamera(pCamera)
+CThirdPersonCamera::CThirdPersonCamera(CCamera* pCamera) : CCamera(pCamera)
 {
 	m_nMode = THIRD_PERSON_CAMERA;
 	if (pCamera)
