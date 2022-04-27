@@ -10,6 +10,9 @@ public:
 	CGameFramework();
 	~CGameFramework();
 
+	CGameFramework(const CGameFramework& other) = delete;
+	CGameFramework& operator=(const CGameFramework& other) = delete;
+
 	bool OnCreate(HINSTANCE hInstance, HWND hMainWnd);
 	void OnDestroy();
 
