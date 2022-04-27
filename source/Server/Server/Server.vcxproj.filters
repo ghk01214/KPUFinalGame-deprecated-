@@ -36,7 +36,7 @@
     <ClCompile Include="GameFramework.cpp">
       <Filter>클래스\cpp</Filter>
     </ClCompile>
-    <ClCompile Include="CPlayer.cpp">
+    <ClCompile Include="Player.cpp">
       <Filter>클래스\cpp</Filter>
     </ClCompile>
     <ClCompile Include="CClient.cpp">

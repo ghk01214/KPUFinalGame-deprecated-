@@ -5,6 +5,6 @@ int main()
 {
 	CNetworkFramework network;
 
-	network.Initialize();
-
+	network.OnCreate();
+	network.CreateThread();
 }

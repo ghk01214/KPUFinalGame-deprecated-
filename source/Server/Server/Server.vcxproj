@@ -142,7 +142,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CClient.cpp" />
-    <ClCompile Include="CPlayer.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="GameFramework.cpp" />
     <ClCompile Include="NetworkFramework.cpp" />
     <ClCompile Include="pch.cpp">

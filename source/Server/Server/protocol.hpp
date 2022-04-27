@@ -1,6 +1,11 @@
 ﻿#ifndef _PROTOCOL_HPP_
 #define _PROTOCOL_HPP_
 
+enum class DIRECTION
+{
+	UP = 1, DOWN, LEFT, RIGHT
+};
+
 inline constexpr int SERVER_PORT{ 4000 };
 
 namespace VAR_SIZE
@@ -82,4 +87,3 @@ namespace CS
 #pragma pack(pop)
 
 #endif // !_PROTOCOL_HPP_
-

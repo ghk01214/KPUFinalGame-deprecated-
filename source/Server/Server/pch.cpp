@@ -1,5 +1,7 @@
 ﻿#include "pch.hpp"
 
+std::default_random_engine dre(std::random_device{}());
+
 void ErrorQuit(std::wstring_view msg, int errorNum)
 {
 	LPVOID lpMsgBuf;

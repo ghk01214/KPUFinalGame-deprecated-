@@ -22,11 +22,12 @@ class OVERLAPPEDEX
 {
 public:
 	OVERLAPPEDEX();
-	OVERLAPPEDEX(char* packet);
+
+	void SetPacket(char* packet);
 
 public:
 	OVERLAPPED over;
-	WSABUF wsaBuf;
+	WSABUF wsa_buf;
 	char data[VAR_SIZE::DATA];
 	char type;
 };
@@ -39,26 +40,37 @@ public:
 	void RecvData();
 	void SendData(void* packet);
 
-	void SendLoginPakcet(short plId, char type, CPlayer pl, char size = sizeof(SC::PACKET::LOGIN));
-	void SendMovePlayerPacket(short plId, char type, CPlayer pl, char size = sizeof(SC::PACKET::MOVE_PLAYER));
+	void SendLoginPakcet();
+	void SendMovePlayerPacket(short plId, char type, CPlayer pl);
 
 	void SetState(SESSION_STATE session) { state = session; }
 
 	SESSION_STATE GetState() { return state; }
 	SOCKET GetSocket() { return sock; }
 	int GetID() const { return id; }
+	CPlayer GetPlayer() { return player; }
+	int GetRemainSize() { return remain_size; }
+
+	void SetID(int ID) { id = ID; }
+	void SetSocket(SOCKET soc) { sock = soc; }
+	void SetRemainSize(int size) { remain_size = size; }
 
 private:
-	OVERLAPPEDEX recvOver;
-	OVERLAPPEDEX sendOver;
+	OVERLAPPEDEX recv_over;
+	OVERLAPPEDEX send_over;
+
+	SC::PACKET::LOGIN login_packet;
+	SC::PACKET::MOVE_PLAYER pl_move_packet;
 
 	SESSION_STATE state;
 	SOCKET sock;
 	int id;
 	CPlayer player;
 
+	int remain_size;
 public:
-	std::mutex inUse;
+
+	std::mutex mu;
 };
 
 //===========================================================================================
@@ -69,22 +81,36 @@ public:
 	CNetworkFramework();
 	~CNetworkFramework();
 
-	bool Initialize();
-	void CreateThread();
+	void OnCreate();
+	void OnDestroy();
 
+	void CreateThread();
 	void ProcessThread();
-	void ProcessPacket();
+	void AcceptClient();
+	void RecvData(DWORD bytes, ULONG_PTR key);
+	void SendData(DWORD bytes, ULONG_PTR key);
+
+	void ProcessPacket(int id, char* pack);
+	void ProcessLoginPacket(int id, char* pack);
+	void ProcessMovePacket(int id, char* pack);
 
 	int GetNewClientID();
-	void DisconnectClient(int id);
+	void DisconnectClient(ULONG_PTR id);
 
 private:
 	SOCKET server;
-	int serverKey;
+	int server_key;
 	HANDLE iocp;
 
-	std::vector<std::thread> workerThreads;
+	std::vector<std::thread> worker_threads;
 	std::array<CClient, MAX_USER> clients;
+
+	OVERLAPPED* over;
+	OVERLAPPEDEX* over_ex;
+	char* packet;
+
+	CS::PACKET::LOGIN login_packet;
+	SC::PACKET::ADD_PLAYER add_player_packet;
 };
 
 #endif // !_NETWORK_FRAMEWORK_HPP_
