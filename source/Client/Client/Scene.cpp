@@ -32,8 +32,8 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	CMesh* pUfoMesh = new CMesh(pd3dDevice, pd3dCommandList, "Models/UFO.txt", true);
 	CMesh* pFlyerMesh = new CMesh(pd3dDevice, pd3dCommandList, "Models/FlyerPlayership.txt", true);
 #endif
-#ifdef _WITH_BINARY_MODEL_FILE
 
+#ifdef _WITH_BINARY_MODEL_FILE
 	CMesh* pUfoMesh = new CMesh(pd3dDevice, pd3dCommandList, "Assets/Models/UFO.bin", false);
 	CMesh* pHouseMesh = new CMesh(pd3dDevice, pd3dCommandList, "Assets/Models/ams_house3.bin", false);
 	CMesh* pFlyerMesh = new CMesh(pd3dDevice, pd3dCommandList, "Assets/Models/FlyerPlayership.bin", false);
@@ -51,11 +51,11 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 #else
 //지형을 하나의 격자 메쉬(257x257)로 생성한다. 
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList,
-		m_pd3dGraphicsRootSignature, _T("Assets/Image/Terrain/Plain.raw"), 257, 257, 257,
+		m_pd3dGraphicsRootSignature, _T("Assets/Image/Terrain/HeightMap.raw"), 257, 257, 257,
 		257, xmf3Scale, xmf4Color);
 #endif
 
-	m_nObjects = 32;
+	m_nObjects = 8;
 	m_ppObjects = new CGameObject * [m_nObjects];
 
 	CPseudoLightingShader* pShader = new CPseudoLightingShader();
@@ -120,180 +120,6 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		m_ppObjects[7]->SetScale(40.0f);
 		m_ppObjects[7]->SetPosition(0.0f, m_pTerrain->GetHeight(100.0f, 100.0f), 1150.0f);
 		m_ppObjects[7]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-	}
-	//2번 세트
-	{
-		m_ppObjects[8] = new CUfoObject(1);
-		m_ppObjects[8]->SetMesh(0, pUfoMesh);
-		m_ppObjects[8]->SetShader(pShader);
-		m_ppObjects[8]->SetScale(30.0f);
-		m_ppObjects[8]->SetPosition(-500.0f, m_pTerrain->GetHeight(100.0f, 100.0f), -500.0f); //  - -
-		m_ppObjects[8]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[9] = new CUfoObject(2);
-		m_ppObjects[9]->SetMesh(0, pUfoMesh);
-		m_ppObjects[9]->SetShader(pShader);
-		m_ppObjects[9]->SetScale(30.0f);
-		m_ppObjects[9]->SetPosition(2800.0f, m_pTerrain->GetHeight(100.0f, 100.0f), -500.0f); // + -
-		m_ppObjects[9]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[10] = new CUfoObject(3);
-		m_ppObjects[10]->SetMesh(0, pUfoMesh);
-		m_ppObjects[10]->SetShader(pShader);
-		m_ppObjects[10]->SetScale(30.0f);
-		m_ppObjects[10]->SetPosition(2800.0f, m_pTerrain->GetHeight(100.0f, 100.0f), 2800.0f); // + +
-		m_ppObjects[10]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[11] = new CUfoObject(4);
-		m_ppObjects[11]->SetMesh(0, pUfoMesh);
-		m_ppObjects[11]->SetShader(pShader);
-		m_ppObjects[11]->SetScale(30.0f);
-		m_ppObjects[11]->SetPosition(-500.0f, m_pTerrain->GetHeight(100.0f, 100.0f), 2800.0f); // - +
-		m_ppObjects[11]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[12] = new CUfoObject(5);
-		m_ppObjects[12]->SetMesh(0, pUfoMesh);
-		m_ppObjects[12]->SetShader(pShader);
-		m_ppObjects[12]->SetScale(30.0f);
-		m_ppObjects[12]->SetPosition(1150.0f, m_pTerrain->GetHeight(100.0f, 100.0f), -500.0f);  //  x  -
-		m_ppObjects[12]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[13] = new CUfoObject(6);
-		m_ppObjects[13]->SetMesh(0, pUfoMesh);
-		m_ppObjects[13]->SetShader(pShader);
-		m_ppObjects[13]->SetScale(30.0f);
-		m_ppObjects[13]->SetPosition(2800.0f, m_pTerrain->GetHeight(100.0f, 100.0f), 1150.0f);  //  +  x
-		m_ppObjects[13]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[14] = new CUfoObject(7);
-		m_ppObjects[14]->SetMesh(0, pUfoMesh);
-		m_ppObjects[14]->SetShader(pShader);
-		m_ppObjects[14]->SetScale(30.0f);
-		m_ppObjects[14]->SetPosition(1150.0f, m_pTerrain->GetHeight(100.0f, 100.0f), 2800.0f);  //  x  +
-		m_ppObjects[14]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[15] = new CUfoObject(8);
-		m_ppObjects[15]->SetMesh(0, pUfoMesh);
-		m_ppObjects[15]->SetShader(pShader);
-		m_ppObjects[15]->SetScale(30.0f);
-		m_ppObjects[15]->SetPosition(-500.0f, m_pTerrain->GetHeight(100.0f, 100.0f), 1150.0f);   //   -   x
-		m_ppObjects[15]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-	}
-	//3번 세트
-	{
-		m_ppObjects[16] = new CUfoObject(1);
-		m_ppObjects[16]->SetMesh(0, pUfoMesh);
-		m_ppObjects[16]->SetShader(pShader);
-		m_ppObjects[16]->SetScale(20.0f);
-		m_ppObjects[16]->SetPosition(-1000.0f, m_pTerrain->GetHeight(100.0f, 100.0f), -1000.0f); //  - -
-		m_ppObjects[16]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[17] = new CUfoObject(2);
-		m_ppObjects[17]->SetMesh(0, pUfoMesh);
-		m_ppObjects[17]->SetShader(pShader);
-		m_ppObjects[17]->SetScale(20.0f);
-		m_ppObjects[17]->SetPosition(3300.0f, m_pTerrain->GetHeight(100.0f, 100.0f), -1000.0f); // + -
-		m_ppObjects[17]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[18] = new CUfoObject(3);
-		m_ppObjects[18]->SetMesh(0, pUfoMesh);
-		m_ppObjects[18]->SetShader(pShader);
-		m_ppObjects[18]->SetScale(20.0f);
-		m_ppObjects[18]->SetPosition(3300.0f, m_pTerrain->GetHeight(100.0f, 100.0f), 3300.0f); // + +
-		m_ppObjects[18]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[19] = new CUfoObject(4);
-		m_ppObjects[19]->SetMesh(0, pUfoMesh);
-		m_ppObjects[19]->SetShader(pShader);
-		m_ppObjects[19]->SetScale(20.0f);
-		m_ppObjects[19]->SetPosition(-1000.0f, m_pTerrain->GetHeight(100.0f, 100.0f), 3300.0f); // - +
-		m_ppObjects[19]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[20] = new CUfoObject(5);
-		m_ppObjects[20]->SetMesh(0, pUfoMesh);
-		m_ppObjects[20]->SetShader(pShader);
-		m_ppObjects[20]->SetScale(20.0f);
-		m_ppObjects[20]->SetPosition(1150.0f, m_pTerrain->GetHeight(100.0f, 100.0f), -1000.0f);  //  x  -
-		m_ppObjects[20]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[21] = new CUfoObject(6);
-		m_ppObjects[21]->SetMesh(0, pUfoMesh);
-		m_ppObjects[21]->SetShader(pShader);
-		m_ppObjects[21]->SetScale(20.0f);
-		m_ppObjects[21]->SetPosition(3300.0f, m_pTerrain->GetHeight(100.0f, 100.0f), 1150.0f);  //  +  x
-		m_ppObjects[21]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[22] = new CUfoObject(7);
-		m_ppObjects[22]->SetMesh(0, pUfoMesh);
-		m_ppObjects[22]->SetShader(pShader);
-		m_ppObjects[22]->SetScale(20.0f);
-		m_ppObjects[22]->SetPosition(1150.0f, m_pTerrain->GetHeight(100.0f, 100.0f), 3300.0f);  //  x  +
-		m_ppObjects[22]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[23] = new CUfoObject(8);
-		m_ppObjects[23]->SetMesh(0, pUfoMesh);
-		m_ppObjects[23]->SetShader(pShader);
-		m_ppObjects[23]->SetScale(20.0f);
-		m_ppObjects[23]->SetPosition(-1000.0f, m_pTerrain->GetHeight(100.0f, 100.0f), 1150.0f);   //   -   x
-		m_ppObjects[23]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-	}
-	//4번 세트
-	{
-		m_ppObjects[24] = new CUfoObject(1);
-		m_ppObjects[24]->SetMesh(0, pUfoMesh);
-		m_ppObjects[24]->SetShader(pShader);
-		m_ppObjects[24]->SetScale(10.0f);
-		m_ppObjects[24]->SetPosition(-1500.0f, m_pTerrain->GetHeight(100.0f, 100.0f), -1500.0f); //  - -
-		m_ppObjects[24]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[25] = new CUfoObject(2);
-		m_ppObjects[25]->SetMesh(0, pUfoMesh);
-		m_ppObjects[25]->SetShader(pShader);
-		m_ppObjects[25]->SetScale(10.0f);
-		m_ppObjects[25]->SetPosition(3800.0f, m_pTerrain->GetHeight(100.0f, 100.0f), -1500.0f); // + -
-		m_ppObjects[25]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[26] = new CUfoObject(3);
-		m_ppObjects[26]->SetMesh(0, pUfoMesh);
-		m_ppObjects[26]->SetShader(pShader);
-		m_ppObjects[26]->SetScale(10.0f);
-		m_ppObjects[26]->SetPosition(3800.0f, m_pTerrain->GetHeight(100.0f, 100.0f), 3800.0f); // + +
-		m_ppObjects[26]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[27] = new CUfoObject(4);
-		m_ppObjects[27]->SetMesh(0, pUfoMesh);
-		m_ppObjects[27]->SetShader(pShader);
-		m_ppObjects[27]->SetScale(10.0f);
-		m_ppObjects[27]->SetPosition(-1500.0f, m_pTerrain->GetHeight(100.0f, 100.0f), 3800.0f); // - +
-		m_ppObjects[27]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[28] = new CUfoObject(10);
-		m_ppObjects[28]->SetMesh(0, pUfoMesh);
-		m_ppObjects[28]->SetShader(pShader);
-		m_ppObjects[28]->SetScale(10.0f);
-		m_ppObjects[28]->SetPosition(1150.0f, m_pTerrain->GetHeight(100.0f, 100.0f), -1500.0f);  //  x  -
-		m_ppObjects[28]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[29] = new CUfoObject(6);
-		m_ppObjects[29]->SetMesh(0, pUfoMesh);
-		m_ppObjects[29]->SetShader(pShader);
-		m_ppObjects[29]->SetScale(10.0f);
-		m_ppObjects[29]->SetPosition(3800.0f, m_pTerrain->GetHeight(100.0f, 100.0f), 1150.0f);  //  +  x
-		m_ppObjects[29]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[30] = new CUfoObject(7);
-		m_ppObjects[30]->SetMesh(0, pUfoMesh);
-		m_ppObjects[30]->SetShader(pShader);
-		m_ppObjects[30]->SetScale(10.0f);
-		m_ppObjects[30]->SetPosition(1150.0f, m_pTerrain->GetHeight(100.0f, 100.0f), 3800.0f);  //  x  +
-		m_ppObjects[30]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
-
-		m_ppObjects[31] = new CUfoObject(8);
-		m_ppObjects[31]->SetMesh(0, pUfoMesh);
-		m_ppObjects[31]->SetShader(pShader);
-		m_ppObjects[31]->SetScale(10.0f);
-		m_ppObjects[31]->SetPosition(-1500.0f, m_pTerrain->GetHeight(100.0f, 100.0f), 1150.0f);   //   -   x
-		m_ppObjects[31]->SetColor(XMFLOAT3(200.0f, 0.0f, 0.0f));
 	}
 }
 
@@ -428,7 +254,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	{
 		m_ppObjects[j]->Animate(fTimeElapsed);
 	}
-	CheckPlayerByObjectCollisions();
+	//CheckPlayerByObjectCollisions();
 	CheckMissileByTerrainCollisions();
 	CheckMissileByObjectCollisions();
 }
