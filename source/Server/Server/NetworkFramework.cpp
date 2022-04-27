@@ -1,68 +1,6 @@
 ﻿#include "pch.hpp"
+#include "protocol.hpp"
 #include "NetworkFramework.hpp"
-
-OVERLAPPEDEX::OVERLAPPEDEX() : type(static_cast<char>(COMPLETION_TYPE::RECV)), wsa_buf({ VAR_SIZE::DATA, data })
-{
-	ZeroMemory(&over, sizeof(over));
-}
-
-void OVERLAPPEDEX::SetPacket(char* packet)
-{
-	type = static_cast<char>(COMPLETION_TYPE::SEND);
-	wsa_buf.len = static_cast<ULONG>(packet[0]);
-	wsa_buf.buf = data;
-
-	ZeroMemory(&over, sizeof(over));
-	std::memcpy(data + 2, packet, packet[0]);
-}
-
-//===========================================================================================
-
-CClient::CClient() : id(-1), player(0, 0), sock(INVALID_SOCKET), state(SESSION_STATE::FREE), remain_size(0)
-{
-}
-
-void CClient::RecvData()
-{
-	DWORD flag{ 0 };
-	ZeroMemory(&recv_over, sizeof(recv_over));
-
-	recv_over.wsa_buf.buf = recv_over.data + remain_size;
-	recv_over.wsa_buf.len = VAR_SIZE::DATA - remain_size;
-
-	WSARecv(sock, &recv_over.wsa_buf, 1, 0, &flag, &recv_over.over, nullptr);
-}
-
-void CClient::SendData(void* packet)
-{
-	send_over.SetPacket(reinterpret_cast<char*>(packet));
-
-	WSASend(sock, &send_over.wsa_buf, 1, 0, 0, &send_over.over, nullptr);
-}
-
-void CClient::SendLoginPakcet()
-{
-	login_packet.id = id;
-	login_packet.size = sizeof(SC::PACKET::LOGIN);
-	login_packet.type = SC::LOGIN;
-	login_packet.x = player.GetPosX();
-	login_packet.y = player.GetPosY();
-
-	SendData(&login_packet);
-}
-
-void CClient::SendMovePlayerPacket(short plId, char type, CPlayer pl)
-{
-	pl_move_packet.id = plId;
-	pl_move_packet.size = sizeof(SC::PACKET::MOVE_PLAYER);
-	pl_move_packet.type = SC::MOVE_PLAYER;
-	pl_move_packet.x = pl.GetPosX();
-	pl_move_packet.y = pl.GetPosY();
-
-	SendData(&pl_move_packet);
-}
-
-//===========================================================================================
 
 CNetworkFramework::CNetworkFramework() : server_key(9999), over(nullptr), over_ex(nullptr), packet(nullptr)
 {
@@ -81,7 +19,11 @@ void CNetworkFramework::OnCreate()
 		ErrorQuit(L"WSAStartup fuction error", WSAGetLastError());
 	}
 
-	iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, NULL, NULL);
+	if (iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, NULL, NULL))
+	{
+		ErrorQuit(L"IOCP Handle Creation Failed", WSAGetLastError());
+	}
+
 	server = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);
 
 	sockaddr_in serverAddr;
@@ -91,7 +33,7 @@ void CNetworkFramework::OnCreate()
 	serverAddr.sin_port = htons(SERVER_PORT);
 	serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	CreateIoCompletionPort(reinterpret_cast<HANDLE>(server), iocp, server_key, 0);
+	CreateIoCompletionPort(reinterpret_cast<HANDLE>(server), iocp, server, 0);
 
 	if (bind(server, reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) == SOCKET_ERROR)
 	{
@@ -106,6 +48,14 @@ void CNetworkFramework::OnCreate()
 
 void CNetworkFramework::OnDestroy()
 {
+	delete packet;
+	delete over;
+	delete over_ex;
+
+	packet = nullptr;
+	over = nullptr;
+	over_ex = nullptr;
+
 	closesocket(server);
 	WSACleanup();
 }

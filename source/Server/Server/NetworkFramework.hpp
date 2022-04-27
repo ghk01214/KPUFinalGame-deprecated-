@@ -1,79 +1,8 @@
 ﻿#ifndef _NETWORK_FRAMEWORK_HPP_
 #define _NETWORK_FRAMEWORK_HPP_
 
-#include "protocol.hpp"
-#include "Player.hpp"
-
-enum class COMPLETION_TYPE
-{
-	ACCEPT, RECV, SEND
-};
-
-enum class SESSION_STATE
-{
-	FREE, ACCEPTED, INGAME
-};
-
-inline constexpr int MAX_USER{ 10 };
-
-//===========================================================================================
-
-class OVERLAPPEDEX
-{
-public:
-	OVERLAPPEDEX();
-
-	void SetPacket(char* packet);
-
-public:
-	OVERLAPPED over;
-	WSABUF wsa_buf;
-	char data[VAR_SIZE::DATA];
-	char type;
-};
-
-class CClient
-{
-public:
-	CClient();
-	
-	void RecvData();
-	void SendData(void* packet);
-
-	void SendLoginPakcet();
-	void SendMovePlayerPacket(short plId, char type, CPlayer pl);
-
-	void SetState(SESSION_STATE session) { state = session; }
-
-	SESSION_STATE GetState() { return state; }
-	SOCKET GetSocket() { return sock; }
-	int GetID() const { return id; }
-	CPlayer GetPlayer() { return player; }
-	int GetRemainSize() { return remain_size; }
-
-	void SetID(int ID) { id = ID; }
-	void SetSocket(SOCKET soc) { sock = soc; }
-	void SetRemainSize(int size) { remain_size = size; }
-
-private:
-	OVERLAPPEDEX recv_over;
-	OVERLAPPEDEX send_over;
-
-	SC::PACKET::LOGIN login_packet;
-	SC::PACKET::MOVE_PLAYER pl_move_packet;
-
-	SESSION_STATE state;
-	SOCKET sock;
-	int id;
-	CPlayer player;
-
-	int remain_size;
-public:
-
-	std::mutex mu;
-};
-
-//===========================================================================================
+#include "OVERLAPPEDEX.hpp"
+#include "Client.h"
 
 class CNetworkFramework
 {
