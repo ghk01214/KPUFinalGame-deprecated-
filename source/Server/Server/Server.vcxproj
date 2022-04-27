@@ -141,7 +141,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CClient.cpp" />
+    <ClCompile Include="Client.cpp" />
+    <ClCompile Include="OVERLAPPEDEX.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="GameFramework.cpp" />
     <ClCompile Include="NetworkFramework.cpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="Client.h" />
     <ClInclude Include="GameFramework.hpp" />
     <ClInclude Include="NetworkFramework.hpp" />
+    <ClInclude Include="OVERLAPPEDEX.hpp" />
     <ClInclude Include="pch.hpp" />
     <ClInclude Include="Player.hpp" />
     <ClInclude Include="protocol.hpp" />

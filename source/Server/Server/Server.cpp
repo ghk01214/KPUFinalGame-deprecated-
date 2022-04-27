@@ -7,4 +7,5 @@ int main()
 
 	network.OnCreate();
 	network.CreateThread();
+	network.OnDestroy();
 }
