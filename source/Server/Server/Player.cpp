@@ -6,7 +6,7 @@ CPlayer::CPlayer()
 	name[0] = 0;
 }
 
-CPlayer::CPlayer(short x, short y) : x(x), y(y)
+CPlayer::CPlayer(short x, short y, short z) : x(x), y(y), z(z)
 {
 	name[0] = 0;
 }
@@ -16,7 +16,7 @@ CPlayer::CPlayer(char* new_name)
 	strcpy_s(name, new_name);
 }
 
-CPlayer::CPlayer(short x, short y, char* new_name) : x(x), y(y)
+CPlayer::CPlayer(short x, short y, short z, char* new_name) : x(x), y(y), z(z)
 {
 	strcpy_s(name, new_name);
 }

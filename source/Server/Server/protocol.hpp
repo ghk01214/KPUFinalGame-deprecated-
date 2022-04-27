@@ -3,7 +3,7 @@
 
 enum class DIRECTION
 {
-	UP = 1, DOWN, LEFT, RIGHT
+	FORWARD = 1, BACKWARD, LEFT, RIGHT, UP, DOWN
 };
 
 inline constexpr int SERVER_PORT{ 4000 };
@@ -79,7 +79,7 @@ namespace CS
 		{
 			unsigned char size;
 			char type;
-			char direction;			// 1 : UP, 2 : DOWN, 3 : LEFT, 4 : RIGHT
+			char direction;			// 1 : FORWARD, 2 : BACKWARD, 3 : LEFT, 4 : RIGHT, 5 : UP, 6 : DOWN
 		};
 	}
 }

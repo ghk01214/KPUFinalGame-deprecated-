@@ -8,9 +8,9 @@ class CPlayer
 {
 public:
 	CPlayer();
-	CPlayer(short x, short y);
+	CPlayer(short x, short y, short z);
 	CPlayer(char* new_name);
-	CPlayer(short x, short y, char* new_name);
+	CPlayer(short x, short y, short z, char* new_name);
 
 	void Move(DIRECTION direction);
 
@@ -20,6 +20,7 @@ public:
 
 	void SetPosX(int X) { x = X; }
 	void SetPosY(int Y) { y = Y; }
+	void SetPosZ(int Z) { z = Z; }
 	void SetName(char* NAME) { 
 		if (NAME == 0)
 		{
@@ -30,7 +31,7 @@ public:
 
 private:
 	char name[VAR_SIZE::NAME];
-	int x, y;
+	int x, y, z;
 };
 
 #endif // !_PLAYER_HPP_
