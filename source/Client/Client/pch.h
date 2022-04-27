@@ -44,13 +44,8 @@ using namespace DirectX::PackedVector;
 
 using Microsoft::WRL::ComPtr;
 
-<<<<<<< HEAD:Sample 수정/stdafx.h
-#define FRAME_BUFFER_WIDTH		1280
-#define FRAME_BUFFER_HEIGHT		720
-=======
 #define FRAME_BUFFER_WIDTH		800
 #define FRAME_BUFFER_HEIGHT		600
->>>>>>> 8da3b19223837866c1107e699aca659ff2aeecaf:source/Client/Client/pch.h
 
 #define DIR_FORWARD				0x01
 #define DIR_BACKWARD			0x02
