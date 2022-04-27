@@ -34,7 +34,6 @@
 #include <DirectXPackedVector.h>
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
-
 #include <D3d12SDKLayers.h>
 
 #include <Mmsystem.h>
@@ -44,13 +43,8 @@ using namespace DirectX::PackedVector;
 
 using Microsoft::WRL::ComPtr;
 
-<<<<<<< HEAD:Sample 수정/stdafx.h
-#define FRAME_BUFFER_WIDTH		1280
-#define FRAME_BUFFER_HEIGHT		720
-=======
 #define FRAME_BUFFER_WIDTH		800
 #define FRAME_BUFFER_HEIGHT		600
->>>>>>> 8da3b19223837866c1107e699aca659ff2aeecaf:source/Client/Client/pch.h
 
 #define DIR_FORWARD				0x01
 #define DIR_BACKWARD			0x02
@@ -63,6 +57,8 @@ using Microsoft::WRL::ComPtr;
 #define VK_A					0x41
 #define VK_S					0x53
 #define VK_D					0x44
+#define VK_Q					0x51
+#define VK_E					0x45
 
 #define RANDOM_COLOR			XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
 
