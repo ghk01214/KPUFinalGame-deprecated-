@@ -1,15 +1,8 @@
-﻿// pch.h : 자주 사용하지만 자주 변경되지는 않는
-// 표준 시스템 포함 파일 및 프로젝트 관련 포함 파일이
-// 들어 있는 포함 파일입니다.
-//
+﻿#pragma once
 
-#pragma once
-
-#define WIN32_LEAN_AND_MEAN             // 거의 사용되지 않는 내용은 Windows 헤더에서 제외합니다.
-// Windows 헤더 파일:
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-// C의 런타임 헤더 파일입니다.
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
@@ -69,7 +62,6 @@ using Microsoft::WRL::ComPtr;
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 
-// TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
 extern UINT	gnCbvSrvDescriptorIncrementSize;
 
 extern ID3D12Resource *CreateBufferResource(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, ID3D12Resource **ppd3dUploadBuffer = NULL);
@@ -182,7 +174,6 @@ namespace Vector3
 
 	inline bool IsZero(XMFLOAT3& xmf3Vector)
 	{
-		//3-차원 벡터가 영벡터인 가를 반환하는 함수이다.
 		if (::IsZero(xmf3Vector.x) && ::IsZero(xmf3Vector.y) && ::IsZero(xmf3Vector.z))
 			return(true);
 		return(false);
@@ -197,7 +188,6 @@ namespace Vector4
 		XMStoreFloat4(&xmf4Result, XMLoadFloat4(&xmf4Vector1) + XMLoadFloat4(&xmf4Vector2));
 		return(xmf4Result);
 	}
-	//4-차원 벡터와 스칼라(실수)의 곱을 반환하는 함수이다. 
 	inline XMFLOAT4 Multiply(float fScalar, XMFLOAT4& xmf4Vector)
 	{
 		XMFLOAT4 xmf4Result;

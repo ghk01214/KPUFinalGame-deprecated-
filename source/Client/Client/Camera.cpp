@@ -73,7 +73,6 @@ void CCamera::SetScissorRect(LONG xLeft, LONG yTop, LONG xRight, LONG yBottom)
 
 void CCamera::GenerateProjectionMatrix(float fNearPlaneDistance, float fFarPlaneDistance, float fAspectRatio, float fFOVAngle)
 {
-	//	m_xmf4x4Projection = Matrix4x4::PerspectiveFovLH(XMConvertToRadians(fFOVAngle), fAspectRatio, fNearPlaneDistance, fFarPlaneDistance);
 	XMMATRIX xmmtxProjection = XMMatrixPerspectiveFovLH(XMConvertToRadians(fFOVAngle), fAspectRatio, fNearPlaneDistance, fFarPlaneDistance);
 	XMStoreFloat4x4(&m_xmf4x4Projection, xmmtxProjection);
 
@@ -261,8 +260,6 @@ void CCamera::SetViewportsAndScissorRects(ID3D12GraphicsCommandList* pd3dCommand
 	pd3dCommandList->RSSetScissorRects(1, &m_d3dScissorRect);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 CSpaceShipCamera::CSpaceShipCamera(CCamera* pCamera) : CCamera(pCamera)
 {
 	m_nMode = SPACESHIP_CAMERA;
@@ -304,8 +301,6 @@ void CSpaceShipCamera::Rotate(float x, float y, float z)
 		m_xmf3Position = Vector3::Add(m_xmf3Position, m_pPlayer->GetPosition());
 	}
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 CFirstPersonCamera::CFirstPersonCamera(CCamera* pCamera) : CCamera(pCamera)
 {
@@ -352,8 +347,6 @@ void CFirstPersonCamera::Rotate(float x, float y, float z)
 		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 	}
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 CThirdPersonCamera::CThirdPersonCamera(CCamera* pCamera) : CCamera(pCamera)
 {
