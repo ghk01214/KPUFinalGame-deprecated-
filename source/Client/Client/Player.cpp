@@ -15,6 +15,7 @@ CPlayer::CPlayer(int nMeshes) : CGameObject(nMeshes)
 	m_xmf3Gravity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_fMaxVelocityXZ = 0.0f;
 	m_fMaxVelocityY = 0.0f;
+	m_fPlayerMaxSpeed = 50.0f;
 	m_fFriction = 0.0f;
 
 	m_fPitch = 0.0f;
@@ -60,17 +61,30 @@ void CPlayer::ReleaseShaderVariables()
 	CGameObject::ReleaseShaderVariables();
 }
 
-void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
+void CPlayer::Move(DWORD dwDirection, float fTime, bool bUpdateVelocity)
 {
+	int inputaddcount = 0;
+	int inputsubcount = 0;
+
+	if (dwDirection & DIR_FORWARD)
+		++inputaddcount;
+	if (dwDirection & DIR_BACKWARD)
+		++inputsubcount;
+	if (dwDirection & DIR_RIGHT)
+		++inputaddcount;
+	if (dwDirection & DIR_LEFT)
+		++inputsubcount;
+
+		abs(inputaddcount - inputsubcount);
+
 	if (dwDirection)
 	{
+
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
-		if (dwDirection & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
-		if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
-		if (dwDirection & DIR_RIGHT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
-		if (dwDirection & DIR_LEFT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
-		if (dwDirection & DIR_UP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance);
-		if (dwDirection & DIR_DOWN) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
+		if (dwDirection & DIR_FORWARD)	xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Look.x, 0, m_xmf3Look.z), m_fPlayerMaxSpeed * fTime);
+		if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Look.x, 0, m_xmf3Look.z), m_fPlayerMaxSpeed * -fTime);
+		if (dwDirection & DIR_RIGHT)	xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Right.x, 0, m_xmf3Right.z), m_fPlayerMaxSpeed * fTime);
+		if (dwDirection & DIR_LEFT)		xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Right.x, 0, m_xmf3Right.z), m_fPlayerMaxSpeed * -fTime);
 
 		Move(xmf3Shift, bUpdateVelocity);
 	}
@@ -115,37 +129,19 @@ void CPlayer::Rotate(float x, float y, float z)
 		m_pCamera->Rotate(x, y, z);
 		if (y != 0.0f)
 		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
+			XMMATRIX xmmtxRotate = XMMatrixRotationY(XMConvertToRadians(y));
 			m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+			m_xmf3Up = Vector3::TransformNormal(m_xmf3Up, xmmtxRotate);
 			m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 		}
-	}
-	else if (nCurrentCameraMode == SPACESHIP_CAMERA)
-	{
-		m_pCamera->Rotate(x, y, z);
 		if (x != 0.0f)
 		{
 			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Right), XMConvertToRadians(x));
 			m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
 			m_xmf3Up = Vector3::TransformNormal(m_xmf3Up, xmmtxRotate);
-		}
-		if (y != 0.0f)
-		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
-			m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-			m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-		}
-		if (z != 0.0f)
-		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Look), XMConvertToRadians(z));
-			m_xmf3Up = Vector3::TransformNormal(m_xmf3Up, xmmtxRotate);
 			m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 		}
 	}
-
-	m_xmf3Look = Vector3::Normalize(m_xmf3Look);
-	m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
-	m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
 }
 
 void CPlayer::Update(float fTimeElapsed)
@@ -258,6 +254,7 @@ void CPlayer::Attack()
 	for (int i = 0; i < m_missileNum; ++i) {
 		if (!m_missile[i]->GetFire()) {
   			m_missile[i]->SetPosition(m_xmf3Position);
+			m_missile[i]->SetLook(m_xmf3Look);
 			m_missile[i]->SetUp(m_xmf3Up);
 			m_missile[i]->SetRight(m_xmf3Right);
 			//m_missile[i]->Setu(m_xmf3Look);

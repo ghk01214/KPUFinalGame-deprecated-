@@ -26,6 +26,10 @@ protected:
 
 	CCamera* m_pCamera = nullptr;
 
+	float						m_fPlayerMaxHp;
+	float						m_fPlayerCurrentHp;
+	float						m_fPlayerMaxSpeed;
+	float						m_fPlayerCurrentSpeed;
 public:
 	CPlayer(int nMeshes = 1);
 	virtual ~CPlayer();
@@ -50,7 +54,7 @@ public:
 	CCamera* GetCamera() { return(m_pCamera); }
 	void SetCamera(CCamera* pCamera) { m_pCamera = pCamera; }
 
-	void Move(DWORD nDirection, float fDistance, bool bVelocity = false);
+	void Move(DWORD nDirection, float fTime, bool bVelocity = false);
 	void Move(const XMFLOAT3& xmf3Shift, bool bVelocity = false);
 	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
 	void ResetPlayerPos() { m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); }
