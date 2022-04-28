@@ -1,8 +1,4 @@
-﻿//-----------------------------------------------------------------------------
-// File: CGameFramework.cpp
-//-----------------------------------------------------------------------------
-
-#include "pch.h"
+﻿#include "pch.h"
 #include "GameFramework.h"
 
 CGameFramework::CGameFramework()
@@ -356,10 +352,10 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_RETURN:
 			break;
 		case VK_F3:
-			m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
+			::ReleaseCapture(); //마우스 커서 사용시
 			break;
 		case VK_F9:
-			ChangeSwapChainState();
+			ChangeSwapChainState(); //전체 화면
 			break;
 		default:
 			break;
@@ -490,9 +486,13 @@ void CGameFramework::ProcessInput()
 		if (cxDelta || cyDelta)
 		{
 			if (pKeysBuffer[VK_RBUTTON] & 0xF0)
-				m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
+			{
+				//m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta); 기울이기
+			}
 			else
+			{
 				m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+			}
 		}
 		if (dwDirection) m_pPlayer->Move(dwDirection, 200.0f * m_GameTimer.GetTimeElapsed(), true);
 	}
