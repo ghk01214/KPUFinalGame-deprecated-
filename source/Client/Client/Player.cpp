@@ -257,7 +257,6 @@ void CPlayer::Attack()
 			m_missile[i]->SetLook(m_xmf3Look);
 			m_missile[i]->SetUp(m_xmf3Up);
 			m_missile[i]->SetRight(m_xmf3Right);
-			//m_missile[i]->Setu(m_xmf3Look);
 			m_missile[i]->SetFire(true);
 			break;
 		}
@@ -268,7 +267,6 @@ CAirplanePlayer::CAirplanePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	ID3D12RootSignature* pd3dGraphicsRootSignature, int nMeshes) :CPlayer(nMeshes)
 {
 	CMesh* pAirplaneMesh = new CMesh(pd3dDevice, pd3dCommandList, "Models/FlyerPlayership.bin", false);
-	//	CMesh *pAirplaneMesh = new CMesh(pd3dDevice, pd3dCommandList, "Models/FlyerPlayership.txt", true);
 
 	SetMesh(0, pAirplaneMesh);
 
@@ -445,8 +443,7 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 {
 	XMFLOAT3 xmf3CameraPosition = m_pCamera->GetPosition();
 	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)m_pCameraUpdatedContext;
-	float fHeight = pTerrain->GetHeight(xmf3CameraPosition.x, xmf3CameraPosition.z) +
-		5.0f;
+	float fHeight = pTerrain->GetHeight(xmf3CameraPosition.x, xmf3CameraPosition.z) + 5.0f;
 	if (xmf3CameraPosition.y <= fHeight)
 	{
 		xmf3CameraPosition.y = fHeight;
