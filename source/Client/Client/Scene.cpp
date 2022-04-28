@@ -227,7 +227,7 @@ void CScene::CheckMissileByTerrainCollisions()
 		CMissileObject* Missile = Player->GetMissile(i);
 		XMFLOAT3 posi = Missile->GetPosition();
 		if (Missile->GetFire() && m_pTerrain->GetHeight(posi.x, posi.z) > posi.y) {
-			Missile->SetFire(false);
+   			Missile->SetFire(false);
 			Missile->SetPosition(0.0f, -1000.0f, 0.0f);
 		}
 	}

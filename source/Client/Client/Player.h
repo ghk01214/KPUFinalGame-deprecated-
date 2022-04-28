@@ -74,6 +74,14 @@ public:
 	virtual void OnPrepareRender();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = nullptr);
 
+	void Attack();
+	int GetMissileNum() { return m_missileNum; }
+	CMissileObject* GetMissile(int index) { return m_missile[index]; }
+	CMissileObject* SetMissile(int index) { return m_missile[index]; }
+
+private:
+	int m_missileNum = 5;
+	CMissileObject** m_missile = 0;
 
 };
 
@@ -102,11 +110,4 @@ public:
 
 	virtual void ResetPlayerPos();
 
-	void Attack();
-	int GetMissileNum() { return m_missileNum; }
-	CMissileObject* GetMissile(int index) { return m_missile[index]; }
-
-private:
-	int m_missileNum = 5;
-	CMissileObject** m_missile = 0;
 };

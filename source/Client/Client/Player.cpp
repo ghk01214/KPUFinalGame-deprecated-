@@ -30,6 +30,13 @@ CPlayer::CPlayer(int nMeshes) : CGameObject(nMeshes)
 
 	m_pPlayerUpdatedContext = nullptr;
 	m_pCameraUpdatedContext = nullptr;
+
+
+	m_missile = new CMissileObject * [m_missileNum];
+
+	for (int i = 0; i < m_missileNum; ++i) {
+		m_missile[i] = new CMissileObject();
+	}
 }
 
 CPlayer::~CPlayer()
@@ -179,6 +186,12 @@ void CPlayer::Update(float fTimeElapsed)
 	float fDeceleration = (m_fFriction * fTimeElapsed);
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
+
+	for (int i = 0; i < m_missileNum; ++i) {
+		if (m_missile != nullptr)
+			if (m_missile[i]->GetFire())
+				m_missile[i]->Animate(fTimeElapsed);
+	}
 }
 
 CCamera* CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
@@ -226,17 +239,40 @@ CCamera* CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 
 void CPlayer::OnPrepareRender()
 {
-	m_xmf4x4World._11 = m_xmf3Right.x; m_xmf4x4World._12 = m_xmf3Right.y; m_xmf4x4World._13 = m_xmf3Right.z;
-	m_xmf4x4World._21 = m_xmf3Up.x; m_xmf4x4World._22 = m_xmf3Up.y; m_xmf4x4World._23 = m_xmf3Up.z;
-	m_xmf4x4World._31 = m_xmf3Look.x; m_xmf4x4World._32 = m_xmf3Look.y; m_xmf4x4World._33 = m_xmf3Look.z;
-	m_xmf4x4World._41 = m_xmf3Position.x; m_xmf4x4World._42 = m_xmf3Position.y; m_xmf4x4World._43 = m_xmf3Position.z;
+	m_xmf4x4World._11 = m_xmf3Right.x;		m_xmf4x4World._12 = m_xmf3Right.y;		m_xmf4x4World._13 = m_xmf3Right.z;
+	m_xmf4x4World._21 = m_xmf3Up.x;			m_xmf4x4World._22 = m_xmf3Up.y;			m_xmf4x4World._23 = m_xmf3Up.z;
+	m_xmf4x4World._31 = m_xmf3Look.x;		m_xmf4x4World._32 = m_xmf3Look.y;		m_xmf4x4World._33 = m_xmf3Look.z;
+	m_xmf4x4World._41 = m_xmf3Position.x;	m_xmf4x4World._42 = m_xmf3Position.y;	m_xmf4x4World._43 = m_xmf3Position.z;
 }
 
 void CPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
+
 	if (nCameraMode == THIRD_PERSON_CAMERA) CGameObject::Render(pd3dCommandList, pCamera);
+
+	else if (nCameraMode == FIRST_PERSON_CAMERA)
+	{
+	}
+
+	for (int i = 0; i < m_missileNum; ++i) {
+		m_missile[i]->Render(pd3dCommandList, pCamera);
+	}
 }
+
+void CPlayer::Attack()
+{
+	for (int i = 0; i < m_missileNum; ++i) {
+		if (!m_missile[i]->GetFire()) {
+  			m_missile[i]->SetPosition(m_xmf3Position);
+			m_missile[i]->SetUp(m_xmf3Up);
+			m_missile[i]->SetRight(m_xmf3Right);
+			//m_missile[i]->Setu(m_xmf3Look);
+			m_missile[i]->SetFire(true);
+			break;
+		}
+	}
+}																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																
 
 CAirplanePlayer::CAirplanePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
 	ID3D12RootSignature* pd3dGraphicsRootSignature, int nMeshes) :CPlayer(nMeshes)
@@ -345,18 +381,16 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
 	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
+	for (int i = 0; i < CPlayer::GetMissileNum(); ++i) {
+		CPlayer::GetMissile(i)->SetMesh(0, pAirplaneMesh);
+		CPlayer::GetMissile(i)->SetShader(pShader);
+		CPlayer::GetMissile(i)->SetScale(1.0f);
+		CPlayer::GetMissile(i)->SetPosition(0.0f, -1000.0f, 0.0f);
+		CPlayer::GetMissile(i)->SetColor(XMFLOAT3(1.0f, 0.0f, 1.0f));
+	}
+
 	SetShader(pShader);
 
-	m_missile = new CMissileObject * [m_missileNum];
-
-	for (int i = 0; i < m_missileNum; ++i) {
-		m_missile[i] = new CMissileObject();
-		m_missile[i]->SetMesh(0, pAirplaneMesh);
-		m_missile[i]->SetShader(pShader);
-		m_missile[i]->SetScale(1.0f);
-		m_missile[i]->SetPosition(0.0f, -1000.0f, 0.0f);
-		m_missile[i]->SetColor(XMFLOAT3(1.0f, 0.0f, 1.0f));
-	}
 }
 
 CTerrainPlayer::~CTerrainPlayer()
@@ -458,33 +492,15 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 void CTerrainPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	CPlayer::Render(pd3dCommandList, pCamera);
-	for (int i = 0; i < m_missileNum; ++i) {
-		m_missile[i]->Render(pd3dCommandList, pCamera);
-	}
 }
 
 void CTerrainPlayer::Update(float fTimeElapsed)
 {
-	for (int i = 0; i < m_missileNum; ++i) {
-		if (m_missile != nullptr)
-			if (m_missile[i]->GetFire())
-				m_missile[i]->Animate(fTimeElapsed);
-	}
 	CPlayer::Update(fTimeElapsed);
 }
+
 
 void CTerrainPlayer::ResetPlayerPos()
 {
 	SetPosition(XMFLOAT3(40000.0f, 40000.0f, 40000.0f));
-}
-
-void CTerrainPlayer::Attack()
-{
-	for (int i = 0; i < m_missileNum; ++i) {
-		if (!m_missile[i]->GetFire()) {
-			m_missile[i]->m_xmf4x4World = m_xmf4x4World;
-			m_missile[i]->SetFire(true);
-			break;
-		}
-	}
 }

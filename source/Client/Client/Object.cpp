@@ -54,11 +54,6 @@ void CGameObject::SetShader(CShader* pShader)
 
 void CGameObject::Animate(float fTimeElapsed)
 {
-	if (!Hit)
-	{
-		Rotate(720.0f * fTimeElapsed, 720.0f * fTimeElapsed, -720.0f * fTimeElapsed);
-		MoveUp(1500.0f * fTimeElapsed);
-	}
 	UpdateBoundingBox();
 }
 
@@ -135,6 +130,21 @@ void CGameObject::SetLook(XMFLOAT3 xmf3Look)
 	m_xmf4x4World._31 = xmf3Look.x;
 	m_xmf4x4World._32 = xmf3Look.y;
 	m_xmf4x4World._33 = xmf3Look.z;
+}
+
+
+void CGameObject::SetUp(XMFLOAT3 xmf3Up)
+{
+	m_xmf4x4World._21 = xmf3Up.x;
+	m_xmf4x4World._22 = xmf3Up.y;
+	m_xmf4x4World._23 = xmf3Up.z;
+}
+
+void CGameObject::SetRight(XMFLOAT3 xmf3Right)
+{
+	m_xmf4x4World._11 = xmf3Right.x;
+	m_xmf4x4World._12 = xmf3Right.y;
+	m_xmf4x4World._13 = xmf3Right.z;
 }
 
 XMFLOAT3 CGameObject::GetPosition()
@@ -270,6 +280,11 @@ void CUfoObject::Animate(float fTimeElapsed)
 	{
 		CGameObject::MoveStrafe(m_fMovingSpeed + m_ObjectsAcceleration);   // 가로
 		m_ObjectsAcceleration += (fTimeElapsed * 0.25f);
+	}
+	if (!Hit)
+	{
+		Rotate(720.0f * fTimeElapsed, 720.0f * fTimeElapsed, -720.0f * fTimeElapsed);
+		MoveUp(1500.0f * fTimeElapsed);
 	}
 	CGameObject::Animate(fTimeElapsed);
 }

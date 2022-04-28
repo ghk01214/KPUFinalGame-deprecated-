@@ -348,6 +348,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		{
 		case VK_SPACE:
 			((CTerrainPlayer*)m_pPlayer)->Attack();
+			((CTerrainPlayer*)m_pPlayer)->Attack();
 			break;
 		case VK_ESCAPE:
 			::PostQuitMessage(0);

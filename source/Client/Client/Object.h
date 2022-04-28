@@ -49,8 +49,9 @@ public:
 
 	void SetPosition(float x, float y, float z);
 	void SetPosition(XMFLOAT3 xmf3Position);
-
 	void SetLook(XMFLOAT3 xmf3Look);
+	void SetUp(XMFLOAT3 xmf3Look);
+	void SetRight(XMFLOAT3 xmf3Look);
 
 	void SetColor(XMFLOAT3 xmf3Color) { m_xmf3Color = xmf3Color; }
 
