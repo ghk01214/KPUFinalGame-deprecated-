@@ -64,7 +64,7 @@ namespace SC
 namespace CS
 {
 	inline constexpr char LOGIN{ 4 };
-	inline constexpr char MOVE{ 5 };
+	inline constexpr char MOVE_PLAYER{ 5 };
 
 	namespace PACKET
 	{
@@ -75,7 +75,7 @@ namespace CS
 			char name[VAR_SIZE::NAME];
 		};
 
-		struct MOVE
+		struct MOVE_PLAYER
 		{
 			unsigned char size;
 			char type;

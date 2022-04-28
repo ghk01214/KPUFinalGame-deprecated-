@@ -19,7 +19,8 @@ void CNetworkFramework::OnCreate()
 		ErrorQuit(L"WSAStartup fuction error", WSAGetLastError());
 	}
 
-	if (iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, NULL, NULL))
+	if (iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, NULL, NULL);
+		iocp == nullptr)
 	{
 		ErrorQuit(L"IOCP Handle Creation Failed", WSAGetLastError());
 	}
@@ -196,8 +197,8 @@ void CNetworkFramework::RecvData(DWORD bytes, ULONG_PTR key)
 
 	for (int size = remain_size; size > 0 or packet_size <= size; size -= packet_size)
 	{
-		ProcessPacket(key, packet);
-
+		ProcessPacket(key);
+		
 		packet += packet_size;
 	}
 
@@ -226,20 +227,20 @@ void CNetworkFramework::SendData(DWORD bytes, ULONG_PTR key)
 	over_ex = nullptr;
 }
 
-void CNetworkFramework::ProcessPacket(int id, char* pack)
+void CNetworkFramework::ProcessPacket(int id)
 {
-	int packet_type{ pack[1] };
+	int packet_type{ packet[1] };
 
 	switch (packet_type)
 	{
 	case CS::LOGIN:
 	{
-		ProcessLoginPacket(id, pack);
+		ProcessLoginPacket(id, packet);
 	}
 	break;
-	case CS::MOVE:
+	case CS::MOVE_PLAYER:
 	{
-		ProcessMovePacket(id, pack);
+		ProcessMovePacket(id, packet);
 	}
 	break;
 	}
@@ -308,7 +309,7 @@ void CNetworkFramework::ProcessLoginPacket(int id, char* pack)
 
 void CNetworkFramework::ProcessMovePacket(int id, char* pack)
 {
-	clients[id].GetPlayer().Move(static_cast<DIRECTION>(reinterpret_cast<CS::PACKET::MOVE*>(pack)->direction));
+	clients[id].GetPlayer().Move(static_cast<DIRECTION>(reinterpret_cast<CS::PACKET::MOVE_PLAYER*>(pack)->direction));
 
 	for (auto& client : clients)
 	{

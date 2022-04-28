@@ -19,7 +19,7 @@ public:
 	void RecvData(DWORD bytes, ULONG_PTR key);
 	void SendData(DWORD bytes, ULONG_PTR key);
 
-	void ProcessPacket(int id, char* pack);
+	void ProcessPacket(int id);
 	void ProcessLoginPacket(int id, char* pack);
 	void ProcessMovePacket(int id, char* pack);
 
