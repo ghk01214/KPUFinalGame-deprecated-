@@ -1,8 +1,4 @@
-﻿//-----------------------------------------------------------------------------
-// File: Shader.cpp
-//-----------------------------------------------------------------------------
-
-#include "pch.h"
+﻿#include "pch.h"
 #include "Shader.h"
 
 CShader::CShader()
@@ -171,8 +167,6 @@ void CShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamer
 {
 	OnPrepareRender(pd3dCommandList);
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 CPseudoLightingShader::CPseudoLightingShader()
 {
