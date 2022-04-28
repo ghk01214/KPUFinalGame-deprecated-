@@ -10,6 +10,7 @@ public:
 	CGameFramework();
 	~CGameFramework();
 
+	// 게임 프레임워크 복사 방지
 	CGameFramework(const CGameFramework& other) = delete;
 	CGameFramework& operator=(const CGameFramework& other) = delete;
 

@@ -39,7 +39,9 @@
 #include <Mmsystem.h>
 
 // 네트워크 통신용 헤더 파일입니다.
+#include <thread>
 #include <WS2tcpip.h>
+#include <MSWSock.h>
 
 using namespace DirectX;
 using namespace DirectX::PackedVector;
@@ -73,6 +75,7 @@ using Microsoft::WRL::ComPtr;
 
 // 네트워크 통신용 라이브러리 링킹
 #pragma comment(lib, "WS2_32")
+#pragma comment(lib, "MSWSock");
 
 extern UINT	gnCbvSrvDescriptorIncrementSize;
 

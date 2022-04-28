@@ -2,6 +2,11 @@
 
 #include "../../Server/Server/protocol.hpp"
 
+enum class COMPLETION_TYPE
+{
+	CONNECT, RECV, SEND
+};
+
 class OVERLAPPEDEX
 {
 public:
