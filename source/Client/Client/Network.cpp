@@ -2,43 +2,50 @@
 #include "Network.h"
 #include "../../Server/Server/protocol.hpp"
 
-CNetwork::CNetwork(CGameFramework* instance) : server(INVALID_SOCKET), remain_size(0), game_instance(instance), over(nullptr), over_ex(nullptr), packet(nullptr)
+std::unique_ptr<CNetwork> CNetwork::instance{ nullptr };
+
+CNetwork::CNetwork(CGameFramework* game_inst) : 
+	server(INVALID_SOCKET),
+	remain_size(0),
+	game_instance(std::make_unique<CGameFramework>(game_inst)),
+	login_packet(nullptr),
+	add_player_packet(nullptr),
+	move_player_packet(nullptr),
+	remove_player_packet(nullptr)
 {
-	ZeroMemory(&recv_over, sizeof(recv_over));
-	ZeroMemory(&send_over, sizeof(send_over));
+	instance = std::make_unique<CNetwork>(this);
+
+	ZeroMemory(&recv.over, sizeof(recv.over));
+	ZeroMemory(&send.over, sizeof(send.over));
 }
 
 CNetwork::~CNetwork()
 {
-	delete game_instance;
-	game_instance = nullptr;
+	delete login_packet;
+	delete add_player_packet;
+	delete move_player_packet;
+	delete remove_player_packet;
+
+	login_packet = nullptr;
+	add_player_packet = nullptr;
+	move_player_packet = nullptr;
+	remove_player_packet = nullptr;
 
 	closesocket(server);
 	WSACleanup();
 }
 
-void CNetwork::CreateNetworkSocket()
+void CNetwork::ConnectToServer()
 {
 	WSADATA wsa;
-	
+
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != NOERROR)
 	{
 		ErrorQuit(L"WSAStartup fuction error", WSAGetLastError());
 	}
 
-	if (iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, NULL, NULL);
-		iocp == nullptr)
-	{
-		ErrorQuit(L"IOCP Handle Creation Failed", WSAGetLastError());
-	}
-
 	server = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);
 
-	CreateIoCompletionPort(reinterpret_cast<HANDLE>(server), iocp, server, 0);
-}
-
-void CNetwork::ConnectToServer()
-{
 	sockaddr_in server_addr;
 	ZeroMemory(&server_addr, sizeof(server_addr));
 
@@ -46,104 +53,102 @@ void CNetwork::ConnectToServer()
 	server_addr.sin_port = htons(SERVER_PORT);
 	InetPton(AF_INET, SERVER_ADDR, &server_addr.sin_addr);
 
-	worker_thread = std::thread{ &ProcessThread };
-
 	WSAConnect(server, reinterpret_cast<sockaddr*>(&server_addr), sizeof(server_addr), 0, 0, 0, 0);
-
-	worker_thread.join();
 }
 
-void CNetwork::RecvData(SOCKET sock)
+void CNetwork::Run()
 {
-	DWORD flag{ 0 };
-	ZeroMemory(&recv_over, sizeof(recv_over));
-
-	recv_over.wsa_buf.buf = recv_over.data + remain_size;
-	recv_over.wsa_buf.len = VAR_SIZE::DATA - remain_size;
-
-	WSARecv(server, &recv_over.wsa_buf, 1, 0, &flag, &recv_over.over, nullptr);
-}
-
-void CNetwork::SendData(void* packet)
-{
-	send_over.SetPacket(reinterpret_cast<char*>(packet));
-
-	WSASend(server, &send_over.wsa_buf, 1, 0, 0, &send_over.over, nullptr);
-}
-
-void CNetwork::ProcessThread()
-{
-	DWORD bytes;
-	ULONG_PTR key;
-	BOOL ret;
+	RecvData();
+	SendData();
 
 	while (true)
 	{
-		ret = GetQueuedCompletionStatus(iocp, &bytes, &key, &over, INFINITE);
-		over_ex = reinterpret_cast<OVERLAPPEDEX*>(over);
+		game_instance->FrameAdvance();
+	}
+}
 
-		if (!ret)
-		{
-			ErrorQuit(L"GetQueuedCompletionStatus error occured", WSAGetLastError());
-		}
+void CNetwork::RecvData()
+{
+	recv.wsa.buf = recv.data;
+	recv.wsa.len = VAR_SIZE::DATA;
 
-		switch (over_ex->type)
-		{
-		case static_cast<int>(COMPLETION_TYPE::RECV):
-		{
+	DWORD flag{ 0 };
 
-		}
-		break;
-		case static_cast<int>(COMPLETION_TYPE::SEND):
-		{
+	ZeroMemory(&recv.over, sizeof(recv.over));
 
-		}
-		break;
+	int ret{ WSARecv(server, &recv.wsa, 1, 0, &flag, &recv.over, RecvCallback) };
+
+	if (ret != NOERROR)
+	{
+		int error{ WSAGetLastError() };
+
+		if (error != WSA_IO_PENDING)
+		{
+			ErrorQuit(L"WSARecv 에러", error);
 		}
 	}
 }
 
-void CNetwork::RecvPacket(DWORD bytes)
+void CNetwork::SendData()
 {
-	int prev_size{ static_cast<int>(bytes) + remain_size };
-	int packet_size{ over_ex->data[1] };
+	send.wsa.buf = send.data;
+	send.wsa.len = send.data[0];
 
-	packet = over_ex->data;
+	ZeroMemory(&send.over, sizeof(send.over));
 
-	for (int size = prev_size; size > 0 || packet_size <= size; size -= packet_size)
-	{
-		ProcessPacket();
+	WSASend(server, &send.wsa, 1, 0, 0, &send.over, SendCallback);
+}
 
-		packet += packet_size;
-	}
+void CALLBACK CNetwork::RecvCallback(DWORD error, DWORD bytes, LPWSAOVERLAPPED over, DWORD flag)
+{
+	instance->ProcessPacket();
 
-	remain_size = prev_size;
+	instance->RecvData();
+	instance->SendData();
+}
 
-	if (prev_size > 0)
-	{
-		memcpy(over_ex->data, packet, prev_size);
-	}
-
-	// 패킷 포인터 초기화
-	packet[0] = '\0';
-	packet = nullptr;
+void CALLBACK CNetwork::SendCallback(DWORD error, DWORD bytes, LPWSAOVERLAPPED over, DWORD flag)
+{
 }
 
 void CNetwork::ProcessPacket()
 {
-	int packet_type{ packet[1] };
-	
+	int packet_type{ recv.data[1] };
+
 	switch (packet_type)
 	{
+	case SC::LOGIN:
+	{
+		// 로그인 패킷으로 캐스팅
+		login_packet = reinterpret_cast<SC::PACKET::LOGIN*>(recv.data);
+
+
+	}
+	break;
 	case SC::ADD_PLAYER:
 	{
-		//game_instance->AddPlayer();
+		// 플레이어 추가 패킷으로 캐스팅
+		add_player_packet = reinterpret_cast<SC::PACKET::ADD_PLAYER*>(recv.data);
+
 	}
 	break;
 	case SC::MOVE_PLAYER:
 	{
-		//game_intsance->MovePlayer();
+		// 플레이어 이동 패킷으로 캐스팅
+		move_player_packet = reinterpret_cast<SC::PACKET::MOVE_PLAYER*>(recv.data);
+
+		game_instance->GetPlayer()->Move();
 	}
 	break;
+	case SC::REMOVE_PLAYER:
+	{
+		// 플레이어 제거 패킷으로 캐스팅
+		remove_player_packet = reinterpret_cast<SC::PACKET::REMOVE_PLAYER*>(recv.data);
+
+
+	}
+	break;
+	default:
+		break;
 	}
 }
