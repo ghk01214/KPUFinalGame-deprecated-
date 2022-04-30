@@ -1,9 +1,4 @@
-﻿// pch.h : 자주 사용하지만 자주 변경되지는 않는
-// 표준 시스템 포함 파일 및 프로젝트 관련 포함 파일이
-// 들어 있는 포함 파일입니다.
-//
-
-#pragma once
+﻿#pragma once
 
 #define WIN32_LEAN_AND_MEAN             // 거의 사용되지 않는 내용은 Windows 헤더에서 제외합니다.
 // Windows 헤더 파일:
@@ -60,10 +55,10 @@ using Microsoft::WRL::ComPtr;
 
 #define VK_W					0x57
 #define VK_A					0x41
-#define VK_S					0x53
 #define VK_D					0x44
-#define VK_Q					0x51
 #define VK_E					0x45
+#define VK_Q					0x51
+#define VK_S					0x53
 
 #define RANDOM_COLOR			XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
 
@@ -75,7 +70,7 @@ using Microsoft::WRL::ComPtr;
 
 // 네트워크 통신용 라이브러리 링킹
 #pragma comment(lib, "WS2_32")
-#pragma comment(lib, "MSWSock");
+#pragma comment(lib, "MSWSock")
 
 extern UINT	gnCbvSrvDescriptorIncrementSize;
 
@@ -193,7 +188,6 @@ namespace Vector3
 
 	inline bool IsZero(XMFLOAT3& xmf3Vector)
 	{
-		//3-차원 벡터가 영벡터인 가를 반환하는 함수이다.
 		if (::IsZero(xmf3Vector.x) && ::IsZero(xmf3Vector.y) && ::IsZero(xmf3Vector.z))
 			return(true);
 		return(false);
@@ -208,7 +202,6 @@ namespace Vector4
 		XMStoreFloat4(&xmf4Result, XMLoadFloat4(&xmf4Vector1) + XMLoadFloat4(&xmf4Vector2));
 		return(xmf4Result);
 	}
-	//4-차원 벡터와 스칼라(실수)의 곱을 반환하는 함수이다. 
 	inline XMFLOAT4 Multiply(float fScalar, XMFLOAT4& xmf4Vector)
 	{
 		XMFLOAT4 xmf4Result;

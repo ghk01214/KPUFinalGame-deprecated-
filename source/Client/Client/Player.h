@@ -26,6 +26,10 @@ protected:
 
 	CCamera* m_pCamera = nullptr;
 
+	float						m_fPlayerMaxHp;
+	float						m_fPlayerCurrentHp;
+	float						m_fPlayerMaxSpeed;
+	float						m_fPlayerCurrentSpeed;
 public:
 	CPlayer(int nMeshes = 1);
 	virtual ~CPlayer();
@@ -50,7 +54,7 @@ public:
 	CCamera* GetCamera() { return(m_pCamera); }
 	void SetCamera(CCamera* pCamera) { m_pCamera = pCamera; }
 
-	void Move(DWORD dwDirection, float fDistance, bool bVelocity = false);
+	void Move(DWORD dwDirection, float fTime, bool bVelocity = false);
 	void Move(const XMFLOAT3& xmf3Shift, bool bVelocity = false);
 	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
 	void ResetPlayerPos() { m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); }
@@ -74,6 +78,14 @@ public:
 	virtual void OnPrepareRender();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = nullptr);
 
+	void Attack();
+	int GetMissileNum() { return m_missileNum; }
+	CMissileObject* GetMissile(int index) { return m_missile[index]; }
+	CMissileObject* SetMissile(int index) { return m_missile[index]; }
+
+private:
+	int m_missileNum = 5;
+	CMissileObject** m_missile = 0;
 
 };
 
@@ -102,11 +114,4 @@ public:
 
 	virtual void ResetPlayerPos();
 
-	void Attack();
-	int GetMissileNum() { return m_missileNum; }
-	CMissileObject* GetMissile(int index) { return m_missile[index]; }
-
-private:
-	int m_missileNum = 5;
-	CMissileObject** m_missile = 0;
 };

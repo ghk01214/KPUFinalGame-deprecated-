@@ -1,13 +1,6 @@
-﻿//-----------------------------------------------------------------------------
-// File: CPlayer.cpp
-//-----------------------------------------------------------------------------
-
-#include "pch.h"
+﻿#include "pch.h"
 #include "Player.h"
 #include "Shader.h"
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CPlayer
 
 CPlayer::CPlayer(int nMeshes) : CGameObject(nMeshes)
 {
@@ -22,6 +15,7 @@ CPlayer::CPlayer(int nMeshes) : CGameObject(nMeshes)
 	m_xmf3Gravity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_fMaxVelocityXZ = 0.0f;
 	m_fMaxVelocityY = 0.0f;
+	m_fPlayerMaxSpeed = 50.0f;
 	m_fFriction = 0.0f;
 
 	m_fPitch = 0.0f;
@@ -30,6 +24,13 @@ CPlayer::CPlayer(int nMeshes) : CGameObject(nMeshes)
 
 	m_pPlayerUpdatedContext = nullptr;
 	m_pCameraUpdatedContext = nullptr;
+
+
+	m_missile = new CMissileObject * [m_missileNum];
+
+	for (int i = 0; i < m_missileNum; ++i) {
+		m_missile[i] = new CMissileObject();
+	}
 }
 
 CPlayer::~CPlayer()
@@ -60,17 +61,30 @@ void CPlayer::ReleaseShaderVariables()
 	CGameObject::ReleaseShaderVariables();
 }
 
-void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
+void CPlayer::Move(DWORD dwDirection, float fTime, bool bUpdateVelocity)
 {
+	int inputaddcount = 0;
+	int inputsubcount = 0;
+
+	if (dwDirection & DIR_FORWARD)
+		++inputaddcount;
+	if (dwDirection & DIR_BACKWARD)
+		++inputsubcount;
+	if (dwDirection & DIR_RIGHT)
+		++inputaddcount;
+	if (dwDirection & DIR_LEFT)
+		++inputsubcount;
+
+	abs(inputaddcount - inputsubcount);
+
 	if (dwDirection)
 	{
+
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
-		if (dwDirection & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
-		if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
-		if (dwDirection & DIR_RIGHT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
-		if (dwDirection & DIR_LEFT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
-		if (dwDirection & DIR_UP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance);
-		if (dwDirection & DIR_DOWN) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
+		if (dwDirection & DIR_FORWARD)	xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Look.x, 0, m_xmf3Look.z), m_fPlayerMaxSpeed * fTime);
+		if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Look.x, 0, m_xmf3Look.z), m_fPlayerMaxSpeed * -fTime);
+		if (dwDirection & DIR_RIGHT)	xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Right.x, 0, m_xmf3Right.z), m_fPlayerMaxSpeed * fTime);
+		if (dwDirection & DIR_LEFT)		xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Right.x, 0, m_xmf3Right.z), m_fPlayerMaxSpeed * -fTime);
 
 		Move(xmf3Shift, bUpdateVelocity);
 	}
@@ -115,37 +129,19 @@ void CPlayer::Rotate(float x, float y, float z)
 		m_pCamera->Rotate(x, y, z);
 		if (y != 0.0f)
 		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
+			XMMATRIX xmmtxRotate = XMMatrixRotationY(XMConvertToRadians(y));
 			m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+			m_xmf3Up = Vector3::TransformNormal(m_xmf3Up, xmmtxRotate);
 			m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 		}
-	}
-	else if (nCurrentCameraMode == SPACESHIP_CAMERA)
-	{
-		m_pCamera->Rotate(x, y, z);
 		if (x != 0.0f)
 		{
 			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Right), XMConvertToRadians(x));
 			m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
 			m_xmf3Up = Vector3::TransformNormal(m_xmf3Up, xmmtxRotate);
-		}
-		if (y != 0.0f)
-		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
-			m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-			m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-		}
-		if (z != 0.0f)
-		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Look), XMConvertToRadians(z));
-			m_xmf3Up = Vector3::TransformNormal(m_xmf3Up, xmmtxRotate);
 			m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 		}
 	}
-
-	m_xmf3Look = Vector3::Normalize(m_xmf3Look);
-	m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
-	m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
 }
 
 void CPlayer::Update(float fTimeElapsed)
@@ -179,6 +175,12 @@ void CPlayer::Update(float fTimeElapsed)
 	float fDeceleration = (m_fFriction * fTimeElapsed);
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
+
+	for (int i = 0; i < m_missileNum; ++i) {
+		if (m_missile != nullptr)
+			if (m_missile[i]->GetFire())
+				m_missile[i]->Animate(fTimeElapsed);
+	}
 }
 
 CCamera* CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
@@ -226,23 +228,45 @@ CCamera* CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 
 void CPlayer::OnPrepareRender()
 {
-	m_xmf4x4World._11 = m_xmf3Right.x; m_xmf4x4World._12 = m_xmf3Right.y; m_xmf4x4World._13 = m_xmf3Right.z;
-	m_xmf4x4World._21 = m_xmf3Up.x; m_xmf4x4World._22 = m_xmf3Up.y; m_xmf4x4World._23 = m_xmf3Up.z;
-	m_xmf4x4World._31 = m_xmf3Look.x; m_xmf4x4World._32 = m_xmf3Look.y; m_xmf4x4World._33 = m_xmf3Look.z;
-	m_xmf4x4World._41 = m_xmf3Position.x; m_xmf4x4World._42 = m_xmf3Position.y; m_xmf4x4World._43 = m_xmf3Position.z;
+	m_xmf4x4World._11 = m_xmf3Right.x;		m_xmf4x4World._12 = m_xmf3Right.y;		m_xmf4x4World._13 = m_xmf3Right.z;
+	m_xmf4x4World._21 = m_xmf3Up.x;			m_xmf4x4World._22 = m_xmf3Up.y;			m_xmf4x4World._23 = m_xmf3Up.z;
+	m_xmf4x4World._31 = m_xmf3Look.x;		m_xmf4x4World._32 = m_xmf3Look.y;		m_xmf4x4World._33 = m_xmf3Look.z;
+	m_xmf4x4World._41 = m_xmf3Position.x;	m_xmf4x4World._42 = m_xmf3Position.y;	m_xmf4x4World._43 = m_xmf3Position.z;
 }
 
 void CPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
+
 	if (nCameraMode == THIRD_PERSON_CAMERA) CGameObject::Render(pd3dCommandList, pCamera);
+
+	else if (nCameraMode == FIRST_PERSON_CAMERA)
+	{
+	}
+
+	for (int i = 0; i < m_missileNum; ++i) {
+		m_missile[i]->Render(pd3dCommandList, pCamera);
+	}
 }
+
+void CPlayer::Attack()
+{
+	for (int i = 0; i < m_missileNum; ++i) {
+		if (!m_missile[i]->GetFire()) {
+  			m_missile[i]->SetPosition(m_xmf3Position);
+			m_missile[i]->SetLook(m_xmf3Look);
+			m_missile[i]->SetUp(m_xmf3Up);
+			m_missile[i]->SetRight(m_xmf3Right);
+			m_missile[i]->SetFire(true);
+			break;
+		}
+	}
+}																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																
 
 CAirplanePlayer::CAirplanePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
 	ID3D12RootSignature* pd3dGraphicsRootSignature, int nMeshes) :CPlayer(nMeshes)
 {
 	CMesh* pAirplaneMesh = new CMesh(pd3dDevice, pd3dCommandList, "Models/FlyerPlayership.bin", false);
-	//	CMesh *pAirplaneMesh = new CMesh(pd3dDevice, pd3dCommandList, "Models/FlyerPlayership.txt", true);
 
 	SetMesh(0, pAirplaneMesh);
 
@@ -325,38 +349,32 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 {
 	CMesh* pAirplaneMesh = new CMesh(pd3dDevice, pd3dCommandList, "Assets/Models/FlyerPlayership.bin", false);
 
-	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
+	m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
 
 	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)pContext;
-	/*플레이어의 위치를 지형의 가운데(y-축 좌표는 지형의 높이보다 1500 높게)로 설정한다. 플레이어 위치 벡터의 y-
-	좌표가 지형의 높이보다 크고 중력이 작용하도록 플레이어를 설정하였으므로 플레이어는 점차적으로 하강하게 된다.*/
 	float fHeight = pTerrain->GetHeight(pTerrain->GetWidth() * 0.5f,
 		pTerrain->GetLength() * 0.5f);
 	SetPosition(XMFLOAT3(pTerrain->GetWidth() * 0.5f, fHeight + 80,
 		pTerrain->GetLength() * 0.5f));
-	//플레이어의 위치가 변경될 때 지형의 정보에 따라 플레이어의 위치를 변경할 수 있도록 설정한다. 
 	SetPlayerUpdatedContext(pTerrain);
-	//카메라의 위치가 변경될 때 지형의 정보에 따라 카메라의 위치를 변경할 수 있도록 설정한다. 
 	SetCameraUpdatedContext(pTerrain);
 
-	SetMesh(0, pAirplaneMesh);//플레이어를 렌더링할 셰이더를 생성한다. 
+	SetMesh(0, pAirplaneMesh);
 
 	CPseudoLightingShader* pShader = new CPseudoLightingShader();
 	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
 	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
+	for (int i = 0; i < CPlayer::GetMissileNum(); ++i) {
+		CPlayer::GetMissile(i)->SetMesh(0, pAirplaneMesh);
+		CPlayer::GetMissile(i)->SetShader(pShader);
+		CPlayer::GetMissile(i)->SetScale(1.0f);
+		CPlayer::GetMissile(i)->SetPosition(0.0f, -1000.0f, 0.0f);
+		CPlayer::GetMissile(i)->SetColor(XMFLOAT3(1.0f, 0.0f, 1.0f));
+	}
+
 	SetShader(pShader);
 
-	m_missile = new CMissileObject * [m_missileNum];
-
-	for (int i = 0; i < m_missileNum; ++i) {
-		m_missile[i] = new CMissileObject();
-		m_missile[i]->SetMesh(0, pAirplaneMesh);
-		m_missile[i]->SetShader(pShader);
-		m_missile[i]->SetScale(1.0f);
-		m_missile[i]->SetPosition(0.0f, -1000.0f, 0.0f);
-		m_missile[i]->SetColor(XMFLOAT3(1.0f, 0.0f, 1.0f));
-	}
 }
 
 CTerrainPlayer::~CTerrainPlayer()
@@ -371,8 +389,7 @@ CCamera* CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 	{
 	case FIRST_PERSON_CAMERA:
 		SetFriction(250.0f);
-		//1인칭 카메라일 때 플레이어에 y-축 방향으로 중력이 작용한다. 
-		SetGravity(XMFLOAT3(0.0f, -250.0f, 0.0f));
+		SetGravity(XMFLOAT3(0.0f, -100.0, 0.0f));
 		SetMaxVelocityXZ(300.0f);
 		SetMaxVelocityY(400.0f);
 		m_pCamera = OnChangeCamera(FIRST_PERSON_CAMERA, nCurrentCameraMode);
@@ -382,7 +399,6 @@ CCamera* CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		break;
 	case SPACESHIP_CAMERA:
 		SetFriction(125.0f);
-		//스페이스 쉽 카메라일 때 플레이어에 중력이 작용하지 않는다. 
 		SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
 		SetMaxVelocityXZ(300.0f);
 		SetMaxVelocityY(400.0f);
@@ -393,7 +409,6 @@ CCamera* CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		break;
 	case THIRD_PERSON_CAMERA:
 		SetFriction(500.0f);
-		//3인칭 카메라일 때 플레이어에 y-축 방향으로 중력이 작용한다. 
 		SetGravity(XMFLOAT3(0.0f, -0.0f, 0.0f));
 		SetMaxVelocityXZ(300.0f);
 		SetMaxVelocityY(400.0f);
@@ -413,14 +428,7 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 {
 	XMFLOAT3 xmf3PlayerPosition = GetPosition();
 	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)m_pPlayerUpdatedContext;
-	/*지형에서 플레이어의 현재 위치 (x, z)의 지형 높이(y)를 구한다. 그리고 플레이어 메쉬의 높이가 12이고 플레이어의
-	중심이 직육면체의 가운데이므로 y 값에 메쉬의 높이의 절반을 더하면 플레이어의 위치가 된다.*/
 	float fHeight = pTerrain->GetHeight(xmf3PlayerPosition.x, xmf3PlayerPosition.z) + 6.0f;
-	/*플레이어의 위치 벡터의 y-값이 음수이면(예를 들어, 중력이 적용되는 경우) 플레이어의 위치 벡터의 y-값이 점점
-	작아지게 된다. 이때 플레이어의 현재 위치 벡터의 y 값이 지형의 높이(실제로 지형의 높이 + 6)보다 작으면 플레이어
-	의 일부가 지형 아래에 있게 된다. 이러한 경우를 방지하려면 플레이어의 속도 벡터의 y 값을 0으로 만들고 플레이어
-	의 위치 벡터의 y-값을 지형의 높이(실제로 지형의 높이 + 6)로 설정한다. 그러면 플레이어는 항상 지형 위에 있게 된
-	다.*/
 	if (xmf3PlayerPosition.y < fHeight)
 	{
 		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
@@ -434,21 +442,14 @@ void CTerrainPlayer::OnPlayerUpdateCallback(float fTimeElapsed)
 void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 {
 	XMFLOAT3 xmf3CameraPosition = m_pCamera->GetPosition();
-	/*높이 맵에서 카메라의 현재 위치 (x, z)에 대한 지형의 높이(y 값)를 구한다. 이 값이 카메라의 위치 벡터의 y-값 보
-	다 크면 카메라가 지형의 아래에 있게 된다. 이렇게 되면 다음 그림의 왼쪽과 같이 지형이 그려지지 않는 경우가 발생
-	한다(카메라가 지형 안에 있으므로 삼각형의 와인딩 순서가 바뀐다). 이러한 경우가 발생하지 않도록 카메라의 위치 벡
-	터의 y-값의 최소값은 (지형의 높이 + 5)로 설정한다. 카메라의 위치 벡터의 y-값의 최소값은 지형의 모든 위치에서
-	카메라가 지형 아래에 위치하지 않도록 설정해야 한다.*/
 	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)m_pCameraUpdatedContext;
-	float fHeight = pTerrain->GetHeight(xmf3CameraPosition.x, xmf3CameraPosition.z) +
-		5.0f;
+	float fHeight = pTerrain->GetHeight(xmf3CameraPosition.x, xmf3CameraPosition.z) + 5.0f;
 	if (xmf3CameraPosition.y <= fHeight)
 	{
 		xmf3CameraPosition.y = fHeight;
 		m_pCamera->SetPosition(xmf3CameraPosition);
 		if (m_pCamera->GetMode() == THIRD_PERSON_CAMERA)
 		{
-			//3인칭 카메라의 경우 카메라 위치(y-좌표)가 변경되었으므로 카메라가 플레이어를 바라보도록 한다. 
 			CThirdPersonCamera* p3rdPersonCamera = (CThirdPersonCamera*)m_pCamera;
 			p3rdPersonCamera->SetLookAt(GetPosition());
 		}
@@ -458,33 +459,15 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 void CTerrainPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	CPlayer::Render(pd3dCommandList, pCamera);
-	for (int i = 0; i < m_missileNum; ++i) {
-		m_missile[i]->Render(pd3dCommandList, pCamera);
-	}
 }
 
 void CTerrainPlayer::Update(float fTimeElapsed)
 {
-	for (int i = 0; i < m_missileNum; ++i) {
-		if (m_missile != nullptr)
-			if (m_missile[i]->GetFire())
-				m_missile[i]->Animate(fTimeElapsed);
-	}
 	CPlayer::Update(fTimeElapsed);
 }
+
 
 void CTerrainPlayer::ResetPlayerPos()
 {
 	SetPosition(XMFLOAT3(40000.0f, 40000.0f, 40000.0f));
-}
-
-void CTerrainPlayer::Attack()
-{
-	for (int i = 0; i < m_missileNum; ++i) {
-		if (!m_missile[i]->GetFire()) {
-			m_missile[i]->m_xmf4x4World = m_xmf4x4World;
-			m_missile[i]->SetFire(true);
-			break;
-		}
-	}
 }
