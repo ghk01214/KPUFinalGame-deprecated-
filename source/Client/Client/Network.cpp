@@ -304,12 +304,13 @@ void CNetwork::RecvData(DWORD bytes)
 	{
 		return;
 	}
+
 	int remain{ static_cast<int>(bytes) + remain_size };
 	int packet_size{ over_ex->data[0] };
 
 	packet = over_ex->data;
 
-	for (int* size = &remain; *size > 0 || packet_size <= *size; *size -= packet_size)
+	for (; remain > 0 || packet_size <= remain; remain -= packet_size)
 	{
 		ProcessPacket();
 
@@ -332,6 +333,7 @@ void CNetwork::SendData(DWORD bytes)
 	{
 		return;
 	}
+
 	ZeroMemory(&over_ex, sizeof(over_ex));
 	over_ex = nullptr;
 }

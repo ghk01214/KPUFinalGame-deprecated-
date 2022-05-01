@@ -196,7 +196,7 @@ void CNetworkFramework::RecvData(DWORD bytes, ULONG_PTR key)
 	//		break;
 	//}
 
-	for (int* size = &remain_size; *size > 0 or packet_size <= *size; *size -= packet_size)
+	for (; remain_size > 0 or packet_size <= remain_size; remain_size -= packet_size)
 	{
 		ProcessPacket(key);
 		
