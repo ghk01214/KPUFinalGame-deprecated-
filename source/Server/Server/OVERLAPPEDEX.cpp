@@ -13,5 +13,5 @@ void OVERLAPPEDEX::SetPacket(char* packet)
 	wsa_buf.buf = data;
 
 	ZeroMemory(&over, sizeof(over));
-	std::memcpy(data + 2, packet, packet[0]);
+	std::memcpy(data, packet, packet[0]);
 }
