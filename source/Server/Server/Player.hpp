@@ -16,6 +16,7 @@ public:
 
 	short GetPosX() { return static_cast<short>(x); }
 	short GetPosY() { return static_cast<short>(y); }
+	short GetPosZ() { return static_cast<short>(z); }
 	char* GetName() { return name; }
 
 	void SetPosX(int X) { x = X; }
