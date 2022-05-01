@@ -29,34 +29,34 @@ namespace SC
 	{
 		struct LOGIN
 		{
-			unsigned char size;
-			char type;
+			unsigned char size{ sizeof(SC::PACKET::LOGIN) };
+			char type{ SC::LOGIN };
 			unsigned short id;
-			short x, y;
+			short x, y, z;
 		};
 
 		struct ADD_PLAYER
 		{
-			unsigned char size;
-			char type;
+			unsigned char size{ sizeof(SC::PACKET::ADD_PLAYER) };
+			char type{ SC::ADD_PLAYER };
 			unsigned short id;
-			short x, y;
+			short x, y, z;
 			char name[VAR_SIZE::NAME];
 		};
 
 		struct REMOVE_PLAYER
 		{
-			unsigned char size;
-			char type;
+			unsigned char size{ sizeof(SC::PACKET::REMOVE_PLAYER) };
+			char type{ SC::REMOVE_PLAYER };
 			unsigned short id;
 		};
 
 		struct MOVE_PLAYER
 		{
-			unsigned char size;
-			char type;
+			unsigned char size{ sizeof(SC::PACKET::MOVE_PLAYER) };
+			char type{ SC::MOVE_PLAYER };
 			unsigned short id;
-			short x, y;
+			short x, y, z;
 		};
 	}
 }
@@ -70,15 +70,15 @@ namespace CS
 	{
 		struct LOGIN
 		{
-			unsigned char size;
-			char type;
+			unsigned char size{ sizeof(CS::PACKET::LOGIN) };
+			char type{ CS::LOGIN };
 			char name[VAR_SIZE::NAME];
 		};
 
 		struct MOVE_PLAYER
 		{
-			unsigned char size;
-			char type;
+			unsigned char size{ sizeof(CS::PACKET::MOVE_PLAYER) };
+			char type{ CS::MOVE_PLAYER };
 			char direction;			// 1 : FORWARD, 2 : BACKWARD, 3 : LEFT, 4 : RIGHT, 5 : UP, 6 : DOWN
 		};
 	}
