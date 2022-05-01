@@ -27,16 +27,16 @@ void CNetworkFramework::OnCreate()
 
 	server = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);
 
-	sockaddr_in serverAddr;
-	ZeroMemory(&serverAddr, sizeof(sockaddr_in));
+	sockaddr_in server_addr;
+	ZeroMemory(&server_addr, sizeof(sockaddr_in));
 
-	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(SERVER_PORT);
-	serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	server_addr.sin_family = AF_INET;
+	server_addr.sin_port = htons(SERVER_PORT);
+	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	CreateIoCompletionPort(reinterpret_cast<HANDLE>(server), iocp, server, 0);
 
-	if (bind(server, reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) == SOCKET_ERROR)
+	if (bind(server, reinterpret_cast<sockaddr*>(&server_addr), sizeof(server_addr)) == SOCKET_ERROR)
 	{
 		ErrorQuit(L"bind function error", WSAGetLastError());
 	}
@@ -64,13 +64,13 @@ void CNetworkFramework::OnDestroy()
 void CNetworkFramework::CreateThread()
 {
 	SOCKET client{ WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED) };
-	OVERLAPPEDEX acceptOver;
-	ZeroMemory(&acceptOver, sizeof(acceptOver));
+	OVERLAPPEDEX accept_ex;
+	ZeroMemory(&accept_ex, sizeof(accept_ex));
 
-	acceptOver.type = static_cast<char>(COMPLETION_TYPE::ACCEPT);
-	acceptOver.wsa_buf.buf = reinterpret_cast<char*>(client);
+	accept_ex.type = static_cast<char>(COMPLETION_TYPE::ACCEPT);
+	accept_ex.wsa_buf.buf = reinterpret_cast<char*>(client);
 
-	AcceptEx(server, client, acceptOver.data, 0, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, 0, &acceptOver.over);
+	AcceptEx(server, client, accept_ex.data, 0, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, 0, &accept_ex.over);
 
 	for (int i = 0; i < MAX_USER; ++i)
 	{
@@ -146,10 +146,11 @@ void CNetworkFramework::AcceptClient()
 
 	if (id != -1)
 	{
-		clients[id].GetPlayer().SetPosX(0);
-		clients[id].GetPlayer().SetPosY(0);
+		clients[id].GetPlayer()->SetPosX(0);
+		clients[id].GetPlayer()->SetPosY(0);
+		clients[id].GetPlayer()->SetPosZ(0);
 		clients[id].SetID(id);
-		clients[id].GetPlayer().SetName(0);
+		clients[id].GetPlayer()->SetName(0);
 		clients[id].SetSocket(client);
 		clients[id].SetRemainSize(0);
 
@@ -195,7 +196,7 @@ void CNetworkFramework::RecvData(DWORD bytes, ULONG_PTR key)
 	//		break;
 	//}
 
-	for (int size = remain_size; size > 0 or packet_size <= size; size -= packet_size)
+	for (int* size = &remain_size; *size > 0 or packet_size <= *size; *size -= packet_size)
 	{
 		ProcessPacket(key);
 		
@@ -248,7 +249,7 @@ void CNetworkFramework::ProcessPacket(int id)
 
 void CNetworkFramework::ProcessLoginPacket(int id, char* pack)
 {
-	login_packet = static_cast<CS::PACKET::LOGIN>(*pack);
+	cs_login_packet = static_cast<CS::PACKET::LOGIN>(*pack);
 
 	clients[id].mu.lock();
 
@@ -266,7 +267,7 @@ void CNetworkFramework::ProcessLoginPacket(int id, char* pack)
 		return;
 	}
 
-	clients[id].GetPlayer().SetName(login_packet.name);
+	clients[id].GetPlayer()->SetName(cs_login_packet.name);
 	clients[id].SendLoginPakcet();
 	clients[id].SetState(SESSION_STATE::INGAME);
 	clients[id].mu.unlock();
@@ -286,22 +287,22 @@ void CNetworkFramework::ProcessLoginPacket(int id, char* pack)
 		}
 
 		// 모든 플레이어에게 새로 접속한 플레이어 정보 전송
-		add_player_packet.id = id;
-		strcpy_s(add_player_packet.name, clients[id].GetPlayer().GetName());
-		add_player_packet.size = sizeof(SC::PACKET::ADD_PLAYER);
-		add_player_packet.type = SC::ADD_PLAYER;
-		add_player_packet.x = clients[id].GetPlayer().GetPosX();
-		add_player_packet.y = clients[id].GetPlayer().GetPosY();
+		sc_add_player_packet.id = id;
+		strcpy_s(sc_add_player_packet.name, clients[id].GetPlayer()->GetName());
+		sc_add_player_packet.size = sizeof(SC::PACKET::ADD_PLAYER);
+		sc_add_player_packet.type = SC::ADD_PLAYER;
+		sc_add_player_packet.x = clients[id].GetPlayer()->GetPosX();
+		sc_add_player_packet.y = clients[id].GetPlayer()->GetPosY();
 
-		client.SendData(&add_player_packet);
+		client.SendData(&sc_add_player_packet);
 
 		// 나에게 접속해 있는 모든 플레이어의 정보 전송
-		add_player_packet.id = client.GetID();
-		strcpy_s(add_player_packet.name, client.GetPlayer().GetName());
-		add_player_packet.x = client.GetPlayer().GetPosX();
-		add_player_packet.y = client.GetPlayer().GetPosY();
+		sc_add_player_packet.id = client.GetID();
+		strcpy_s(sc_add_player_packet.name, client.GetPlayer()->GetName());
+		sc_add_player_packet.x = client.GetPlayer()->GetPosX();
+		sc_add_player_packet.y = client.GetPlayer()->GetPosY();
 
-		clients[id].SendData(&add_player_packet);
+		clients[id].SendData(&sc_add_player_packet);
 	}
 
 	std::cout << "player login" << std::endl;
@@ -309,7 +310,7 @@ void CNetworkFramework::ProcessLoginPacket(int id, char* pack)
 
 void CNetworkFramework::ProcessMovePacket(int id, char* pack)
 {
-	clients[id].GetPlayer().Move(static_cast<DIRECTION>(reinterpret_cast<CS::PACKET::MOVE_PLAYER*>(pack)->direction));
+	clients[id].GetPlayer()->Move(static_cast<DIRECTION>(reinterpret_cast<CS::PACKET::MOVE_PLAYER*>(pack)->direction));
 
 	for (auto& client : clients)
 	{

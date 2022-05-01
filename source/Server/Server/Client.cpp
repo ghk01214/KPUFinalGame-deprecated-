@@ -8,39 +8,41 @@ CClient::CClient() : id(-1), player(0, 0, 0), sock(INVALID_SOCKET), state(SESSIO
 void CClient::RecvData()
 {
 	DWORD flag{ 0 };
-	ZeroMemory(&recv_over, sizeof(recv_over));
+	ZeroMemory(&recv_ex.over, sizeof(recv_ex.over));
 
-	recv_over.wsa_buf.buf = recv_over.data + remain_size;
-	recv_over.wsa_buf.len = VAR_SIZE::DATA - remain_size;
+	recv_ex.wsa_buf.buf = recv_ex.data + remain_size;
+	recv_ex.wsa_buf.len = VAR_SIZE::DATA - remain_size;
 
-	WSARecv(sock, &recv_over.wsa_buf, 1, 0, &flag, &recv_over.over, nullptr);
+	WSARecv(sock, &recv_ex.wsa_buf, 1, 0, &flag, &recv_ex.over, nullptr);
 }
 
 void CClient::SendData(void* packet)
 {
-	send_over.SetPacket(reinterpret_cast<char*>(packet));
+	send_ex.SetPacket(reinterpret_cast<char*>(packet));
 
-	WSASend(sock, &send_over.wsa_buf, 1, 0, 0, &send_over.over, nullptr);
+	WSASend(sock, &send_ex.wsa_buf, 1, 0, 0, &send_ex.over, nullptr);
 }
 
 void CClient::SendLoginPakcet()
 {
-	login_packet.id = id;
-	login_packet.size = sizeof(SC::PACKET::LOGIN);
-	login_packet.type = SC::LOGIN;
-	login_packet.x = player.GetPosX();
-	login_packet.y = player.GetPosY();
+	sc_login_packet.id = id;
+	//cs_login_packet.size = sizeof(SC::PACKET::LOGIN);
+	//cs_login_packet.type = SC::LOGIN;
+	sc_login_packet.x = player.GetPosX();
+	sc_login_packet.y = player.GetPosY();
+	sc_login_packet.z = player.GetPosZ();
 
-	SendData(&login_packet);
+	SendData(&sc_login_packet);
 }
 
-void CClient::SendMovePlayerPacket(short plId, char type, CPlayer pl)
+void CClient::SendMovePlayerPacket(short plId, char type, CPlayer* pl)
 {
-	pl_move_packet.id = plId;
-	pl_move_packet.size = sizeof(SC::PACKET::MOVE_PLAYER);
-	pl_move_packet.type = SC::MOVE_PLAYER;
-	pl_move_packet.x = pl.GetPosX();
-	pl_move_packet.y = pl.GetPosY();
+	sc_move_player_packet.id = plId;
+	//sc_move_player_packet.size = sizeof(SC::PACKET::MOVE_PLAYER);
+	//sc_move_player_packet.type = SC::MOVE_PLAYER;
+	sc_move_player_packet.x = pl->GetPosX();
+	sc_move_player_packet.y = pl->GetPosY();
+	sc_move_player_packet.z = pl->GetPosZ();
 
-	SendData(&pl_move_packet);
+	SendData(&sc_move_player_packet);
 }

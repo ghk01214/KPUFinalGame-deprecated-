@@ -20,14 +20,14 @@ public:
 	void SendData(void* packet);
 
 	void SendLoginPakcet();
-	void SendMovePlayerPacket(short plId, char type, CPlayer pl);
+	void SendMovePlayerPacket(short plId, char type, CPlayer* pl);
 
 	void SetState(SESSION_STATE session) { state = session; }
 
 	SESSION_STATE GetState() { return state; }
 	SOCKET GetSocket() { return sock; }
 	int GetID() const { return id; }
-	CPlayer GetPlayer() { return player; }
+	CPlayer* GetPlayer() { return &player; }
 	int GetRemainSize() { return remain_size; }
 
 	void SetID(int ID) { id = ID; }
@@ -35,11 +35,11 @@ public:
 	void SetRemainSize(int size) { remain_size = size; }
 
 private:
-	OVERLAPPEDEX recv_over;
-	OVERLAPPEDEX send_over;
+	OVERLAPPEDEX recv_ex;
+	OVERLAPPEDEX send_ex;
 
-	SC::PACKET::LOGIN login_packet;
-	SC::PACKET::MOVE_PLAYER pl_move_packet;
+	SC::PACKET::LOGIN sc_login_packet;
+	SC::PACKET::MOVE_PLAYER sc_move_player_packet;
 
 	SESSION_STATE state;
 	SOCKET sock;
