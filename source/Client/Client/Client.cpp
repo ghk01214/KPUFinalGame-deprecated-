@@ -109,7 +109,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		gGameFramework.OnCreate(hInst, hWnd);
 		gGameFramework.ConnectToServer();
-		gGameFramework.Run();
+		gGameFramework.Login();
+		gGameFramework.RecvData();
+		//gGameFramework.Run();
 		//gGameFramework.Login();
 	}
 	break;

@@ -31,8 +31,9 @@ public:
 	void ChangeSwapChainState();
 
 	void ConnectToServer() { network_manager->ConnectToServer(); }
-	void Run() { network_manager->Run(); }
+	//void Run() { network_manager->Run(); }
 	void Login() { network_manager->SendLoginPacket(); }
+	void RecvData() { network_manager->RecvData(); }
 
 	void BuildObjects();
 	void ReleaseObjects();
