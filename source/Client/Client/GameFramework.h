@@ -3,6 +3,7 @@
 #include "Timer.h"
 #include "Player.h"
 #include "Scene.h"
+#include "Network.h"
 
 class CGameFramework
 {
@@ -29,6 +30,10 @@ public:
 
 	void ChangeSwapChainState();
 
+	void ConnectToServer() { network_manager->ConnectToServer(); }
+	void Run() { network_manager->Run(); }
+	void Login() { network_manager->SendLoginPacket(); }
+
 	void BuildObjects();
 	void ReleaseObjects();
 
@@ -48,6 +53,7 @@ public:
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 	CPlayer* GetPlayer() { return m_pPlayer; }
+	CGameTimer* GetTimer() { return &m_GameTimer; }
 
 private:
 	HINSTANCE					m_hInstance;
@@ -82,7 +88,7 @@ private:
 	UINT64						m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE						m_hFenceEvent;
 
-#if defined(_DEBUG)
+#ifndef _DEBUG
 	ID3D12Debug* m_pd3dDebugController;
 #endif
 
@@ -94,5 +100,7 @@ private:
 
 	CGameTimer					m_GameTimer;
 	_TCHAR						m_pszFrameRate[50];
+
+	std::unique_ptr<CNetwork> network_manager;
 };
 

@@ -1,35 +1,36 @@
 ﻿#include "pch.h"
+#include "GameFramework.h"
 #include "Network.h"
-#include "../../Server/Server/protocol.hpp"
 
 std::unique_ptr<CNetwork> CNetwork::instance{ nullptr };
 
-CNetwork::CNetwork(CGameFramework* game_inst) : 
+CNetwork::CNetwork(CGameFramework* game_inst) :
 	server(INVALID_SOCKET),
 	remain_size(0),
-	game_instance(std::make_unique<CGameFramework>(game_inst)),
-	login_packet(nullptr),
-	add_player_packet(nullptr),
-	move_player_packet(nullptr),
-	remove_player_packet(nullptr)
+	//game_instance(std::make_shared<CGameFramework>(*game_inst)),
+	game_instance(game_inst),
+	recv_login_packet(nullptr),
+	recv_add_player_packet(nullptr),
+	recv_move_player_packet(nullptr),
+	recv_remove_player_packet(nullptr)
 {
-	instance = std::make_unique<CNetwork>(this);
-
+	instance = std::make_unique<CNetwork>(*this);
+	a_send = a_recv = 0;
 	ZeroMemory(&recv.over, sizeof(recv.over));
 	ZeroMemory(&send.over, sizeof(send.over));
 }
 
 CNetwork::~CNetwork()
 {
-	delete login_packet;
-	delete add_player_packet;
-	delete move_player_packet;
-	delete remove_player_packet;
+	delete recv_login_packet;
+	delete recv_add_player_packet;
+	delete recv_move_player_packet;
+	delete recv_remove_player_packet;
 
-	login_packet = nullptr;
-	add_player_packet = nullptr;
-	move_player_packet = nullptr;
-	remove_player_packet = nullptr;
+	recv_login_packet = nullptr;
+	recv_add_player_packet = nullptr;
+	recv_move_player_packet = nullptr;
+	recv_remove_player_packet = nullptr;
 
 	closesocket(server);
 	WSACleanup();
@@ -61,10 +62,11 @@ void CNetwork::Run()
 	RecvData();
 	SendData();
 
-	while (true)
-	{
-		game_instance->FrameAdvance();
-	}
+	//while (true)
+	//{
+	//	game_instance->FrameAdvance();
+	//}
+	SendLoginPacket();
 }
 
 void CNetwork::RecvData()
@@ -99,9 +101,31 @@ void CNetwork::SendData()
 	WSASend(server, &send.wsa, 1, 0, 0, &send.over, SendCallback);
 }
 
+void CNetwork::SendLoginPacket()
+{
+	strcpy_s(send_login_packet.name, "Player");
+
+	std::memcpy(send.data, &send_login_packet, sizeof(CS::PACKET::LOGIN));
+
+	SendData();
+}
+
+void CNetwork::SendMovePlayerPacket(DWORD direct)
+{
+	/*send_move_player_packet.size = sizeof(CS::PACKET::MOVE_PLAYER);
+	send_move_player_packet.type = CS::MOVE_PLAYER;*/
+	send_move_player_packet.direction = static_cast<char>(direct);
+	
+	std::memcpy(send.data, &send_move_player_packet, sizeof(CS::PACKET::MOVE_PLAYER));
+
+	SendData();
+}
+
 void CALLBACK CNetwork::RecvCallback(DWORD error, DWORD bytes, LPWSAOVERLAPPED over, DWORD flag)
 {
 	instance->ProcessPacket();
+
+	instance->recv.data[0] = '\0';
 
 	instance->RecvData();
 	instance->SendData();
@@ -109,10 +133,13 @@ void CALLBACK CNetwork::RecvCallback(DWORD error, DWORD bytes, LPWSAOVERLAPPED o
 
 void CALLBACK CNetwork::SendCallback(DWORD error, DWORD bytes, LPWSAOVERLAPPED over, DWORD flag)
 {
+	++instance->a_send;
+	instance->send.data[0] = '\0';
 }
 
 void CNetwork::ProcessPacket()
 {
+	++instance->a_recv;
 	int packet_type{ recv.data[1] };
 
 	switch (packet_type)
@@ -120,7 +147,7 @@ void CNetwork::ProcessPacket()
 	case SC::LOGIN:
 	{
 		// 로그인 패킷으로 캐스팅
-		login_packet = reinterpret_cast<SC::PACKET::LOGIN*>(recv.data);
+		recv_login_packet = reinterpret_cast<SC::PACKET::LOGIN*>(recv.data);
 
 
 	}
@@ -128,22 +155,22 @@ void CNetwork::ProcessPacket()
 	case SC::ADD_PLAYER:
 	{
 		// 플레이어 추가 패킷으로 캐스팅
-		add_player_packet = reinterpret_cast<SC::PACKET::ADD_PLAYER*>(recv.data);
+		recv_add_player_packet = reinterpret_cast<SC::PACKET::ADD_PLAYER*>(recv.data);
 
 	}
 	break;
 	case SC::MOVE_PLAYER:
 	{
 		// 플레이어 이동 패킷으로 캐스팅
-		move_player_packet = reinterpret_cast<SC::PACKET::MOVE_PLAYER*>(recv.data);
+		recv_move_player_packet = reinterpret_cast<SC::PACKET::MOVE_PLAYER*>(recv.data);
 
-		game_instance->GetPlayer()->Move();
+		game_instance->GetPlayer()->Move(recv_move_player_packet->x, recv_move_player_packet->y, recv_move_player_packet->z);
 	}
 	break;
 	case SC::REMOVE_PLAYER:
 	{
 		// 플레이어 제거 패킷으로 캐스팅
-		remove_player_packet = reinterpret_cast<SC::PACKET::REMOVE_PLAYER*>(recv.data);
+		recv_remove_player_packet = reinterpret_cast<SC::PACKET::REMOVE_PLAYER*>(recv.data);
 
 
 	}
@@ -151,4 +178,6 @@ void CNetwork::ProcessPacket()
 	default:
 		break;
 	}
+
+	game_instance->GetPlayer()->Update(game_instance->GetTimer()->GetTimeElapsed());
 }

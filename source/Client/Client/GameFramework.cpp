@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "GameFramework.h"
 
-CGameFramework::CGameFramework()
+CGameFramework::CGameFramework() : network_manager(nullptr)
 {
 	m_pdxgiFactory = nullptr;
 	m_pdxgiSwapChain = nullptr;
@@ -47,6 +47,8 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateRtvAndDsvDescriptorHeaps();
 	CreateSwapChain();
 	CreateDepthStencilView();
+
+	network_manager = std::make_unique<CNetwork>(this);
 
 	BuildObjects();
 
@@ -125,7 +127,7 @@ void CGameFramework::CreateDirect3DDevice()
 	HRESULT hResult;
 
 	UINT nDXGIFactoryFlags = 0;
-#if defined(_DEBUG)
+#ifndef _DEBUG
 	ID3D12Debug* pd3dDebugController = nullptr;
 	hResult = D3D12GetDebugInterface(__uuidof(ID3D12Debug), (void**)&pd3dDebugController);
 	if (pd3dDebugController)
@@ -418,7 +420,7 @@ void CGameFramework::OnDestroy()
 	if (m_pd3dDevice) m_pd3dDevice->Release();
 	if (m_pdxgiFactory) m_pdxgiFactory->Release();
 
-#if defined(_DEBUG)
+#ifndef _DEBUG
 	if (m_pd3dDebugController) m_pd3dDebugController->Release();
 #endif
 }
@@ -462,12 +464,18 @@ void CGameFramework::ProcessInput()
 	DWORD dwDirection = 0;
 	if (::GetKeyboardState(pKeysBuffer))
 	{
-		if (pKeysBuffer[VK_W] & 0xF0) dwDirection |= DIR_FORWARD;
-		if (pKeysBuffer[VK_S] & 0xF0) dwDirection |= DIR_BACKWARD;
-		if (pKeysBuffer[VK_A] & 0xF0) dwDirection |= DIR_LEFT;
-		if (pKeysBuffer[VK_D] & 0xF0) dwDirection |= DIR_RIGHT;
-		if (pKeysBuffer[VK_Q] & 0xF0) dwDirection |= DIR_UP;
-		if (pKeysBuffer[VK_E] & 0xF0) dwDirection |= DIR_DOWN;
+		//if (pKeysBuffer[VK_W] & 0xF0) dwDirection |= DIR_FORWARD;
+		//if (pKeysBuffer[VK_S] & 0xF0) dwDirection |= DIR_BACKWARD;
+		//if (pKeysBuffer[VK_A] & 0xF0) dwDirection |= DIR_LEFT;
+		//if (pKeysBuffer[VK_D] & 0xF0) dwDirection |= DIR_RIGHT;
+		//if (pKeysBuffer[VK_Q] & 0xF0) dwDirection |= DIR_UP;
+		//if (pKeysBuffer[VK_E] & 0xF0) dwDirection |= DIR_DOWN;
+		if (pKeysBuffer[VK_W] & 0xF0) dwDirection |= static_cast<int>(DIRECTION::FORWARD);
+		if (pKeysBuffer[VK_S] & 0xF0) dwDirection |= static_cast<int>(DIRECTION::BACKWARD);
+		if (pKeysBuffer[VK_A] & 0xF0) dwDirection |= static_cast<int>(DIRECTION::LEFT);
+		if (pKeysBuffer[VK_D] & 0xF0) dwDirection |= static_cast<int>(DIRECTION::RIGHT);
+		if (pKeysBuffer[VK_Q] & 0xF0) dwDirection |= static_cast<int>(DIRECTION::UP);
+		if (pKeysBuffer[VK_E] & 0xF0) dwDirection |= static_cast<int>(DIRECTION::DOWN);
 	}
 
 	float cxDelta = 0.0f, cyDelta = 0.0f;
@@ -480,6 +488,8 @@ void CGameFramework::ProcessInput()
 		cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
 		::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
 	}
+
+
 
 	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
 	{
@@ -494,7 +504,11 @@ void CGameFramework::ProcessInput()
 				m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 			}
 		}
-		if (dwDirection) m_pPlayer->Move(dwDirection, m_GameTimer.GetTimeElapsed(), true);
+		if (dwDirection)
+		{
+			//m_pPlayer->Move(dwDirection, m_GameTimer.GetTimeElapsed(), true);
+			network_manager->SendMovePlayerPacket(dwDirection);
+		}
 	}
 
 	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());

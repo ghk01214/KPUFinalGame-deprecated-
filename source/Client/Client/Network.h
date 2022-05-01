@@ -1,6 +1,8 @@
 ﻿#pragma once
 
-#include "GameFramework.h"
+#include "../../Server/Server/protocol.hpp"
+
+class CGameFramework;
 
 struct NetworkData
 {
@@ -16,15 +18,14 @@ public:
 	CNetwork(CGameFramework* game_inst);
 	~CNetwork();
 
-	// 네트워크 통신 클래스 복사 생성 방지
-	CNetwork(const CNetwork& other) = delete;
-	CNetwork& operator=(const CNetwork& other) = delete;
-
 	void ConnectToServer();
 	void Run();
 
 	void RecvData();
 	void SendData();
+
+	void SendLoginPacket();
+	void SendMovePlayerPacket(DWORD direct);
 
 	static void CALLBACK RecvCallback(DWORD error, DWORD bytes, LPWSAOVERLAPPED over, DWORD flag);
 	static void CALLBACK SendCallback(DWORD error, DWORD bytes, LPWSAOVERLAPPED over, DWORD flag);
@@ -39,11 +40,18 @@ private:
 
 	int remain_size;
 	
-	SC::PACKET::LOGIN* login_packet;
-	SC::PACKET::ADD_PLAYER* add_player_packet;
-	SC::PACKET::MOVE_PLAYER* move_player_packet;
-	SC::PACKET::REMOVE_PLAYER* remove_player_packet;
+	SC::PACKET::LOGIN* recv_login_packet;
+	SC::PACKET::ADD_PLAYER* recv_add_player_packet;
+	SC::PACKET::MOVE_PLAYER* recv_move_player_packet;
+	SC::PACKET::REMOVE_PLAYER* recv_remove_player_packet;
+
+	CS::PACKET::LOGIN send_login_packet;
+	CS::PACKET::MOVE_PLAYER send_move_player_packet;
 
 	static std::unique_ptr<CNetwork> instance;
-	std::unique_ptr<CGameFramework> game_instance;
+	//std::shared_ptr<CGameFramework> game_instance;
+	CGameFramework* game_instance;
+
+	int a_send;
+	int a_recv;
 };

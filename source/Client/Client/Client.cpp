@@ -95,8 +95,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       return FALSE;
    }
 
-   gGameFramework.OnCreate(hInstance, hWnd);
-
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
 
@@ -107,6 +105,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
+	case WM_CREATE:
+	{
+		gGameFramework.OnCreate(hInst, hWnd);
+		gGameFramework.ConnectToServer();
+		gGameFramework.Run();
+		//gGameFramework.Login();
+	}
+	break;
 	case WM_SIZE:
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:

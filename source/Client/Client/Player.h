@@ -55,6 +55,7 @@ public:
 	void SetCamera(CCamera* pCamera) { m_pCamera = pCamera; }
 
 	void Move(DWORD dwDirection, float fTime, bool bVelocity = false);
+	void Move(short x, short y, short z);
 	void Move(const XMFLOAT3& xmf3Shift, bool bVelocity = false);
 	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
 	void ResetPlayerPos() { m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); }

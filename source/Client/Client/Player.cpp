@@ -63,31 +63,57 @@ void CPlayer::ReleaseShaderVariables()
 
 void CPlayer::Move(DWORD dwDirection, float fTime, bool bUpdateVelocity)
 {
-	int inputaddcount = 0;
-	int inputsubcount = 0;
+	int input_add_count{ 0 };
+	int input_sub_count{ 0 };
 
 	if (dwDirection & DIR_FORWARD)
-		++inputaddcount;
+	{
+		++input_add_count;
+	}
 	if (dwDirection & DIR_BACKWARD)
-		++inputsubcount;
+	{
+		++input_sub_count;
+	}
 	if (dwDirection & DIR_RIGHT)
-		++inputaddcount;
+	{
+		++input_add_count;
+	}
 	if (dwDirection & DIR_LEFT)
-		++inputsubcount;
+	{
+		++input_sub_count;
+	}
 
-	abs(inputaddcount - inputsubcount);
+	ABS(input_add_count - input_sub_count);
 
 	if (dwDirection)
 	{
-
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
-		if (dwDirection & DIR_FORWARD)	xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Look.x, 0, m_xmf3Look.z), m_fPlayerMaxSpeed * fTime);
-		if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Look.x, 0, m_xmf3Look.z), m_fPlayerMaxSpeed * -fTime);
-		if (dwDirection & DIR_RIGHT)	xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Right.x, 0, m_xmf3Right.z), m_fPlayerMaxSpeed * fTime);
-		if (dwDirection & DIR_LEFT)		xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Right.x, 0, m_xmf3Right.z), m_fPlayerMaxSpeed * -fTime);
+
+		if (dwDirection & DIR_FORWARD)
+		{
+			xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Look.x, 0, m_xmf3Look.z), m_fPlayerMaxSpeed * fTime);
+		}
+		if (dwDirection & DIR_BACKWARD)
+		{
+			xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Look.x, 0, m_xmf3Look.z), m_fPlayerMaxSpeed * -fTime);
+		}
+		if (dwDirection & DIR_RIGHT)
+		{
+			xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Right.x, 0, m_xmf3Right.z), m_fPlayerMaxSpeed * fTime);
+		}
+		if (dwDirection & DIR_LEFT)
+		{
+			xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Right.x, 0, m_xmf3Right.z), m_fPlayerMaxSpeed * -fTime);
+		}
 
 		Move(xmf3Shift, bUpdateVelocity);
 	}
+}
+
+void CPlayer::Move(short x, short y, short z)
+{
+	m_xmf3Position = XMFLOAT3{ static_cast<float>(x), static_cast<float>(y), static_cast<float>(z) };
+	m_pCamera->Move(m_xmf3Position);
 }
 
 void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
