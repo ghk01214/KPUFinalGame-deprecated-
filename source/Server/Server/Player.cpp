@@ -25,39 +25,38 @@ void CPlayer::Move(DIRECTION direction)
 {
 	switch (direction)
 	{
-	case DIRECTION::UP:
+	case DIRECTION::FORWARD:
 	{
-		if (y > 0)
-		{
-			--y;
-		}
+		z += 10;
 	}
 	break;
-	case DIRECTION::DOWN:
+	case DIRECTION::BACKWARD:
 	{
-		if (y < VAR_SIZE::WORLD_HEIGHT - 1)
-		{
-			++y;
-		}
+		z -= 10;
 	}
 	break;
 	case DIRECTION::LEFT:
 	{
-		if (x > 0)
-		{
-			--x;
-		}
+		x -= 10;
 	}
 	break;
 	case DIRECTION::RIGHT:
 	{
-		if (x < VAR_SIZE::WORLD_WIDTH - 1)
-		{
-			++x;
-		}
+		x += 10;
+	}
+	break;
+	case DIRECTION::UP:
+	{
+		y -= 10;
+	}
+	break;
+	case DIRECTION::DOWN:
+	{
+		y += 10;
 	}
 	break;
 	default:
 		break;
 	}
+
 }
