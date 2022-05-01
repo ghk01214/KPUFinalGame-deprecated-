@@ -59,4 +59,5 @@ void CPlayer::Move(DIRECTION direction)
 		break;
 	}
 
+	std::cout << x << ", " << y << ", " << z << std::endl;
 }
