@@ -344,12 +344,12 @@ void CNetwork::ProcessPacket()
 
 	switch (packet_type)
 	{
-	case CS::LOGIN:
+	case SC::LOGIN:
 	{
 		ProcessLoginPacket();
 	}
 	break;
-	case CS::MOVE_PLAYER:
+	case SC::MOVE_PLAYER:
 	{
 		ProcessMovePacket();
 	}
