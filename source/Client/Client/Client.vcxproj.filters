@@ -69,6 +69,9 @@
     <ClInclude Include="Network.h">
       <Filter>클래스\h</Filter>
     </ClInclude>
+    <ClInclude Include="OVERLAPPEDEX.h">
+      <Filter>클래스\h</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -102,6 +105,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Network.cpp">
+      <Filter>클래스\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="OVERLAPPEDEX.cpp">
       <Filter>클래스\cpp</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,11 +1,6 @@
 ﻿#pragma once
 
-#include "../../Server/Server/protocol.hpp"
-
-enum class COMPLETION_TYPE
-{
-	RECV, SEND
-};
+#include "OVERLAPPEDEX.h"
 
 class CGameFramework;
 
