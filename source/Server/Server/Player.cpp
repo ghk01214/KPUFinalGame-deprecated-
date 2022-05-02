@@ -42,40 +42,23 @@ void CPlayer::Move(int direction)
 		--input_count;
 	}
 
-	switch (direction)
+	//===============================
+
+	if (direction & DIRECTION::FORWARD)
 	{
-	case DIRECTION::FORWARD:
-	{
-		z += 10.0f;
+		z += 5.0f;
 	}
-	break;
-	case DIRECTION::BACKWARD:
+	if (direction & DIRECTION::BACKWARD)
 	{
-		z -= 10.0f;
+		z -= 5.0f;
 	}
-	break;
-	case DIRECTION::LEFT:
+	if (direction & DIRECTION::RIGHT)
 	{
-		x += 10.0f;
+		x += 5.0f;
 	}
-	break;
-	case DIRECTION::RIGHT:
+	if (direction & DIRECTION::LEFT)
 	{
-		x -= 10.0f;
-	}
-	break;
-	case DIRECTION::UP:
-	{
-		y += 10.0f;
-	}
-	break;
-	case DIRECTION::DOWN:
-	{
-		y -= 10.0f;
-	}
-	break;
-	default:
-		break;
+		x -= 5.0f;
 	}
 
 	std::cout << x << ", " << y << ", " << z << std::endl;
