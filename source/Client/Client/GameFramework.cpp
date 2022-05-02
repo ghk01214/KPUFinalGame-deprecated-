@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include "../../Server/Server/protocol.hpp"
 #include "GameFramework.h"
 
 CGameFramework::CGameFramework() : network_manager(nullptr)

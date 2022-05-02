@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include "../../Server/Server/protocol.hpp"
 #include "Player.h"
 #include "Shader.h"
 
@@ -66,19 +67,19 @@ void CPlayer::Move(DWORD dwDirection, float fTime, bool bUpdateVelocity)
 	int input_add_count{ 0 };
 	int input_sub_count{ 0 };
 
-	if (dwDirection & DIR_FORWARD)
+	if (dwDirection & DIRECTION::FORWARD)
 	{
 		++input_add_count;
 	}
-	if (dwDirection & DIR_BACKWARD)
+	if (dwDirection & DIRECTION::BACKWARD)
 	{
 		++input_sub_count;
 	}
-	if (dwDirection & DIR_RIGHT)
+	if (dwDirection & DIRECTION::RIGHT)
 	{
 		++input_add_count;
 	}
-	if (dwDirection & DIR_LEFT)
+	if (dwDirection & DIRECTION::LEFT)
 	{
 		++input_sub_count;
 	}
@@ -89,19 +90,19 @@ void CPlayer::Move(DWORD dwDirection, float fTime, bool bUpdateVelocity)
 	{
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
 
-		if (dwDirection & DIR_FORWARD)
+		if (dwDirection & DIRECTION::FORWARD)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Look.x, 0, m_xmf3Look.z), m_fPlayerMaxSpeed * fTime);
 		}
-		if (dwDirection & DIR_BACKWARD)
+		if (dwDirection & DIRECTION::BACKWARD)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Look.x, 0, m_xmf3Look.z), m_fPlayerMaxSpeed * -fTime);
 		}
-		if (dwDirection & DIR_RIGHT)
+		if (dwDirection & DIRECTION::RIGHT)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Right.x, 0, m_xmf3Right.z), m_fPlayerMaxSpeed * fTime);
 		}
-		if (dwDirection & DIR_LEFT)
+		if (dwDirection & DIRECTION::LEFT)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Right.x, 0, m_xmf3Right.z), m_fPlayerMaxSpeed * -fTime);
 		}
