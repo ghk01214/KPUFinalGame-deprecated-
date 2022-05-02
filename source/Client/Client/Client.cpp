@@ -13,6 +13,7 @@ CGameFramework gGameFramework;
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK	DlgProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -157,6 +158,43 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
     return 0;
+}
+
+LRESULT CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message)
+	{
+	case WM_INITDIALOG:
+		break;
+	case WM_COMMAND:
+	{
+		switch (LOWORD(wParam))
+		{
+		case IDOK:
+		{
+			SERVER_ADDR.resize(20);
+
+			GetDlgItemText(hDlg, IDC_IPADDRESS1, const_cast<wchar_t*>(SERVER_ADDR.data()), SERVER_ADDR.length());
+			SERVER_ADDR.shrink_to_fit();
+
+			EndDialog(hDlg, LOWORD(wParam));
+
+			return (INT_PTR)TRUE;
+		}
+		break;
+		case IDCANCEL:
+		{
+			EndDialog(hDlg, LOWORD(wParam));
+
+			return (INT_PTR)TRUE;
+		}
+		break;
+		}
+	}
+	break;
+	}
+
+	return (INT_PTR)FALSE;
 }
 
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
