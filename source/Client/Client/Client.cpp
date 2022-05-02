@@ -108,12 +108,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
 	case WM_CREATE:
 	{
-		gGameFramework.OnCreate(hInst, hWnd);
+		//DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG1), hWnd, DlgProc);
+		SERVER_ADDR = L"127.0.0.1";
 		gGameFramework.ConnectToServer();
 		gGameFramework.Login();
+		gGameFramework.OnCreate(hInst, hWnd);
 		gGameFramework.RecvData();
-		//gGameFramework.Run();
-		//gGameFramework.Login();
 	}
 	break;
 	case WM_SIZE:
