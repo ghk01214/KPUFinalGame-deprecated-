@@ -113,7 +113,7 @@ void CPlayer::Move(DWORD dwDirection, float fTime, bool bUpdateVelocity)
 void CPlayer::Move(short x, short y, short z)
 {
 	m_xmf3Position = XMFLOAT3{ static_cast<float>(x), static_cast<float>(y), static_cast<float>(z) };
-	m_pCamera->Move(m_xmf3Position);
+	m_pCamera->MovePosition(m_xmf3Position);
 }
 
 void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
