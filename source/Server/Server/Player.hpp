@@ -32,7 +32,7 @@ public:
 
 private:
 	char name[VAR_SIZE::NAME];
-	int x, y, z;
+	float x, y, z;
 };
 
 #endif // !_PLAYER_HPP_

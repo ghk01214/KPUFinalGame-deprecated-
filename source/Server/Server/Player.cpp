@@ -46,32 +46,32 @@ void CPlayer::Move(int direction)
 	{
 	case DIRECTION::FORWARD:
 	{
-		++z;
+		z += 10.0f;
 	}
 	break;
 	case DIRECTION::BACKWARD:
 	{
-		--z;
+		z -= 10.0f;
 	}
 	break;
 	case DIRECTION::LEFT:
 	{
-		--x;
+		x += 10.0f;
 	}
 	break;
 	case DIRECTION::RIGHT:
 	{
-		++x;
+		x -= 10.0f;
 	}
 	break;
 	case DIRECTION::UP:
 	{
-		--y;
+		y += 10.0f;
 	}
 	break;
 	case DIRECTION::DOWN:
 	{
-		++y;
+		y -= 10.0f;
 	}
 	break;
 	default:
