@@ -249,7 +249,7 @@ void CNetworkFramework::ProcessPacket(int id)
 
 void CNetworkFramework::ProcessLoginPacket(int id, char* pack)
 {
-	cs_login_packet = static_cast<CS::PACKET::LOGIN>(*pack);
+	cs_login_packet = reinterpret_cast<CS::PACKET::LOGIN*>(pack);
 
 	clients[id].mu.lock();
 
@@ -267,7 +267,7 @@ void CNetworkFramework::ProcessLoginPacket(int id, char* pack)
 		return;
 	}
 
-	clients[id].GetPlayer()->SetName(cs_login_packet.name);
+	clients[id].GetPlayer()->SetName(cs_login_packet->name);
 	clients[id].SendLoginPakcet();
 	clients[id].SetState(SESSION_STATE::INGAME);
 	clients[id].mu.unlock();
@@ -310,7 +310,9 @@ void CNetworkFramework::ProcessLoginPacket(int id, char* pack)
 
 void CNetworkFramework::ProcessMovePacket(int id, char* pack)
 {
-	clients[id].GetPlayer()->Move(static_cast<DIRECTION>(reinterpret_cast<CS::PACKET::MOVE_PLAYER*>(pack)->direction));
+	cs_move_player_packet = reinterpret_cast<CS::PACKET::MOVE_PLAYER*>(pack);
+
+	clients[id].GetPlayer()->Move(cs_move_player_packet->direction);
 
 	for (auto& client : clients)
 	{

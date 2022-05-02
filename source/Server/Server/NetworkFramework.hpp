@@ -38,8 +38,10 @@ private:
 	OVERLAPPEDEX* over_ex;
 	char* packet;
 
-	CS::PACKET::LOGIN cs_login_packet;
 	SC::PACKET::ADD_PLAYER sc_add_player_packet;
+
+	CS::PACKET::LOGIN* cs_login_packet;
+	CS::PACKET::MOVE_PLAYER* cs_move_player_packet;
 };
 
 #endif // !_NETWORK_FRAMEWORK_HPP_
