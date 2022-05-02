@@ -43,22 +43,15 @@ using namespace DirectX::PackedVector;
 
 using Microsoft::WRL::ComPtr;
 
-#define FRAME_BUFFER_WIDTH		800
-#define FRAME_BUFFER_HEIGHT		600
+inline constexpr int FRAME_BUFFER_WIDTH{ 800 };
+inline constexpr int FRAME_BUFFER_HEIGHT{ 600 };
 
-#define DIR_FORWARD				0x01
-#define DIR_BACKWARD			0x02
-#define DIR_LEFT				0x04
-#define DIR_RIGHT				0x08
-#define DIR_UP					0x10
-#define DIR_DOWN				0x20
-
-#define VK_W					0x57
-#define VK_A					0x41
-#define VK_D					0x44
-#define VK_E					0x45
-#define VK_Q					0x51
-#define VK_S					0x53
+inline constexpr int VK_W{ 0x57 };
+inline constexpr int VK_A{ 0x41 };
+inline constexpr int VK_D{ 0x44 };
+inline constexpr int VK_E{ 0x45 };
+inline constexpr int VK_Q{ 0x51 };
+inline constexpr int VK_S{ 0x53 };
 
 #define RANDOM_COLOR			XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
 
