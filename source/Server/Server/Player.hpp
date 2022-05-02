@@ -12,7 +12,7 @@ public:
 	CPlayer(char* new_name);
 	CPlayer(short x, short y, short z, char* new_name);
 
-	void Move(DIRECTION direction);
+	void Move(int direction);
 
 	short GetPosX() { return static_cast<short>(x); }
 	short GetPosY() { return static_cast<short>(y); }

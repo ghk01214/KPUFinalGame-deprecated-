@@ -1,10 +1,15 @@
 ﻿#ifndef _PROTOCOL_HPP_
 #define _PROTOCOL_HPP_
 
-enum class DIRECTION
+namespace DIRECTION
 {
-	FORWARD = 1, BACKWARD, LEFT, RIGHT, UP, DOWN
-};
+	inline constexpr int FORWARD{ 1 };
+	inline constexpr int BACKWARD{ 2 };
+	inline constexpr int LEFT{ 3 };
+	inline constexpr int RIGHT{ 4 };
+	inline constexpr int UP{ 5 };
+	inline constexpr int DOWN{ 6 };
+}
 
 inline constexpr int SERVER_PORT{ 4000 };
 

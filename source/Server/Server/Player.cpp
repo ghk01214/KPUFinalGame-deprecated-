@@ -21,8 +21,27 @@ CPlayer::CPlayer(short x, short y, short z, char* new_name) : x(x), y(y), z(z)
 	strcpy_s(name, new_name);
 }
 
-void CPlayer::Move(DIRECTION direction)
+void CPlayer::Move(int direction)
 {
+	int input_count{ 0 };
+
+	if (direction & DIRECTION::FORWARD)
+	{
+		++input_count;
+	}
+	if (direction & DIRECTION::BACKWARD)
+	{
+		--input_count;
+	}
+	if (direction & DIRECTION::RIGHT)
+	{
+		++input_count;
+	}
+	if (direction & DIRECTION::LEFT)
+	{
+		--input_count;
+	}
+
 	switch (direction)
 	{
 	case DIRECTION::FORWARD:
