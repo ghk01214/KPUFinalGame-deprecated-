@@ -3,12 +3,12 @@
 
 namespace DIRECTION
 {
-	inline constexpr int FORWARD{ 1 };
-	inline constexpr int BACKWARD{ 2 };
-	inline constexpr int LEFT{ 3 };
-	inline constexpr int RIGHT{ 4 };
-	inline constexpr int UP{ 5 };
-	inline constexpr int DOWN{ 6 };
+	inline constexpr int FORWARD{ 0x01 };
+	inline constexpr int BACKWARD{ 0x02 };
+	inline constexpr int LEFT{ 0x04 };
+	inline constexpr int RIGHT{ 0x08 };
+	inline constexpr int UP{ 0x10 };
+	inline constexpr int DOWN{ 0x20 };
 }
 
 inline constexpr int SERVER_PORT{ 4000 };
