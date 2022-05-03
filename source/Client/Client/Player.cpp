@@ -268,7 +268,7 @@ void CPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamer
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
 
-	if (nCameraMode == THIRD_PERSON_CAMERA)
+	if (nCameraMode == THIRD_PERSON_CAMERA || nCameraMode == SPACESHIP_CAMERA)
 	{
 		CGameObject::Render(pd3dCommandList, pCamera);
 	}

@@ -32,6 +32,8 @@ public:
 	CPlayer* m_pPlayer = nullptr;
 	std::unordered_map<int, CPlayer*> players;
 
+	CGameObject* GetObjects(int i) { return m_ppObjects[i]; }
+
 protected:
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = nullptr;
 

@@ -459,10 +459,15 @@ void CGameFramework::AddPlayer(SC::PACKET::ADD_PLAYER* packet)
 		XMFLOAT3 temp{ x, y, z };
 
 		pAirplanePlayer->SetPosition(temp);
-		//pAirplanePlayer->GetCamera()->SetMode(THIRD_PERSON_CAMERA);
-		pAirplanePlayer->ChangeCamera(SPACESHIP_CAMERA, m_GameTimer.GetTimeElapsed());
+		pAirplanePlayer->SetCamera(pAirplanePlayer->ChangeCamera(SPACESHIP_CAMERA, 0.0f));
 
 		m_pScene->players.emplace(packet->id, pAirplanePlayer);
+
+		// 추가 플레이어 접속 여부를 오브젝트 색상 변경으로 확인
+		//for (int i = 0; i < 8; ++i)
+		//{
+		//	m_pScene->GetObjects(i)->SetColor(XMFLOAT3(0.2f, 0.0f, 0.0f));
+		//}
 	}
 }
 
@@ -663,7 +668,7 @@ void CGameFramework::FrameAdvance()
 		{
 			for (auto& player : m_pScene->players)
 			{
-				player.second->Render(m_pd3dCommandList, m_pCamera);
+				player.second->Render(m_pd3dCommandList, player.second->GetCamera());
 			}
 		}
 	}
