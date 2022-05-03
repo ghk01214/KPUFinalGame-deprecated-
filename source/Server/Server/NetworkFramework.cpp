@@ -2,7 +2,7 @@
 #include "protocol.hpp"
 #include "NetworkFramework.hpp"
 
-CNetworkFramework::CNetworkFramework() : server_key(9999), over(nullptr), over_ex(nullptr), packet(nullptr)
+std::uniform_int_distribution<int> random_id(0, MAX_USER - 1);
 std::uniform_real_distribution<float> urd_x(0.0f, VAR_SIZE::WORLD_X);
 std::uniform_real_distribution<float> urd_z(0.0f, VAR_SIZE::WORLD_Z);
 
@@ -11,7 +11,9 @@ CNetworkFramework::CNetworkFramework() :
 	over(nullptr),
 	over_ex(nullptr),
 	packet(nullptr),
+	active_users(0)
 {
+	id_in_use.fill(false);
 }
 
 CNetworkFramework::~CNetworkFramework()
@@ -335,19 +337,38 @@ void CNetworkFramework::ProcessMovePacket(int id, char* pack)
 
 int CNetworkFramework::GetNewClientID()
 {
-	for (int i = 0; i < MAX_USER; ++i)
+	if (active_users == MAX_USER)
 	{
-		std::lock_guard<std::mutex> a{ clients[i].mu };
-
-		if (clients[i].GetState() == SESSION_STATE::FREE)
-		{
-			clients[i].SetState(SESSION_STATE::ACCEPTED);
-
-			return i;
-		}
+		return -1;
 	}
 
-	return -1;
+	int id{ random_id(dre) };
+
+	if (id >= MAX_USER)
+	{
+		std::cout << id << std::endl;
+	}
+
+	while (id_in_use[id])		// id가 사용 중인지 확인
+	{
+		// id가 사용중이면 새로운 id 발급
+		id = random_id(dre);
+	}
+
+	std::lock_guard<std::mutex> temp{ clients[id].mu };
+
+	// id가 사용 중인지 확인
+	if (clients[id].GetState() == SESSION_STATE::FREE)
+	{
+		// id가 사용 중이지 않으면 새로 할당
+		clients[id].SetState(SESSION_STATE::ACCEPTED);
+		id_in_use[id] = true;
+
+		// 액티브 유저 수 증가
+		++active_users;
+
+		return id;
+	}
 }
 
 void CNetworkFramework::DisconnectClient(ULONG_PTR id)
