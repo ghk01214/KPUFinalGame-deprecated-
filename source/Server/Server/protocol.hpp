@@ -1,7 +1,7 @@
 ﻿#ifndef _PROTOCOL_HPP_
 #define _PROTOCOL_HPP_
 
-namespace DIRECTION
+namespace KEYINPUT
 {
 	inline constexpr int FORWARD{ 0x01 };
 	inline constexpr int BACKWARD{ 0x02 };
@@ -37,6 +37,7 @@ namespace SC
 	inline constexpr char ADD_PLAYER{ 1 };
 	inline constexpr char REMOVE_PLAYER{ 2 };
 	inline constexpr char MOVE_PLAYER{ 3 };
+	inline constexpr char ROTATE_PLAYER{ 4 };
 	inline constexpr char PLAYER_ATTACK{ 5 };
 
 	namespace PACKET
@@ -73,6 +74,14 @@ namespace SC
 			short x, y, z;
 		};
 
+		struct ROTATE_PLAYER
+		{
+			unsigned char size{ sizeof(SC::PACKET::ROTATE_PLAYER) };
+			char type{ SC::ROTATE_PLAYER };
+			unsigned short id;
+
+		};
+
 		struct PLAYER_ATTACK
 		{
 			unsigned char size{ sizeof(SC::PACKET::PLAYER_ATTACK) };
@@ -107,6 +116,14 @@ namespace CS
 			float look_x, look_z;	// Look Vector(0.0f와 1.0f 사이의 정규화된 값으로 존재하기 때문에 float형으로 받는다)
 			float right_x, right_z;	// Right Vector(0.0f와 1.0f 사이의 정규화된 값으로 존재하기 때문에 float형으로 받는다)
 		};
+
+		struct ROTATE_PLAYER
+		{
+			unsigned char size{ sizeof(CS::PACKET::ROTATE_PLAYER) };
+			char type{ CS::ROTATE_PLAYER };
+
+		};
+
 		struct PLAYER_ATTACK
 		{
 			unsigned char size{ sizeof(CS::PACKET::PLAYER_ATTACK) };
