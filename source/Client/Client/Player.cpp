@@ -265,30 +265,37 @@ void CPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamer
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
 
-	if (nCameraMode == THIRD_PERSON_CAMERA) CGameObject::Render(pd3dCommandList, pCamera);
-
-	else if (nCameraMode == FIRST_PERSON_CAMERA)
+	if (nCameraMode == THIRD_PERSON_CAMERA)
 	{
+		CGameObject::Render(pd3dCommandList, pCamera);
 	}
+	//else if (nCameraMode == FIRST_PERSON_CAMERA)
+	//{
+	//	CGameObject::Render(pd3dCommandList, pCamera);
+	//}
 
-	for (int i = 0; i < m_missileNum; ++i) {
+	for (int i = 0; i < m_missileNum; ++i)
+	{
 		m_missile[i]->Render(pd3dCommandList, pCamera);
 	}
 }
 
 void CPlayer::Attack()
 {
-	for (int i = 0; i < m_missileNum; ++i) {
-		if (!m_missile[i]->GetFire()) {
-  			m_missile[i]->SetPosition(m_xmf3Position);
+	for (int i = 0; i < m_missileNum; ++i)
+	{
+		if (!m_missile[i]->GetFire())
+		{
+			m_missile[i]->SetPosition(m_xmf3Position);
 			m_missile[i]->SetLook(m_xmf3Look);
 			m_missile[i]->SetUp(m_xmf3Up);
 			m_missile[i]->SetRight(m_xmf3Right);
 			m_missile[i]->SetFire(true);
+
 			break;
 		}
 	}
-}																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																
+}
 
 CAirplanePlayer::CAirplanePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
 	ID3D12RootSignature* pd3dGraphicsRootSignature, int nMeshes) :CPlayer(nMeshes)
@@ -374,15 +381,14 @@ CCamera* CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 
 CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext, int nMeshes)
 {
-	CMesh* pAirplaneMesh = new CMesh(pd3dDevice, pd3dCommandList, "Assets/Models/FlyerPlayership.bin", false);
+	CMesh* pAirplaneMesh{ new CMesh{ pd3dDevice, pd3dCommandList, "Assets/Models/FlyerPlayership.bin", false } };
 
 	m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
 
-	SetPosition(XMFLOAT3(pTerrain->GetWidth() * 0.5f, fHeight + 80,
-		pTerrain->GetLength() * 0.5f));
 	CHeightMapTerrain* pTerrain{ (CHeightMapTerrain*)pContext };
 	float fHeight{ pTerrain->GetHeight(pTerrain->GetWidth() * 0.5f, pTerrain->GetLength() * 0.5f) };
 
+	//SetPosition(XMFLOAT3{ pTerrain->GetWidth() * 0.5f, fHeight + 80, pTerrain->GetLength() * 0.5f });
 	SetPlayerUpdatedContext(pTerrain);
 	SetCameraUpdatedContext(pTerrain);
 
