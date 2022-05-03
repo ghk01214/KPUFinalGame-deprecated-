@@ -38,7 +38,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		17, xmf3Scale, xmf4Color);
 #else
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList,
-		m_pd3dGraphicsRootSignature, _T("Assets/Image/Terrain/Plain.raw"), 257, 257, 257,
+		m_pd3dGraphicsRootSignature, _T("Assets/Image/Terrain/HeightMap.raw"), 257, 257, 257,
 		257, xmf3Scale, xmf4Color);
 #endif
 
