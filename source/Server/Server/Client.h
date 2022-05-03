@@ -20,6 +20,7 @@ public:
 	void SendLoginPakcet();
 	void SendMovePlayerPacket(int player_id, CPlayer* pl);
 	void SendAddPlayerPacket(int player_id, CClient* client);
+	void SendRemovePlayerPacket(int player_id);
 
 	void SetState(SESSION_STATE session) { state = session; }
 
@@ -40,6 +41,7 @@ private:
 	SC::PACKET::LOGIN sc_login_packet;
 	SC::PACKET::MOVE_PLAYER sc_move_player_packet;
 	SC::PACKET::ADD_PLAYER sc_add_player_packet;
+	SC::PACKET::REMOVE_PLAYER sc_remove_player_packet;
 
 	SESSION_STATE state;
 	SOCKET sock;

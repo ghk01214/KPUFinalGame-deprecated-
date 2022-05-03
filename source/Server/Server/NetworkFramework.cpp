@@ -345,6 +345,10 @@ void CNetworkFramework::ProcessMovePacket(int id, char* pack)
 	}
 }
 
+void CNetworkFramework::ProcessRemovePlayerPacket(int id, char* pack)
+{
+}
+
 void CNetworkFramework::ProcessPlayerAttackPacket(int id, char* pack)
 {
 	cs_player_attack_packet = reinterpret_cast<CS::PACKET::PLAYER_ATTACK*>(pack);
@@ -421,10 +425,6 @@ void CNetworkFramework::DisconnectClient(ULONG_PTR id)
 			continue;
 		}
 
-		packet.id = id;
-		packet.size = sizeof(packet);
-		packet.type = SC::REMOVE_PLAYER;
-
-		player.SendData(&packet);
+		player.SendRemovePlayerPacket(id);
 	}
 }

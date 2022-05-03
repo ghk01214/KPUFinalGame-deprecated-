@@ -52,3 +52,10 @@ void CClient::SendAddPlayerPacket(int player_id, CClient* client)
 
 	client->SendData(&sc_add_player_packet);
 }
+
+void CClient::SendRemovePlayerPacket(int player_id)
+{
+	sc_remove_player_packet.id = player_id;
+
+	SendData(&sc_remove_player_packet);
+}

@@ -9,6 +9,7 @@ CNetwork::CNetwork(CGameFramework* game_inst) :
 	game_instance(game_inst),
 	sc_login_packet(new SC::PACKET::LOGIN),
 	sc_move_player_packet(new SC::PACKET::MOVE_PLAYER),
+	sc_remove_player_packet(new SC::PACKET::REMOVE_PLAYER),
 	cs_login_packet(new CS::PACKET::LOGIN),
 	cs_move_player_packet(new CS::PACKET::MOVE_PLAYER),
 	cs_player_attack_packet(new CS::PACKET::PLAYER_ATTACK),
@@ -44,6 +45,11 @@ CNetwork::~CNetwork()
 	{
 		delete sc_move_player_packet;
 		sc_move_player_packet = nullptr;
+	}
+	if (sc_remove_player_packet)
+	{
+		delete sc_remove_player_packet;
+		sc_remove_player_packet = nullptr;
 	}
 	if (cs_login_packet)
 	{
@@ -252,13 +258,13 @@ void CNetwork::ProcessAddPlayerPacket()
 	sc_add_player_packet = reinterpret_cast<SC::PACKET::ADD_PLAYER*>(packet);
 
 	game_instance->AddPlayer(sc_add_player_packet);
+}
 
-	std::wstring id{ std::to_wstring(sc_add_player_packet->id) };
-	std::wstring x{ std::to_wstring(sc_add_player_packet->x) };
-	std::wstring y{ std::to_wstring(sc_add_player_packet->y) };
-	std::wstring z{ std::to_wstring(sc_add_player_packet->z) };
-	std::wstring temp{ id + L": " + x + L", " + y + L", " + z + L"\n"};
-	OutputDebugString(temp.c_str());
+void CNetwork::ProcessRemovePlayerPacket()
+{
+	sc_remove_player_packet = reinterpret_cast<SC::PACKET::REMOVE_PLAYER*>(packet);
+
+	game_instance->GetScene()->players.erase(sc_remove_player_packet->id);
 }
 
 void CNetwork::SendLoginPacket()

@@ -24,6 +24,7 @@ public:
 	void ProcessLoginPacket();
 	void ProcessMovePacket();
 	void ProcessAddPlayerPacket();
+	void ProcessRemovePlayerPacket();
 
 	void SendLoginPacket();
 	void SendMovePlayerPacket(DWORD direction, float look_x, float look_z, float right_x, float right_z);
@@ -46,6 +47,7 @@ private:
 	SC::PACKET::LOGIN* sc_login_packet;
 	SC::PACKET::MOVE_PLAYER* sc_move_player_packet;
 	SC::PACKET::ADD_PLAYER* sc_add_player_packet;
+	SC::PACKET::REMOVE_PLAYER* sc_remove_player_packet;
 	
 	CS::PACKET::LOGIN* cs_login_packet;
 	CS::PACKET::MOVE_PLAYER* cs_move_player_packet;
