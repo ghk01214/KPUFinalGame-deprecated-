@@ -160,7 +160,10 @@ void CShader::ReleaseShaderVariables()
 
 void CShader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	if (m_pd3dPipelineState) pd3dCommandList->SetPipelineState(m_pd3dPipelineState);
+	if (m_pd3dPipelineState)
+	{
+		pd3dCommandList->SetPipelineState(m_pd3dPipelineState);
+	}
 }
 
 void CShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)

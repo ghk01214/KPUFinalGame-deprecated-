@@ -10,8 +10,7 @@ public:
 	CNetworkFramework();
 	~CNetworkFramework();
 
-	void OnCreate();
-	void OnDestroy();
+	void BootServer();
 
 	void CreateThread();
 	void ProcessThread();
