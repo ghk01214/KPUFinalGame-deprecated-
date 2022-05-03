@@ -173,27 +173,65 @@ void CNetwork::ProcessPacket()
 		ProcessMovePacket();
 	}
 	break;
+	case SC::ADD_PLAYER:
+	{
+		ProcessAddPlayerPacket();
+	}
+	break;
 	}
 }
 
 void CNetwork::ProcessLoginPacket()
 {
 	sc_login_packet = reinterpret_cast<SC::PACKET::LOGIN*>(packet);
-
 	
+	game_instance->GetScene()->players.emplace(sc_login_packet->id, game_instance->GetPlayer());
+
+	float x{ static_cast<float>(sc_login_packet->x) };
+	float y{ static_cast<float>(sc_login_packet->y) };
+	float z{ static_cast<float>(sc_login_packet->z) };
+
+	XMFLOAT3 temp{ x, y, z };
+
+	//game_instance->GetPlayer()->SetPosition(temp);
+	game_instance->GetScene()->players[sc_login_packet->id]->SetPosition(temp);
 }
 
 void CNetwork::ProcessMovePacket()
 {
 	sc_move_player_packet = reinterpret_cast<SC::PACKET::MOVE_PLAYER*>(packet);
 	
-	game_instance->GetPlayer()->Move(sc_move_player_packet->x, sc_move_player_packet->y, sc_move_player_packet->z);
-	game_instance->GetPlayer()->Update(game_instance->GetTimer()->GetTimeElapsed());
+	//if (sc_move_player_packet->id == my_id)
+	//{
+	//	game_instance->GetPlayer()->Move(sc_move_player_packet->x, sc_move_player_packet->y, sc_move_player_packet->z);
+	//	game_instance->GetPlayer()->Update(game_instance->GetTimer()->GetTimeElapsed());
+	//}
+	//else
+	//{
+		auto& player{ game_instance->GetScene()->players[sc_move_player_packet->id] };
+		
+		player->Move(sc_move_player_packet->x, sc_move_player_packet->y, sc_move_player_packet->z);
+		player->Update(game_instance->GetTimer()->GetTimeElapsed());
+	//}
+}
+
+void CNetwork::ProcessAddPlayerPacket()
+{
+	sc_add_player_packet = reinterpret_cast<SC::PACKET::ADD_PLAYER*>(packet);
+
+	game_instance->AddPlayer(sc_add_player_packet);
+
+	std::wstring id{ std::to_wstring(sc_add_player_packet->id) };
+	std::wstring x{ std::to_wstring(sc_add_player_packet->x) };
+	std::wstring y{ std::to_wstring(sc_add_player_packet->y) };
+	std::wstring z{ std::to_wstring(sc_add_player_packet->z) };
+	std::wstring temp{ id + L": " + x + L", " + y + L", " + z + L"\n"};
+	OutputDebugString(temp.c_str());
 }
 
 void CNetwork::SendLoginPacket()
 {
-	strcpy_s(cs_login_packet->name, "player1");
+	strcpy_s(cs_login_packet->name, "player");
 
 	SendData(cs_login_packet);
 }

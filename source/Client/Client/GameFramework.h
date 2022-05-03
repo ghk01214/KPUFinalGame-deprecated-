@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "Scene.h"
 #include "Network.h"
+#include "../../Server/Server/protocol.hpp"
 
 class CGameFramework
 {
@@ -31,9 +32,9 @@ public:
 	void ChangeSwapChainState();
 
 	void ConnectToServer() { network_manager->ConnectToServer(); }
-	//void Run() { network_manager->Run(); }
 	void Login() { network_manager->SendLoginPacket(); }
 	void RecvData() { network_manager->RecvData(); }
+	void AddPlayer(SC::PACKET::ADD_PLAYER* packet = nullptr);
 
 	void BuildObjects();
 	void ReleaseObjects();
@@ -54,6 +55,7 @@ public:
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 	CPlayer* GetPlayer() { return m_pPlayer; }
+	CScene* GetScene() { return m_pScene; }
 	CGameTimer* GetTimer() { return &m_GameTimer; }
 
 private:
@@ -104,4 +106,3 @@ private:
 
 	std::unique_ptr<CNetwork> network_manager;
 };
-

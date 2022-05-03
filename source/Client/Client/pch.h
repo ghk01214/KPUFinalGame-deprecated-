@@ -20,6 +20,7 @@
 #include <wchar.h>
 
 #include <vector>
+#include <unordered_map>
 #include <random>
 
 #include <d3d12.h>

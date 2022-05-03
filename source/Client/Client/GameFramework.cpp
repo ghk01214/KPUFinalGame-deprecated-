@@ -430,27 +430,61 @@ void CGameFramework::OnDestroy()
 #endif
 }
 
+void CGameFramework::AddPlayer(SC::PACKET::ADD_PLAYER* packet)
+{
+	CTerrainPlayer* pAirplanePlayer{ new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList,
+	m_pScene->GetGraphicsRootSignature(), m_pScene->GetTerrain(), 1) };
+
+	if (!packet)
+	{
+		m_pPlayer = pAirplanePlayer;
+		m_pCamera = m_pPlayer->GetCamera();
+		m_pScene->m_pPlayer = m_pPlayer;
+	}
+	else
+	{
+		float x{ static_cast<float>(packet->x) };
+		float y{ static_cast<float>(packet->y) };
+		float z{ static_cast<float>(packet->z) };
+
+		XMFLOAT3 temp{ x, y, z };
+
+		pAirplanePlayer->SetPosition(temp);
+		//pAirplanePlayer->GetCamera()->SetMode(THIRD_PERSON_CAMERA);
+		pAirplanePlayer->ChangeCamera(SPACESHIP_CAMERA, m_GameTimer.GetTimeElapsed());
+
+		m_pScene->players.emplace(packet->id, pAirplanePlayer);
+	}
+}
+
 void CGameFramework::BuildObjects()
 {
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, nullptr);
 
 	m_pScene = new CScene();
-	if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 
-	CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList,
-		m_pScene->GetGraphicsRootSignature(), m_pScene->GetTerrain(), 1);
-	m_pPlayer = pAirplanePlayer;
-	m_pCamera = m_pPlayer->GetCamera();
-	m_pScene->m_pPlayer = m_pPlayer;
+	if (m_pScene)
+	{
+		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
+	}
+
+	AddPlayer();
 
 	m_pd3dCommandList->Close();
-	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
+	ID3D12CommandList* ppd3dCommandLists[]{ m_pd3dCommandList };
 	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 
 	WaitForGpuComplete();
 
-	if (m_pScene) m_pScene->ReleaseUploadBuffers();
-	if (m_pPlayer) m_pPlayer->ReleaseUploadBuffers();
+	if (m_pScene)
+	{
+		m_pScene->ReleaseUploadBuffers();
+	}
+
+	if (m_pPlayer)
+	{
+		m_pPlayer->ReleaseUploadBuffers();
+	}
 
 	m_GameTimer.Reset();
 }

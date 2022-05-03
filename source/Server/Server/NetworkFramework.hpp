@@ -33,15 +33,16 @@ private:
 
 	std::vector<std::thread> worker_threads;
 	std::array<CClient, MAX_USER> clients;
+	std::array<bool, MAX_USER> id_in_use;
 
 	OVERLAPPED* over;
 	OVERLAPPEDEX* over_ex;
 	char* packet;
 
-	SC::PACKET::ADD_PLAYER sc_add_player_packet;
-
 	CS::PACKET::LOGIN* cs_login_packet;
 	CS::PACKET::MOVE_PLAYER* cs_move_player_packet;
+
+	int active_users;
 };
 
 #endif // !_NETWORK_FRAMEWORK_HPP_

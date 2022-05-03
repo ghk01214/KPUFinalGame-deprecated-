@@ -3,6 +3,8 @@
 #include "NetworkFramework.hpp"
 
 CNetworkFramework::CNetworkFramework() : server_key(9999), over(nullptr), over_ex(nullptr), packet(nullptr)
+std::uniform_real_distribution<float> urd_x(0.0f, VAR_SIZE::WORLD_X);
+std::uniform_real_distribution<float> urd_z(0.0f, VAR_SIZE::WORLD_Z);
 {
 }
 
@@ -287,25 +289,25 @@ void CNetworkFramework::ProcessLoginPacket(int id, char* pack)
 		}
 
 		// 모든 플레이어에게 새로 접속한 플레이어 정보 전송
-		sc_add_player_packet.id = id;
-		strcpy_s(sc_add_player_packet.name, clients[id].GetPlayer()->GetName());
-		sc_add_player_packet.size = sizeof(SC::PACKET::ADD_PLAYER);
-		sc_add_player_packet.type = SC::ADD_PLAYER;
-		sc_add_player_packet.x = clients[id].GetPlayer()->GetPosX();
-		sc_add_player_packet.y = clients[id].GetPlayer()->GetPosY();
+		//sc_add_player_packet.id = id;
+		//strcpy_s(sc_add_player_packet.name, clients[id].GetPlayer()->GetName());
+		//sc_add_player_packet.x = clients[id].GetPlayer()->GetPosX();
+		//sc_add_player_packet.y = clients[id].GetPlayer()->GetPosY();
+		//client.SendData(&sc_add_player_packet);
 
-		client.SendData(&sc_add_player_packet);
+		clients[id].SendAddPlayerPacket(id, &client);
 
 		// 나에게 접속해 있는 모든 플레이어의 정보 전송
-		sc_add_player_packet.id = client.GetID();
-		strcpy_s(sc_add_player_packet.name, client.GetPlayer()->GetName());
-		sc_add_player_packet.x = client.GetPlayer()->GetPosX();
-		sc_add_player_packet.y = client.GetPlayer()->GetPosY();
+		//sc_add_player_packet.id = client.GetID();
+		//strcpy_s(sc_add_player_packet.name, client.GetPlayer()->GetName());
+		//sc_add_player_packet.x = client.GetPlayer()->GetPosX();
+		//sc_add_player_packet.y = client.GetPlayer()->GetPosY();
+		//clients[id].SendData(&sc_add_player_packet);
 
-		clients[id].SendData(&sc_add_player_packet);
+		client.SendAddPlayerPacket(client.GetID(), &clients[id]);
 	}
 
-	std::cout << "player login" << std::endl;
+	std::cout << "player" << id << " login" << std::endl;
 }
 
 void CNetworkFramework::ProcessMovePacket(int id, char* pack)
@@ -355,6 +357,7 @@ void CNetworkFramework::DisconnectClient(ULONG_PTR id)
 
 	closesocket(clients[id].GetSocket());
 	clients[id].SetState(SESSION_STATE::FREE);
+	--active_users;
 
 	clients[id].mu.unlock();
 

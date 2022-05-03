@@ -30,6 +30,7 @@ public:
 	void CheckMissileByTerrainCollisions();
 
 	CPlayer* m_pPlayer = nullptr;
+	std::unordered_map<int, CPlayer*> players;
 
 protected:
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = nullptr;

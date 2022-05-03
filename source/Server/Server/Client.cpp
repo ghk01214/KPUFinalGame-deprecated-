@@ -46,3 +46,13 @@ void CClient::SendMovePlayerPacket(short plId, char type, CPlayer* pl)
 
 	SendData(&sc_move_player_packet);
 }
+
+void CClient::SendAddPlayerPacket(int player_id, CClient* client)
+{
+	sc_add_player_packet.id = player_id;
+	strcpy_s(sc_add_player_packet.name, player->GetName());
+	sc_add_player_packet.x = player->GetPosX();
+	sc_add_player_packet.y = player->GetPosY();
+
+	client->SendData(&sc_add_player_packet);
+}
