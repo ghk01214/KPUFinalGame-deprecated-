@@ -27,6 +27,7 @@ public:
 
 	void SendLoginPacket();
 	void SendMovePlayerPacket(DWORD direction);
+	void SendPlayerAttackPacket(int mode);
 
 	int GetClientID() { return sc_login_packet->id; }
 
@@ -48,6 +49,7 @@ private:
 	
 	CS::PACKET::LOGIN* cs_login_packet;
 	CS::PACKET::MOVE_PLAYER* cs_move_player_packet;
+	CS::PACKET::PLAYER_ATTACK* cs_player_attack_packet;
 
 	char* packet;
 

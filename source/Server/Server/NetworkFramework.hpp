@@ -21,6 +21,7 @@ public:
 	void ProcessPacket(int id);
 	void ProcessLoginPacket(int id, char* pack);
 	void ProcessMovePacket(int id, char* pack);
+	void ProcessPlayerAttackPacket(int id, char* pack);
 
 	int GetNewClientID();
 	void DisconnectClient(ULONG_PTR id);
@@ -40,6 +41,7 @@ private:
 
 	CS::PACKET::LOGIN* cs_login_packet;
 	CS::PACKET::MOVE_PLAYER* cs_move_player_packet;
+	CS::PACKET::PLAYER_ATTACK* cs_player_attack_packet;
 
 	int active_users;
 };

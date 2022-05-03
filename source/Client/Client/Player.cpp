@@ -26,6 +26,9 @@ CPlayer::CPlayer(int nMeshes) : CGameObject(nMeshes)
 	m_pPlayerUpdatedContext = nullptr;
 	m_pCameraUpdatedContext = nullptr;
 
+	shot_attack = false;
+	attack_mode = ATTACK_MODE::BURST;
+
 	m_missile = new CMissileObject * [m_missileNum];
 
 	for (int i = 0; i < m_missileNum; ++i)

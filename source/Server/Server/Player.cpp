@@ -56,4 +56,6 @@ void CPlayer::Move(int direction)
 
 	// 디버깅 용 플레이어 좌표 출력 문구
 	//std::cout << x << ", " << y << ", " << z << std::endl;
+void CPlayer::Attack(int interaction)
+{
 }

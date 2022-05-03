@@ -9,6 +9,14 @@ namespace DIRECTION
 	inline constexpr int RIGHT{ 0x08 };
 	inline constexpr int UP{ 0x10 };
 	inline constexpr int DOWN{ 0x20 };
+	inline constexpr int LCLICK{ 0x40 };
+}
+
+namespace ATTACK_MODE
+{
+	inline constexpr int NONE{ 0 };
+	inline constexpr int SHOT{ 1 };
+	inline constexpr int BURST{ 2 };
 }
 
 inline constexpr int SERVER_PORT{ 4000 };
@@ -29,6 +37,7 @@ namespace SC
 	inline constexpr char ADD_PLAYER{ 1 };
 	inline constexpr char REMOVE_PLAYER{ 2 };
 	inline constexpr char MOVE_PLAYER{ 3 };
+	inline constexpr char PLAYER_ATTACK{ 5 };
 
 	namespace PACKET
 	{
@@ -63,13 +72,23 @@ namespace SC
 			unsigned short id;
 			short x, y, z;
 		};
+
+		struct PLAYER_ATTACK
+		{
+			unsigned char size{ sizeof(SC::PACKET::PLAYER_ATTACK) };
+			char type{ SC::PLAYER_ATTACK };
+			unsigned short id;
+
+		};
 	}
 }
 
 namespace CS
 {
-	inline constexpr char LOGIN{ 4 };
-	inline constexpr char MOVE_PLAYER{ 5 };
+	inline constexpr char LOGIN{ 6 };
+	inline constexpr char MOVE_PLAYER{ 7 };
+	inline constexpr char ROTATE_PLAYER{ 8 };
+	inline constexpr char PLAYER_ATTACK{ 9 };
 
 	namespace PACKET
 	{
@@ -85,6 +104,11 @@ namespace CS
 			unsigned char size{ sizeof(CS::PACKET::MOVE_PLAYER) };
 			char type{ CS::MOVE_PLAYER };
 			char direction;			// 1 : FORWARD, 2 : BACKWARD, 3 : LEFT, 4 : RIGHT, 5 : UP, 6 : DOWN
+		struct PLAYER_ATTACK
+		{
+			unsigned char size{ sizeof(CS::PACKET::PLAYER_ATTACK) };
+			char type{ CS::PLAYER_ATTACK };
+			char mode;
 		};
 	}
 }

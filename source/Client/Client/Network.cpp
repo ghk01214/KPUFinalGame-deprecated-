@@ -11,6 +11,7 @@ CNetwork::CNetwork(CGameFramework* game_inst) :
 	sc_move_player_packet(new SC::PACKET::MOVE_PLAYER),
 	cs_login_packet(new CS::PACKET::LOGIN),
 	cs_move_player_packet(new CS::PACKET::MOVE_PLAYER),
+	cs_player_attack_packet(new CS::PACKET::PLAYER_ATTACK),
 	over(nullptr),
 	over_ex(nullptr),
 	packet(nullptr)
@@ -53,6 +54,11 @@ CNetwork::~CNetwork()
 	{
 		delete cs_move_player_packet;
 		cs_move_player_packet = nullptr;
+	}
+	if (cs_player_attack_packet)
+	{
+		delete cs_player_attack_packet;
+		cs_player_attack_packet = nullptr;
 	}
 	if (game_instance)
 	{
@@ -267,4 +273,11 @@ void CNetwork::SendMovePlayerPacket(DWORD direction)
 	cs_move_player_packet->direction = static_cast<char>(direction);
 
 	SendData(cs_move_player_packet);
+}
+
+void CNetwork::SendPlayerAttackPacket(int mode)
+{
+	cs_player_attack_packet->mode = static_cast<char>(mode);
+
+	SendData(cs_player_attack_packet);
 }

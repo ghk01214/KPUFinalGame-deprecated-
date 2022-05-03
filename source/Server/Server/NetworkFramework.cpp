@@ -254,6 +254,11 @@ void CNetworkFramework::ProcessPacket(int id)
 		ProcessMovePacket(id, packet);
 	}
 	break;
+	case CS::PLAYER_ATTACK:
+	{
+		ProcessPlayerAttackPacket(id, packet);
+	}
+	break;
 	}
 }
 
@@ -333,6 +338,13 @@ void CNetworkFramework::ProcessMovePacket(int id, char* pack)
 			client.SendMovePlayerPacket(id, SC::MOVE_PLAYER, client.GetPlayer());
 		}
 	}
+}
+
+void CNetworkFramework::ProcessPlayerAttackPacket(int id, char* pack)
+{
+	cs_player_attack_packet = reinterpret_cast<CS::PACKET::PLAYER_ATTACK*>(pack);
+
+
 }
 
 int CNetworkFramework::GetNewClientID()

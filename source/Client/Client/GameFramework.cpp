@@ -322,14 +322,24 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
-	case WM_RBUTTONDOWN:
-		::SetCapture(hWnd);
-		::GetCursorPos(&m_ptOldCursorPos);
-		break;
+	{
+		if (GetCapture() != hWnd)
+		{
+			::SetCapture(hWnd);
+			::GetCursorPos(&m_ptOldCursorPos);
+		}
+		else if (m_pPlayer->GetAttackMode() == ATTACK_MODE::SHOT)		// 단발 모드이면서 쏘지 않았을 경우
+		{
+			//network_manager->SendPlayerAttackPacket(m_pPlayer->GetAttackMode());
+			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->Attack();
+		}
+	}
+	break;
 	case WM_LBUTTONUP:
-	case WM_RBUTTONUP:
+	{
 		//::ReleaseCapture();		게임에서 마우스 놓는것
-		break;
+	}
+	break;
 	case WM_MOUSEMOVE:
 		break;
 	default:
@@ -345,8 +355,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		switch (wParam)
 		{
 		case VK_SPACE:
-			((CTerrainPlayer*)m_pPlayer)->Attack();
-			((CTerrainPlayer*)m_pPlayer)->Attack();
+			//dynamic_cast<CTerrainPlayer*>(m_pPlayer)->Attack();
 			break;
 		case VK_ESCAPE:
 			::PostQuitMessage(0);
@@ -501,6 +510,8 @@ void CGameFramework::ProcessInput()
 {
 	static UCHAR pKeysBuffer[256];
 	DWORD dwDirection = 0;
+	DWORD left_click = 0;
+
 	if (::GetKeyboardState(pKeysBuffer))
 	{
 		if (pKeysBuffer[VK_W] & 0xF0)
@@ -515,6 +526,8 @@ void CGameFramework::ProcessInput()
 			dwDirection |= DIRECTION::UP;
 		if (pKeysBuffer[VK_E] & 0xF0)
 			dwDirection |= DIRECTION::DOWN;
+		if (pKeysBuffer[VK_LBUTTON] & 0xF0)
+			left_click |= VK_LBUTTON;
 	}
 
 	float cxDelta = 0.0f, cyDelta = 0.0f;
@@ -545,6 +558,9 @@ void CGameFramework::ProcessInput()
 		{
 			//m_pPlayer->Move(dwDirection, m_GameTimer.GetTimeElapsed(), true);
 			network_manager->SendMovePlayerPacket(dwDirection);
+		if (left_click && m_pPlayer->GetAttackMode() == ATTACK_MODE::BURST)
+		{
+			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->Attack();
 		}
 	}
 
@@ -612,7 +628,6 @@ void CGameFramework::FrameAdvance()
 	m_GameTimer.Tick(60.0f);
 
 	ProcessInput();
-
 	AnimateObjects();
 
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
@@ -636,7 +651,6 @@ void CGameFramework::FrameAdvance()
 
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
 	if (m_pScene)
@@ -689,4 +703,3 @@ void CGameFramework::FrameAdvance()
 	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 }
-
