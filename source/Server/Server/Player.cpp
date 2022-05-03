@@ -1,7 +1,7 @@
 ﻿#include "pch.hpp"
 #include "Player.hpp"
 
-CPlayer::CPlayer()
+CPlayer::CPlayer() : x(0), y(0), z(0)
 {
 	name[0] = 0;
 }
@@ -25,22 +25,15 @@ void CPlayer::Move(int direction)
 {
 	int input_count{ 0 };
 
+	// 플레이어 이동 속도 제어와 관련된 부분, 추후 사용 예정
 	if (direction & DIRECTION::FORWARD)
-	{
 		++input_count;
-	}
 	if (direction & DIRECTION::BACKWARD)
-	{
 		--input_count;
-	}
 	if (direction & DIRECTION::RIGHT)
-	{
 		++input_count;
-	}
 	if (direction & DIRECTION::LEFT)
-	{
 		--input_count;
-	}
 
 	//===============================
 
@@ -61,5 +54,6 @@ void CPlayer::Move(int direction)
 		x -= 5.0f;
 	}
 
-	std::cout << x << ", " << y << ", " << z << std::endl;
+	// 디버깅 용 플레이어 좌표 출력 문구
+	//std::cout << x << ", " << y << ", " << z << std::endl;
 }

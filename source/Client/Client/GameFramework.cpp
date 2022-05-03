@@ -503,18 +503,18 @@ void CGameFramework::ProcessInput()
 	DWORD dwDirection = 0;
 	if (::GetKeyboardState(pKeysBuffer))
 	{
-		//if (pKeysBuffer[VK_W] & 0xF0) dwDirection |= DIR_FORWARD;
-		//if (pKeysBuffer[VK_S] & 0xF0) dwDirection |= DIR_BACKWARD;
-		//if (pKeysBuffer[VK_A] & 0xF0) dwDirection |= DIR_LEFT;
-		//if (pKeysBuffer[VK_D] & 0xF0) dwDirection |= DIR_RIGHT;
-		//if (pKeysBuffer[VK_Q] & 0xF0) dwDirection |= DIR_UP;
-		//if (pKeysBuffer[VK_E] & 0xF0) dwDirection |= DIR_DOWN;
-		if (pKeysBuffer[VK_W] & 0xF0) dwDirection |= DIRECTION::FORWARD;
-		if (pKeysBuffer[VK_S] & 0xF0) dwDirection |= DIRECTION::BACKWARD;
-		if (pKeysBuffer[VK_A] & 0xF0) dwDirection |= DIRECTION::LEFT;
-		if (pKeysBuffer[VK_D] & 0xF0) dwDirection |= DIRECTION::RIGHT;
-		if (pKeysBuffer[VK_Q] & 0xF0) dwDirection |= DIRECTION::UP;
-		if (pKeysBuffer[VK_E] & 0xF0) dwDirection |= DIRECTION::DOWN;
+		if (pKeysBuffer[VK_W] & 0xF0)
+			dwDirection |= DIRECTION::FORWARD;
+		if (pKeysBuffer[VK_S] & 0xF0)
+			dwDirection |= DIRECTION::BACKWARD;
+		if (pKeysBuffer[VK_A] & 0xF0)
+			dwDirection |= DIRECTION::LEFT;
+		if (pKeysBuffer[VK_D] & 0xF0)
+			dwDirection |= DIRECTION::RIGHT;
+		if (pKeysBuffer[VK_Q] & 0xF0)
+			dwDirection |= DIRECTION::UP;
+		if (pKeysBuffer[VK_E] & 0xF0)
+			dwDirection |= DIRECTION::DOWN;
 	}
 
 	float cxDelta = 0.0f, cyDelta = 0.0f;
@@ -527,8 +527,6 @@ void CGameFramework::ProcessInput()
 		cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
 		::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
 	}
-
-
 
 	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
 	{

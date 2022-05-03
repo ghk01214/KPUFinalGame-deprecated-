@@ -26,10 +26,10 @@ CPlayer::CPlayer(int nMeshes) : CGameObject(nMeshes)
 	m_pPlayerUpdatedContext = nullptr;
 	m_pCameraUpdatedContext = nullptr;
 
-
 	m_missile = new CMissileObject * [m_missileNum];
 
-	for (int i = 0; i < m_missileNum; ++i) {
+	for (int i = 0; i < m_missileNum; ++i)
+	{
 		m_missile[i] = new CMissileObject();
 	}
 }
@@ -378,30 +378,31 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
 
-	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)pContext;
-	float fHeight = pTerrain->GetHeight(pTerrain->GetWidth() * 0.5f,
-		pTerrain->GetLength() * 0.5f);
 	SetPosition(XMFLOAT3(pTerrain->GetWidth() * 0.5f, fHeight + 80,
 		pTerrain->GetLength() * 0.5f));
+	CHeightMapTerrain* pTerrain{ (CHeightMapTerrain*)pContext };
+	float fHeight{ pTerrain->GetHeight(pTerrain->GetWidth() * 0.5f, pTerrain->GetLength() * 0.5f) };
+
 	SetPlayerUpdatedContext(pTerrain);
 	SetCameraUpdatedContext(pTerrain);
 
 	SetMesh(0, pAirplaneMesh);
 
-	CPseudoLightingShader* pShader = new CPseudoLightingShader();
+	CPseudoLightingShader* pShader{ new CPseudoLightingShader{} };
+
 	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
 	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	for (int i = 0; i < CPlayer::GetMissileNum(); ++i) {
+	for (int i = 0; i < CPlayer::GetMissileNum(); ++i)
+	{
 		CPlayer::GetMissile(i)->SetMesh(0, pAirplaneMesh);
 		CPlayer::GetMissile(i)->SetShader(pShader);
 		CPlayer::GetMissile(i)->SetScale(1.0f);
 		CPlayer::GetMissile(i)->SetPosition(0.0f, -1000.0f, 0.0f);
-		CPlayer::GetMissile(i)->SetColor(XMFLOAT3(1.0f, 0.0f, 1.0f));
+		CPlayer::GetMissile(i)->SetColor(XMFLOAT3{ 1.0f, 0.0f, 1.0f });
 	}
 
 	SetShader(pShader);
-
 }
 
 CTerrainPlayer::~CTerrainPlayer()
@@ -492,7 +493,6 @@ void CTerrainPlayer::Update(float fTimeElapsed)
 {
 	CPlayer::Update(fTimeElapsed);
 }
-
 
 void CTerrainPlayer::ResetPlayerPos()
 {

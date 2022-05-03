@@ -9,8 +9,6 @@ enum class SESSION_STATE
 	FREE, ACCEPTED, INGAME
 };
 
-inline constexpr int MAX_USER{ 10 };
-
 class CClient
 {
 public:
@@ -21,13 +19,14 @@ public:
 
 	void SendLoginPakcet();
 	void SendMovePlayerPacket(short plId, char type, CPlayer* pl);
+	void SendAddPlayerPacket(int player_id, CClient* client);
 
 	void SetState(SESSION_STATE session) { state = session; }
 
-	SESSION_STATE GetState() { return state; }
+	SESSION_STATE GetState() const { return state; }
 	SOCKET GetSocket() { return sock; }
 	int GetID() const { return id; }
-	CPlayer* GetPlayer() { return &player; }
+	CPlayer* GetPlayer() { return player; }
 	int GetRemainSize() { return remain_size; }
 
 	void SetID(int ID) { id = ID; }
@@ -45,7 +44,7 @@ private:
 	SESSION_STATE state;
 	SOCKET sock;
 	int id;
-	CPlayer player;
+	CPlayer* player;
 
 	int remain_size;
 public:

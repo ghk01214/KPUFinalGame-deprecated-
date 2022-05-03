@@ -5,6 +5,12 @@
 CNetworkFramework::CNetworkFramework() : server_key(9999), over(nullptr), over_ex(nullptr), packet(nullptr)
 std::uniform_real_distribution<float> urd_x(0.0f, VAR_SIZE::WORLD_X);
 std::uniform_real_distribution<float> urd_z(0.0f, VAR_SIZE::WORLD_Z);
+
+CNetworkFramework::CNetworkFramework() :
+	server_key(9999),
+	over(nullptr),
+	over_ex(nullptr),
+	packet(nullptr),
 {
 }
 
@@ -148,9 +154,9 @@ void CNetworkFramework::AcceptClient()
 
 	if (id != -1)
 	{
-		clients[id].GetPlayer()->SetPosX(0);
-		clients[id].GetPlayer()->SetPosY(0);
-		clients[id].GetPlayer()->SetPosZ(0);
+		clients[id].GetPlayer()->SetPosX(1200);
+		clients[id].GetPlayer()->SetPosY(500);
+		clients[id].GetPlayer()->SetPosZ(1100);
 		clients[id].SetID(id);
 		clients[id].GetPlayer()->SetName(0);
 		clients[id].SetSocket(client);
@@ -201,7 +207,7 @@ void CNetworkFramework::RecvData(DWORD bytes, ULONG_PTR key)
 	for (; remain_size > 0 or packet_size <= remain_size; remain_size -= packet_size)
 	{
 		ProcessPacket(key);
-		
+
 		packet += packet_size;
 	}
 

@@ -19,23 +19,46 @@ CNetwork::CNetwork(CGameFramework* game_inst) :
 
 CNetwork::~CNetwork()
 {
-	delete packet;
-	delete over;
-	delete over_ex;
-	delete sc_login_packet;
-	delete sc_move_player_packet;
-	delete cs_login_packet;
-	delete cs_move_player_packet;
-	delete game_instance;
-
-	packet = nullptr;
-	over = nullptr;
-	over_ex = nullptr;
-	sc_login_packet = nullptr;
-	sc_move_player_packet = nullptr;
-	cs_login_packet = nullptr;
-	cs_move_player_packet = nullptr;
-	game_instance = nullptr;
+	if (packet)
+	{
+		delete packet;
+		packet = nullptr;
+	}
+	if (over)
+	{
+		delete over;
+		over = nullptr;
+	}
+	if (over_ex)
+	{
+		delete over_ex;
+		over_ex = nullptr;
+	}
+	if (sc_login_packet)
+	{
+		delete sc_login_packet;
+		sc_login_packet = nullptr;
+	}
+	if (sc_move_player_packet)
+	{
+		delete sc_move_player_packet;
+		sc_move_player_packet = nullptr;
+	}
+	if (cs_login_packet)
+	{
+		delete cs_login_packet;
+		cs_login_packet = nullptr;
+	}
+	if (cs_move_player_packet)
+	{
+		delete cs_move_player_packet;
+		cs_move_player_packet = nullptr;
+	}
+	if (game_instance)
+	{
+		delete game_instance;
+		game_instance = nullptr;
+	}
 
 	closesocket(server);
 	WSACleanup();
@@ -63,11 +86,14 @@ void CNetwork::ConnectToServer()
 
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(SERVER_PORT);
-	InetPton(AF_INET, SERVER_ADDR, &server_addr.sin_addr);
+	InetPton(AF_INET, SERVER_ADDR.c_str(), &server_addr.sin_addr);
 
 	CreateIoCompletionPort(reinterpret_cast<HANDLE>(server), iocp, server, 0);
 
-	WSAConnect(server, reinterpret_cast<sockaddr*>(&server_addr), sizeof(server_addr), 0, 0, 0, 0);
+	if (WSAConnect(server, reinterpret_cast<sockaddr*>(&server_addr), sizeof(server_addr), 0, 0, 0, 0) == SOCKET_ERROR)
+	{
+		ErrorQuit(L"Connection Failed", WSAGetLastError());
+	}
 
 	worker_thread = std::thread{ &CNetwork::ProcessThread, this };
 }

@@ -17,8 +17,8 @@ namespace VAR_SIZE
 {
 	inline constexpr int DATA{ 256 };
 	inline constexpr int NAME{ 10 };
-	inline constexpr int WORLD_WIDTH{ 8 };
-	inline constexpr int WORLD_HEIGHT{ 8 };
+	inline constexpr float WORLD_X{ 257 * 9.0f };			// 257 = terrain pixel size, 9 = scale size
+	inline constexpr float WORLD_Z{ 257 * 9.0f };			// 257 = terrain pixel size, 9 = scale size
 }
 
 #pragma pack(push, 1)
