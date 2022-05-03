@@ -26,7 +26,7 @@ public:
 	void ProcessAddPlayerPacket();
 
 	void SendLoginPacket();
-	void SendMovePlayerPacket(DWORD direction);
+	void SendMovePlayerPacket(DWORD direction, float look_x, float look_z, float right_x, float right_z);
 	void SendPlayerAttackPacket(int mode);
 
 	int GetClientID() { return sc_login_packet->id; }

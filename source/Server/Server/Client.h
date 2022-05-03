@@ -18,7 +18,7 @@ public:
 	void SendData(void* packet);
 
 	void SendLoginPakcet();
-	void SendMovePlayerPacket(short plId, char type, CPlayer* pl);
+	void SendMovePlayerPacket(int player_id, CPlayer* pl);
 	void SendAddPlayerPacket(int player_id, CClient* client);
 
 	void SetState(SESSION_STATE session) { state = session; }

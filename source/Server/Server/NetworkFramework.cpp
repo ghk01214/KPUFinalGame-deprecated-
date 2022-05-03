@@ -327,7 +327,12 @@ void CNetworkFramework::ProcessMovePacket(int id, char* pack)
 {
 	cs_move_player_packet = reinterpret_cast<CS::PACKET::MOVE_PLAYER*>(pack);
 
-	clients[id].GetPlayer()->Move(cs_move_player_packet->direction);
+	float look_x{ cs_move_player_packet->look_x };
+	float look_z{ cs_move_player_packet->look_z };
+	float right_x{ cs_move_player_packet->right_x };
+	float right_z{ cs_move_player_packet->right_z };
+
+	clients[id].GetPlayer()->Move(cs_move_player_packet->direction, look_x, look_z, right_x, right_z);
 
 	for (auto& client : clients)
 	{
@@ -335,7 +340,7 @@ void CNetworkFramework::ProcessMovePacket(int id, char* pack)
 
 		if (client.GetState() == SESSION_STATE::INGAME)
 		{
-			client.SendMovePlayerPacket(id, SC::MOVE_PLAYER, client.GetPlayer());
+			client.SendMovePlayerPacket(id, client.GetPlayer());
 		}
 	}
 }

@@ -515,17 +515,17 @@ void CGameFramework::ProcessInput()
 	if (::GetKeyboardState(pKeysBuffer))
 	{
 		if (pKeysBuffer[VK_W] & 0xF0)
-			dwDirection |= DIRECTION::FORWARD;
+			dwDirection |= KEYINPUT::FORWARD;
 		if (pKeysBuffer[VK_S] & 0xF0)
-			dwDirection |= DIRECTION::BACKWARD;
+			dwDirection |= KEYINPUT::BACKWARD;
 		if (pKeysBuffer[VK_A] & 0xF0)
-			dwDirection |= DIRECTION::LEFT;
+			dwDirection |= KEYINPUT::LEFT;
 		if (pKeysBuffer[VK_D] & 0xF0)
-			dwDirection |= DIRECTION::RIGHT;
+			dwDirection |= KEYINPUT::RIGHT;
 		if (pKeysBuffer[VK_Q] & 0xF0)
-			dwDirection |= DIRECTION::UP;
+			dwDirection |= KEYINPUT::UP;
 		if (pKeysBuffer[VK_E] & 0xF0)
-			dwDirection |= DIRECTION::DOWN;
+			dwDirection |= KEYINPUT::DOWN;
 		if (pKeysBuffer[VK_LBUTTON] & 0xF0)
 			left_click |= VK_LBUTTON;
 	}
@@ -557,7 +557,9 @@ void CGameFramework::ProcessInput()
 		if (dwDirection)
 		{
 			//m_pPlayer->Move(dwDirection, m_GameTimer.GetTimeElapsed(), true);
-			network_manager->SendMovePlayerPacket(dwDirection);
+			network_manager->SendMovePlayerPacket(dwDirection, m_pPlayer->GetLookVector().x, m_pPlayer->GetLookVector().z,
+				m_pPlayer->GetRightVector().x, m_pPlayer->GetRightVector().z);
+		}
 		if (left_click && m_pPlayer->GetAttackMode() == ATTACK_MODE::BURST)
 		{
 			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->Attack();

@@ -70,19 +70,19 @@ void CPlayer::Move(DWORD dwDirection, float fTime, bool bUpdateVelocity)
 	int input_add_count{ 0 };
 	int input_sub_count{ 0 };
 
-	if (dwDirection & DIRECTION::FORWARD)
+	if (dwDirection & KEYINPUT::FORWARD)
 	{
 		++input_add_count;
 	}
-	if (dwDirection & DIRECTION::BACKWARD)
+	if (dwDirection & KEYINPUT::BACKWARD)
 	{
 		++input_sub_count;
 	}
-	if (dwDirection & DIRECTION::RIGHT)
+	if (dwDirection & KEYINPUT::RIGHT)
 	{
 		++input_add_count;
 	}
-	if (dwDirection & DIRECTION::LEFT)
+	if (dwDirection & KEYINPUT::LEFT)
 	{
 		++input_sub_count;
 	}
@@ -93,19 +93,19 @@ void CPlayer::Move(DWORD dwDirection, float fTime, bool bUpdateVelocity)
 	{
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
 
-		if (dwDirection & DIRECTION::FORWARD)
+		if (dwDirection & KEYINPUT::FORWARD)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Look.x, 0, m_xmf3Look.z), m_fPlayerMaxSpeed * fTime);
 		}
-		if (dwDirection & DIRECTION::BACKWARD)
+		if (dwDirection & KEYINPUT::BACKWARD)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Look.x, 0, m_xmf3Look.z), m_fPlayerMaxSpeed * -fTime);
 		}
-		if (dwDirection & DIRECTION::RIGHT)
+		if (dwDirection & KEYINPUT::RIGHT)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Right.x, 0, m_xmf3Right.z), m_fPlayerMaxSpeed * fTime);
 		}
-		if (dwDirection & DIRECTION::LEFT)
+		if (dwDirection & KEYINPUT::LEFT)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, XMFLOAT3(m_xmf3Right.x, 0, m_xmf3Right.z), m_fPlayerMaxSpeed * -fTime);
 		}

@@ -12,7 +12,8 @@ public:
 	CPlayer(char* new_name);
 	CPlayer(short x, short y, short z, char* new_name);
 
-	void Move(int direction);
+	void Move(int direction, float look_x, float look_z, float right_x, float right_z);
+	void Attack(int interaction);
 
 	short GetPosX() { return static_cast<short>(x); }
 	short GetPosY() { return static_cast<short>(y); }
@@ -33,6 +34,8 @@ public:
 private:
 	char name[VAR_SIZE::NAME];
 	float x, y, z;
+
+	float max_speed;
 };
 
 #endif // !_PLAYER_HPP_

@@ -235,7 +235,7 @@ void CNetwork::ProcessMovePacket()
 	
 	//if (sc_move_player_packet->id == my_id)
 	//{
-	//	game_instance->GetPlayer()->Move(sc_move_player_packet->x, sc_move_player_packet->y, sc_move_player_packet->z);
+	//	game_instance->GetPlayer()->Move(sc_move_player_packet->look_x, sc_move_player_packet->y, sc_move_player_packet->look_z);
 	//	game_instance->GetPlayer()->Update(game_instance->GetTimer()->GetTimeElapsed());
 	//}
 	//else
@@ -268,9 +268,13 @@ void CNetwork::SendLoginPacket()
 	SendData(cs_login_packet);
 }
 
-void CNetwork::SendMovePlayerPacket(DWORD direction)
+void CNetwork::SendMovePlayerPacket(DWORD direction, float look_x, float look_z, float right_x, float right_z)
 {
 	cs_move_player_packet->direction = static_cast<char>(direction);
+	cs_move_player_packet->look_x = look_x;
+	cs_move_player_packet->look_z = look_z;
+	cs_move_player_packet->right_x = right_x;
+	cs_move_player_packet->right_z = right_z;
 
 	SendData(cs_move_player_packet);
 }

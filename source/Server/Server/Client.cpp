@@ -33,9 +33,9 @@ void CClient::SendLoginPakcet()
 	SendData(&sc_login_packet);
 }
 
-void CClient::SendMovePlayerPacket(short plId, char type, CPlayer* pl)
+void CClient::SendMovePlayerPacket(int player_id, CPlayer* pl)
 {
-	sc_move_player_packet.id = plId;
+	sc_move_player_packet.id = player_id;
 	sc_move_player_packet.x = pl->GetPosX();
 	sc_move_player_packet.y = pl->GetPosY();
 	sc_move_player_packet.z = pl->GetPosZ();
