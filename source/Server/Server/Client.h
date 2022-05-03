@@ -13,6 +13,7 @@ class CClient
 {
 public:
 	CClient();
+	~CClient();
 
 	void RecvData();
 	void SendData(void* packet);

@@ -5,6 +5,17 @@ CClient::CClient() : id(-1), player(new CPlayer{}), sock(INVALID_SOCKET), state(
 {
 }
 
+CClient::~CClient()
+{
+	if (player)
+	{
+		delete player;
+		player = nullptr;
+	}
+
+	closesocket(sock);
+}
+
 void CClient::RecvData()
 {
 	DWORD flag{ 0 };

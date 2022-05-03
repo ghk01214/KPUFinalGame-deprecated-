@@ -18,9 +18,27 @@ CNetworkFramework::CNetworkFramework() :
 
 CNetworkFramework::~CNetworkFramework()
 {
+	if (packet)
+	{
+		delete packet;
+		packet = nullptr;
+	}
+	if (over)
+	{
+		delete over;
+		over = nullptr;
+	}
+	if (over_ex)
+	{
+		delete over_ex;
+		over_ex = nullptr;
+	}
+
+	closesocket(server);
+	WSACleanup();
 }
 
-void CNetworkFramework::OnCreate()
+void CNetworkFramework::BootServer()
 {
 	WSADATA wsa;
 
@@ -55,20 +73,6 @@ void CNetworkFramework::OnCreate()
 	{
 		ErrorQuit(L"listen function error", WSAGetLastError());
 	}
-}
-
-void CNetworkFramework::OnDestroy()
-{
-	delete packet;
-	delete over;
-	delete over_ex;
-
-	packet = nullptr;
-	over = nullptr;
-	over_ex = nullptr;
-
-	closesocket(server);
-	WSACleanup();
 }
 
 void CNetworkFramework::CreateThread()
@@ -364,11 +368,6 @@ int CNetworkFramework::GetNewClientID()
 	}
 
 	int id{ random_id(dre) };
-
-	if (id >= MAX_USER)
-	{
-		std::cout << id << std::endl;
-	}
 
 	while (id_in_use[id])		// id가 사용 중인지 확인
 	{
