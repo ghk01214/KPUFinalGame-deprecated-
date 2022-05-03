@@ -1,5 +1,4 @@
 ﻿#include "pch.h"
-#include "../../Server/Server/protocol.hpp"
 #include "GameFramework.h"
 
 CGameFramework::CGameFramework() : network_manager(nullptr)
@@ -31,6 +30,8 @@ CGameFramework::CGameFramework() : network_manager(nullptr)
 	m_pScene = nullptr;
 	m_pCamera = nullptr;
 
+	network_manager = std::make_unique<CNetwork>(this);
+
 	_tcscpy_s(m_pszFrameRate, _T("LabProject ("));
 }
 
@@ -48,8 +49,6 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateRtvAndDsvDescriptorHeaps();
 	CreateSwapChain();
 	CreateDepthStencilView();
-
-	network_manager = std::make_unique<CNetwork>(this);
 
 	BuildObjects();
 
@@ -420,6 +419,11 @@ void CGameFramework::OnDestroy()
 	if (m_pdxgiSwapChain) m_pdxgiSwapChain->Release();
 	if (m_pd3dDevice) m_pd3dDevice->Release();
 	if (m_pdxgiFactory) m_pdxgiFactory->Release();
+
+	if (network_manager)
+	{
+		network_manager.release();
+	}
 
 #ifndef _DEBUG
 	if (m_pd3dDebugController) m_pd3dDebugController->Release();
