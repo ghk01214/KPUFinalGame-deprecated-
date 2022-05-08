@@ -84,9 +84,6 @@ public:
 	CMissileObject* GetMissile(int index) { return m_missile[index]; }
 	CMissileObject* SetMissile(int index) { return m_missile[index]; }
 
-	void SetShotAttack(bool shot) { shot_attack = shot; }
-	bool GetShotAttack() { return shot_attack; }
-
 	void SetAttackMode(int mode) { attack_mode = mode; }
 	int GetAttackMode() { return attack_mode; }
 
@@ -94,7 +91,6 @@ private:
 	int m_missileNum = 20;
 	CMissileObject** m_missile = 0;
 
-	bool shot_attack;				// 단발 공격 시행 여부
 	int attack_mode;
 };
 
