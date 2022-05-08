@@ -9,6 +9,7 @@ CNetwork::CNetwork(CGameFramework* game_inst) :
 	game_instance(game_inst),
 	sc_login_packet(new SC::PACKET::LOGIN),
 	sc_move_player_packet(new SC::PACKET::MOVE_PLAYER),
+	sc_add_player_packet(new SC::PACKET::ADD_PLAYER),
 	sc_remove_player_packet(new SC::PACKET::REMOVE_PLAYER),
 	cs_login_packet(new CS::PACKET::LOGIN),
 	cs_move_player_packet(new CS::PACKET::MOVE_PLAYER),
@@ -45,6 +46,11 @@ CNetwork::~CNetwork()
 	{
 		delete sc_move_player_packet;
 		sc_move_player_packet = nullptr;
+	}
+	if (sc_add_player_packet)
+	{
+		delete sc_add_player_packet;
+		sc_add_player_packet = nullptr;
 	}
 	if (sc_remove_player_packet)
 	{
