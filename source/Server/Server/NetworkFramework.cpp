@@ -188,9 +188,12 @@ void CNetworkFramework::AcceptClient()
 
 	if (id != -1)
 	{
-		clients[id].GetPlayer()->SetPosX(1200);
-		clients[id].GetPlayer()->SetPosY(500);
-		clients[id].GetPlayer()->SetPosZ(1100);
+		clients[id].GetPlayer()->SetPosX(urd_x(dre));
+		clients[id].GetPlayer()->SetPosY(0);
+		clients[id].GetPlayer()->SetPosZ(urd_z(dre));
+		//clients[id].GetPlayer()->SetPosX(1200);
+		//clients[id].GetPlayer()->SetPosY(500);
+		//clients[id].GetPlayer()->SetPosZ(1000);
 		clients[id].SetID(id);
 		clients[id].GetPlayer()->SetName(0);
 		clients[id].SetSocket(client);
