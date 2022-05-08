@@ -7,10 +7,15 @@ std::uniform_real_distribution<float> urd_x(0.0f, VAR_SIZE::WORLD_X);
 std::uniform_real_distribution<float> urd_z(0.0f, VAR_SIZE::WORLD_Z);
 
 CNetworkFramework::CNetworkFramework() :
+	server(INVALID_SOCKET),
 	server_key(9999),
+	iocp(INVALID_HANDLE_VALUE),
 	over(nullptr),
 	over_ex(nullptr),
 	packet(nullptr),
+	cs_login_packet(new CS::PACKET::LOGIN),
+	cs_move_player_packet(new CS::PACKET::MOVE_PLAYER),
+	cs_player_attack_packet(new CS::PACKET::PLAYER_ATTACK),
 	active_users(0)
 {
 	id_in_use.fill(false);
@@ -40,6 +45,21 @@ CNetworkFramework::~CNetworkFramework()
 	{
 		delete over_ex;
 		over_ex = nullptr;
+	}
+	if (cs_login_packet)
+	{
+		delete cs_login_packet;
+		cs_login_packet = nullptr;
+	}
+	if (cs_move_player_packet)
+	{
+		delete cs_move_player_packet;
+		cs_move_player_packet = nullptr;
+	}
+	if (cs_player_attack_packet)
+	{
+		delete cs_player_attack_packet;
+		cs_player_attack_packet = nullptr;
 	}
 
 	closesocket(server);
