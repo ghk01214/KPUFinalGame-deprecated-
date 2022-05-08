@@ -1,9 +1,6 @@
 ﻿#pragma once
-//-----------------------------------------------------------------------------
-// File: CGameTimer.h
-//-----------------------------------------------------------------------------
 
-const ULONG MAX_SAMPLE_COUNT = 50; // Maximum frame time sample count
+const ULONG MAX_SAMPLE_COUNT = 50;
 
 class CGameTimer
 {

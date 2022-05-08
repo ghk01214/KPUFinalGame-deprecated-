@@ -1,8 +1,4 @@
-﻿//-----------------------------------------------------------------------------
-// File: Shader.h
-//-----------------------------------------------------------------------------
-
-#pragma once
+﻿#pragma once
 
 #include "Object.h"
 #include "Camera.h"
@@ -48,8 +44,6 @@ protected:
 	ID3D12PipelineState* m_pd3dPipelineState = nullptr;
 };
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 class CPseudoLightingShader : public CShader
 {
 public:
@@ -61,9 +55,6 @@ public:
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
 };
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class CTerrainShader : public CShader
 {

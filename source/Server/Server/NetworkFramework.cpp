@@ -1,78 +1,72 @@
 ﻿#include "pch.hpp"
+#include "protocol.hpp"
 #include "NetworkFramework.hpp"
 
-OVERLAPPEDEX::OVERLAPPEDEX() : type(static_cast<char>(COMPLETION_TYPE::RECV)), wsa_buf({ VAR_SIZE::DATA, data })
+std::uniform_int_distribution<int> random_id(0, MAX_USER - 1);
+std::uniform_real_distribution<float> urd_x(0.0f, VAR_SIZE::WORLD_X);
+std::uniform_real_distribution<float> urd_z(0.0f, VAR_SIZE::WORLD_Z);
+
+CNetworkFramework::CNetworkFramework() :
+	server(INVALID_SOCKET),
+	server_key(9999),
+	iocp(INVALID_HANDLE_VALUE),
+	over(nullptr),
+	over_ex(nullptr),
+	packet(nullptr),
+	cs_login_packet(new CS::PACKET::LOGIN),
+	cs_move_player_packet(new CS::PACKET::MOVE_PLAYER),
+	cs_player_attack_packet(new CS::PACKET::PLAYER_ATTACK),
+	active_users(0)
 {
-	ZeroMemory(&over, sizeof(over));
-}
-
-void OVERLAPPEDEX::SetPacket(char* packet)
-{
-	type = static_cast<char>(COMPLETION_TYPE::SEND);
-	wsa_buf.len = static_cast<ULONG>(packet[0]);
-	wsa_buf.buf = data;
-
-	ZeroMemory(&over, sizeof(over));
-	std::memcpy(data + 2, packet, packet[0]);
-}
-
-//===========================================================================================
-
-CClient::CClient() : id(-1), player(0, 0), sock(INVALID_SOCKET), state(SESSION_STATE::FREE), remain_size(0)
-{
-}
-
-void CClient::RecvData()
-{
-	DWORD flag{ 0 };
-	ZeroMemory(&recv_over, sizeof(recv_over));
-
-	recv_over.wsa_buf.buf = recv_over.data + remain_size;
-	recv_over.wsa_buf.len = VAR_SIZE::DATA - remain_size;
-
-	WSARecv(sock, &recv_over.wsa_buf, 1, 0, &flag, &recv_over.over, nullptr);
-}
-
-void CClient::SendData(void* packet)
-{
-	send_over.SetPacket(reinterpret_cast<char*>(packet));
-
-	WSASend(sock, &send_over.wsa_buf, 1, 0, 0, &send_over.over, nullptr);
-}
-
-void CClient::SendLoginPakcet()
-{
-	login_packet.id = id;
-	login_packet.size = sizeof(SC::PACKET::LOGIN);
-	login_packet.type = SC::LOGIN;
-	login_packet.x = player.GetPosX();
-	login_packet.y = player.GetPosY();
-
-	SendData(&login_packet);
-}
-
-void CClient::SendMovePlayerPacket(short plId, char type, CPlayer pl)
-{
-	pl_move_packet.id = plId;
-	pl_move_packet.size = sizeof(SC::PACKET::MOVE_PLAYER);
-	pl_move_packet.type = SC::MOVE_PLAYER;
-	pl_move_packet.x = pl.GetPosX();
-	pl_move_packet.y = pl.GetPosY();
-
-	SendData(&pl_move_packet);
-}
-
-//===========================================================================================
-
-CNetworkFramework::CNetworkFramework() : server_key(9999), over(nullptr), over_ex(nullptr), packet(nullptr)
-{
+	id_in_use.fill(false);
 }
 
 CNetworkFramework::~CNetworkFramework()
 {
+	for (auto& id : id_in_use)
+	{
+		if (id)
+		{
+			clients[id].OnDestroy();
+		}
+	}
+
+	if (packet)
+	{
+		delete packet;
+		packet = nullptr;
+	}
+	if (over)
+	{
+		delete over;
+		over = nullptr;
+	}
+	if (over_ex)
+	{
+		delete over_ex;
+		over_ex = nullptr;
+	}
+	if (cs_login_packet)
+	{
+		delete cs_login_packet;
+		cs_login_packet = nullptr;
+	}
+	if (cs_move_player_packet)
+	{
+		delete cs_move_player_packet;
+		cs_move_player_packet = nullptr;
+	}
+	if (cs_player_attack_packet)
+	{
+		delete cs_player_attack_packet;
+		cs_player_attack_packet = nullptr;
+	}
+
+	closesocket(server);
+	WSACleanup();
 }
 
-void CNetworkFramework::OnCreate()
+void CNetworkFramework::BootServer()
 {
 	WSADATA wsa;
 
@@ -81,19 +75,24 @@ void CNetworkFramework::OnCreate()
 		ErrorQuit(L"WSAStartup fuction error", WSAGetLastError());
 	}
 
-	iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, NULL, NULL);
+	if (iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, NULL, NULL);
+		iocp == nullptr)
+	{
+		ErrorQuit(L"IOCP Handle Creation Failed", WSAGetLastError());
+	}
+
 	server = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);
 
-	sockaddr_in serverAddr;
-	ZeroMemory(&serverAddr, sizeof(sockaddr_in));
+	sockaddr_in server_addr;
+	ZeroMemory(&server_addr, sizeof(sockaddr_in));
 
-	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(SERVER_PORT);
-	serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	server_addr.sin_family = AF_INET;
+	server_addr.sin_port = htons(SERVER_PORT);
+	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	CreateIoCompletionPort(reinterpret_cast<HANDLE>(server), iocp, server_key, 0);
+	CreateIoCompletionPort(reinterpret_cast<HANDLE>(server), iocp, server, 0);
 
-	if (bind(server, reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) == SOCKET_ERROR)
+	if (bind(server, reinterpret_cast<sockaddr*>(&server_addr), sizeof(server_addr)) == SOCKET_ERROR)
 	{
 		ErrorQuit(L"bind function error", WSAGetLastError());
 	}
@@ -104,22 +103,16 @@ void CNetworkFramework::OnCreate()
 	}
 }
 
-void CNetworkFramework::OnDestroy()
-{
-	closesocket(server);
-	WSACleanup();
-}
-
 void CNetworkFramework::CreateThread()
 {
 	SOCKET client{ WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED) };
-	OVERLAPPEDEX acceptOver;
-	ZeroMemory(&acceptOver, sizeof(acceptOver));
+	OVERLAPPEDEX accept_ex;
+	ZeroMemory(&accept_ex, sizeof(accept_ex));
 
-	acceptOver.type = static_cast<char>(COMPLETION_TYPE::ACCEPT);
-	acceptOver.wsa_buf.buf = reinterpret_cast<char*>(client);
+	accept_ex.type = static_cast<char>(COMPLETION_TYPE::ACCEPT);
+	accept_ex.wsa_buf.buf = reinterpret_cast<char*>(client);
 
-	AcceptEx(server, client, acceptOver.data, 0, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, 0, &acceptOver.over);
+	AcceptEx(server, client, accept_ex.data, 0, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, 0, &accept_ex.over);
 
 	for (int i = 0; i < MAX_USER; ++i)
 	{
@@ -195,10 +188,14 @@ void CNetworkFramework::AcceptClient()
 
 	if (id != -1)
 	{
-		clients[id].GetPlayer().SetPosX(0);
-		clients[id].GetPlayer().SetPosY(0);
+		clients[id].GetPlayer()->SetPosX(urd_x(dre));
+		clients[id].GetPlayer()->SetPosY(0);
+		clients[id].GetPlayer()->SetPosZ(urd_z(dre));
+		//clients[id].GetPlayer()->SetPosX(1200);
+		//clients[id].GetPlayer()->SetPosY(500);
+		//clients[id].GetPlayer()->SetPosZ(1000);
 		clients[id].SetID(id);
-		clients[id].GetPlayer().SetName(0);
+		clients[id].GetPlayer()->SetName(0);
 		clients[id].SetSocket(client);
 		clients[id].SetRemainSize(0);
 
@@ -244,9 +241,9 @@ void CNetworkFramework::RecvData(DWORD bytes, ULONG_PTR key)
 	//		break;
 	//}
 
-	for (int size = remain_size; size > 0 or packet_size <= size; size -= packet_size)
+	for (; remain_size > 0 or packet_size <= remain_size; remain_size -= packet_size)
 	{
-		ProcessPacket(key, packet);
+		ProcessPacket(key);
 
 		packet += packet_size;
 	}
@@ -276,20 +273,25 @@ void CNetworkFramework::SendData(DWORD bytes, ULONG_PTR key)
 	over_ex = nullptr;
 }
 
-void CNetworkFramework::ProcessPacket(int id, char* pack)
+void CNetworkFramework::ProcessPacket(int id)
 {
-	int packet_type{ pack[1] };
+	int packet_type{ packet[1] };
 
 	switch (packet_type)
 	{
 	case CS::LOGIN:
 	{
-		ProcessLoginPacket(id, pack);
+		ProcessLoginPacket(id, packet);
 	}
 	break;
-	case CS::MOVE:
+	case CS::MOVE_PLAYER:
 	{
-		ProcessMovePacket(id, pack);
+		ProcessMovePacket(id, packet);
+	}
+	break;
+	case CS::PLAYER_ATTACK:
+	{
+		ProcessPlayerAttackPacket(id, packet);
 	}
 	break;
 	}
@@ -297,7 +299,7 @@ void CNetworkFramework::ProcessPacket(int id, char* pack)
 
 void CNetworkFramework::ProcessLoginPacket(int id, char* pack)
 {
-	login_packet = static_cast<CS::PACKET::LOGIN>(*pack);
+	cs_login_packet = reinterpret_cast<CS::PACKET::LOGIN*>(pack);
 
 	clients[id].mu.lock();
 
@@ -315,7 +317,7 @@ void CNetworkFramework::ProcessLoginPacket(int id, char* pack)
 		return;
 	}
 
-	clients[id].GetPlayer().SetName(login_packet.name);
+	clients[id].GetPlayer()->SetName(cs_login_packet->name);
 	clients[id].SendLoginPakcet();
 	clients[id].SetState(SESSION_STATE::INGAME);
 	clients[id].mu.unlock();
@@ -335,30 +337,52 @@ void CNetworkFramework::ProcessLoginPacket(int id, char* pack)
 		}
 
 		// 모든 플레이어에게 새로 접속한 플레이어 정보 전송
-		add_player_packet.id = id;
-		strcpy_s(add_player_packet.name, clients[id].GetPlayer().GetName());
-		add_player_packet.size = sizeof(SC::PACKET::ADD_PLAYER);
-		add_player_packet.type = SC::ADD_PLAYER;
-		add_player_packet.x = clients[id].GetPlayer().GetPosX();
-		add_player_packet.y = clients[id].GetPlayer().GetPosY();
+		//sc_add_player_packet.id = id;
+		//strcpy_s(sc_add_player_packet.name, clients[id].GetPlayer()->GetName());
+		//sc_add_player_packet.x = clients[id].GetPlayer()->GetPosX();
+		//sc_add_player_packet.y = clients[id].GetPlayer()->GetPosY();
+		//client.SendData(&sc_add_player_packet);
 
-		client.SendData(&add_player_packet);
+		client.SendAddPlayerPacket(id, clients[id].GetPlayer());
 
 		// 나에게 접속해 있는 모든 플레이어의 정보 전송
-		add_player_packet.id = client.GetID();
-		strcpy_s(add_player_packet.name, client.GetPlayer().GetName());
-		add_player_packet.x = client.GetPlayer().GetPosX();
-		add_player_packet.y = client.GetPlayer().GetPosY();
-
-		clients[id].SendData(&add_player_packet);
+		//sc_add_player_packet.id = client.GetID();
+		//strcpy_s(sc_add_player_packet.name, client.GetPlayer()->GetName());
+		//sc_add_player_packet.x = client.GetPlayer()->GetPosX();
+		//sc_add_player_packet.y = client.GetPlayer()->GetPosY();
+		//clients[id].SendData(&sc_add_player_packet);
 	}
 
-	std::cout << "player login" << std::endl;
+	for (auto& client : clients)
+	{
+		if (client.GetID() == id)
+		{
+			continue;
+		}
+
+		std::lock_guard<std::mutex> a{ client.mu };
+
+		if (client.GetState() != SESSION_STATE::INGAME)
+		{
+			continue;
+		}
+
+		clients[id].SendAddPlayerPacket(client.GetID(), client.GetPlayer());
+	}
+
+	std::cout << "player" << id << " login" << std::endl;
 }
 
 void CNetworkFramework::ProcessMovePacket(int id, char* pack)
 {
-	clients[id].GetPlayer().Move(static_cast<DIRECTION>(reinterpret_cast<CS::PACKET::MOVE*>(pack)->direction));
+	cs_move_player_packet = reinterpret_cast<CS::PACKET::MOVE_PLAYER*>(pack);
+
+	float look_x{ cs_move_player_packet->look_x };
+	float look_z{ cs_move_player_packet->look_z };
+	float right_x{ cs_move_player_packet->right_x };
+	float right_z{ cs_move_player_packet->right_z };
+
+	clients[id].GetPlayer()->Move(cs_move_player_packet->direction, look_x, look_z, right_x, right_z);
 
 	for (auto& client : clients)
 	{
@@ -366,26 +390,47 @@ void CNetworkFramework::ProcessMovePacket(int id, char* pack)
 
 		if (client.GetState() == SESSION_STATE::INGAME)
 		{
-			client.SendMovePlayerPacket(id, SC::MOVE_PLAYER, client.GetPlayer());
+			client.SendMovePlayerPacket(id, clients[id].GetPlayer());
 		}
 	}
 }
 
+void CNetworkFramework::ProcessPlayerAttackPacket(int id, char* pack)
+{
+	cs_player_attack_packet = reinterpret_cast<CS::PACKET::PLAYER_ATTACK*>(pack);
+
+
+}
+
 int CNetworkFramework::GetNewClientID()
 {
-	for (int i = 0; i < MAX_USER; ++i)
+	if (active_users == MAX_USER)
 	{
-		std::lock_guard<std::mutex> a{ clients[i].mu };
-
-		if (clients[i].GetState() == SESSION_STATE::FREE)
-		{
-			clients[i].SetState(SESSION_STATE::ACCEPTED);
-
-			return i;
-		}
+		return -1;
 	}
 
-	return -1;
+	int id{ random_id(dre) };
+
+	while (id_in_use[id])		// id가 사용 중인지 확인
+	{
+		// id가 사용중이면 새로운 id 발급
+		id = random_id(dre);
+	}
+
+	std::lock_guard<std::mutex> temp{ clients[id].mu };
+
+	// id가 사용 중인지 확인
+	if (clients[id].GetState() == SESSION_STATE::FREE)
+	{
+		// id가 사용 중이지 않으면 새로 할당
+		clients[id].SetState(SESSION_STATE::ACCEPTED);
+		id_in_use[id] = true;
+
+		// 액티브 유저 수 증가
+		++active_users;
+
+		return id;
+	}
 }
 
 void CNetworkFramework::DisconnectClient(ULONG_PTR id)
@@ -399,8 +444,11 @@ void CNetworkFramework::DisconnectClient(ULONG_PTR id)
 		return;
 	}
 
-	closesocket(clients[id].GetSocket());
-	clients[id].SetState(SESSION_STATE::FREE);
+	//closesocket(clients[id].GetSocket());
+	//clients[id].SetState(SESSION_STATE::FREE);
+	clients[id].Reset();
+	id_in_use[id] = false;
+	--active_users;
 
 	clients[id].mu.unlock();
 
@@ -415,15 +463,11 @@ void CNetworkFramework::DisconnectClient(ULONG_PTR id)
 
 		std::lock_guard<std::mutex> a{ player.mu };
 
-		if (player.GetState() == SESSION_STATE::INGAME)
+		if (player.GetState() != SESSION_STATE::INGAME)
 		{
 			continue;
 		}
 
-		packet.id = id;
-		packet.size = sizeof(packet);
-		packet.type = SC::REMOVE_PLAYER;
-
-		player.SendData(&packet);
+		player.SendRemovePlayerPacket(id);
 	}
 }

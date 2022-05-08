@@ -1,8 +1,4 @@
-﻿//-----------------------------------------------------------------------------
-// File: Shader.cpp
-//-----------------------------------------------------------------------------
-
-#include "pch.h"
+﻿#include "pch.h"
 #include "Shader.h"
 
 CShader::CShader()
@@ -38,7 +34,7 @@ D3D12_SHADER_BYTECODE CShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
 D3D12_SHADER_BYTECODE CShader::CompileShaderFromFile(WCHAR* pszFileName, LPCSTR pszShaderName, LPCSTR pszShaderProfile, ID3DBlob** ppd3dShaderBlob)
 {
 	UINT nCompileFlags = 0;
-#if defined(_DEBUG)
+#ifndef _DEBUG
 	nCompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
 
@@ -164,15 +160,16 @@ void CShader::ReleaseShaderVariables()
 
 void CShader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	if (m_pd3dPipelineState) pd3dCommandList->SetPipelineState(m_pd3dPipelineState);
+	if (m_pd3dPipelineState)
+	{
+		pd3dCommandList->SetPipelineState(m_pd3dPipelineState);
+	}
 }
 
 void CShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	OnPrepareRender(pd3dCommandList);
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 CPseudoLightingShader::CPseudoLightingShader()
 {

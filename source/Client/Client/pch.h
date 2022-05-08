@@ -1,9 +1,4 @@
-﻿// pch.h : 자주 사용하지만 자주 변경되지는 않는
-// 표준 시스템 포함 파일 및 프로젝트 관련 포함 파일이
-// 들어 있는 포함 파일입니다.
-//
-
-#pragma once
+﻿#pragma once
 
 #define WIN32_LEAN_AND_MEAN             // 거의 사용되지 않는 내용은 Windows 헤더에서 제외합니다.
 // Windows 헤더 파일:
@@ -25,6 +20,7 @@
 #include <wchar.h>
 
 #include <vector>
+#include <unordered_map>
 #include <random>
 
 #include <d3d12.h>
@@ -34,30 +30,29 @@
 #include <DirectXPackedVector.h>
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
-
 #include <D3d12SDKLayers.h>
 
 #include <Mmsystem.h>
+
+// 네트워크 통신용 헤더 파일입니다.
+#include <thread>
+#include <WS2tcpip.h>
+#include <MSWSock.h>
 
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 
 using Microsoft::WRL::ComPtr;
 
-#define FRAME_BUFFER_WIDTH		800
-#define FRAME_BUFFER_HEIGHT		600
+inline constexpr int FRAME_BUFFER_WIDTH{ 800 };
+inline constexpr int FRAME_BUFFER_HEIGHT{ 600 };
 
-#define DIR_FORWARD				0x01
-#define DIR_BACKWARD			0x02
-#define DIR_LEFT				0x04
-#define DIR_RIGHT				0x08
-#define DIR_UP					0x10
-#define DIR_DOWN				0x20
-
-#define VK_W					0x57
-#define VK_A					0x41
-#define VK_S					0x53
-#define VK_D					0x44
+inline constexpr int VK_W{ 0x57 };
+inline constexpr int VK_A{ 0x41 };
+inline constexpr int VK_D{ 0x44 };
+inline constexpr int VK_E{ 0x45 };
+inline constexpr int VK_Q{ 0x51 };
+inline constexpr int VK_S{ 0x53 };
 
 #define RANDOM_COLOR			XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
 
@@ -67,15 +62,28 @@ using Microsoft::WRL::ComPtr;
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 
-// TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
+// 네트워크 통신용 라이브러리 링킹
+#pragma comment(lib, "WS2_32")
+#pragma comment(lib, "MSWSock")
+
 extern UINT	gnCbvSrvDescriptorIncrementSize;
 
-extern ID3D12Resource *CreateBufferResource(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, ID3D12Resource **ppd3dUploadBuffer = NULL);
+// 서버 주소
+inline std::wstring SERVER_ADDR;
+
+ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, ID3D12Resource** ppd3dUploadBuffer = NULL);
+void ErrorQuit(std::wstring msg, int errorNum);
 
 #define EPSILON 1.0e-10f
 inline bool IsZero(float fValue) { return((fabsf(fValue) < EPSILON)); }inline bool IsEqual(float fA, float fB) { return(::IsZero(fA - fB)); }
 inline float InverseSqrt(float fValue) { return 1.0f / sqrtf(fValue); }
 inline void Swap(float* pfS, float* pfT) { float fTemp = *pfS; *pfS = *pfT; *pfT = fTemp; }
+inline int ABS(int x)
+{
+	int y{ x >> 32 };
+
+	return (x ^ y) - y;
+}
 
 namespace Vector3
 {
@@ -180,7 +188,6 @@ namespace Vector3
 
 	inline bool IsZero(XMFLOAT3& xmf3Vector)
 	{
-		//3-차원 벡터가 영벡터인 가를 반환하는 함수이다.
 		if (::IsZero(xmf3Vector.x) && ::IsZero(xmf3Vector.y) && ::IsZero(xmf3Vector.z))
 			return(true);
 		return(false);
@@ -195,7 +202,6 @@ namespace Vector4
 		XMStoreFloat4(&xmf4Result, XMLoadFloat4(&xmf4Vector1) + XMLoadFloat4(&xmf4Vector2));
 		return(xmf4Result);
 	}
-	//4-차원 벡터와 스칼라(실수)의 곱을 반환하는 함수이다. 
 	inline XMFLOAT4 Multiply(float fScalar, XMFLOAT4& xmf4Vector)
 	{
 		XMFLOAT4 xmf4Result;

@@ -1,8 +1,4 @@
-﻿// pch.cpp : 표준 포함 파일만 들어 있는 소스 파일입니다.
-// LabProject03-1.pch는 미리 컴파일된 헤더가 됩니다.
-// pch.obj에는 미리 컴파일된 형식 정보가 포함됩니다.
-
-#include "pch.h"
+﻿#include "pch.h"
 
 UINT	gnCbvSrvDescriptorIncrementSize = 0;
 
@@ -83,4 +79,17 @@ ID3D12Resource *CreateBufferResource(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 		}
 	}
 	return(pd3dBuffer);
+}
+
+void ErrorQuit(std::wstring msg, int errorNum)
+{
+	LPVOID lpMsgBuf;
+
+	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, nullptr, errorNum,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPTSTR>(&lpMsgBuf), 0, nullptr);
+
+	MessageBox(nullptr, static_cast<LPCTSTR>(lpMsgBuf), msg.c_str(), MB_ICONERROR);
+
+	LocalFree(lpMsgBuf);
+	exit(true);
 }

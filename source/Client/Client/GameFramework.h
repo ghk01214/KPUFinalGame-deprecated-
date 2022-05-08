@@ -3,12 +3,18 @@
 #include "Timer.h"
 #include "Player.h"
 #include "Scene.h"
+#include "Network.h"
+#include "../../Server/Server/protocol.hpp"
 
 class CGameFramework
 {
 public:
 	CGameFramework();
 	~CGameFramework();
+
+	// 게임 프레임워크 복사 방지
+	CGameFramework(const CGameFramework& other) = delete;
+	CGameFramework& operator=(const CGameFramework& other) = delete;
 
 	bool OnCreate(HINSTANCE hInstance, HWND hMainWnd);
 	void OnDestroy();
@@ -24,6 +30,11 @@ public:
 	void CreateRenderTargetViewsAndDepthStencilView();
 
 	void ChangeSwapChainState();
+
+	void ConnectToServer() { network_manager->ConnectToServer(); }
+	void Login() { network_manager->SendLoginPacket(); }
+	void RecvData() { network_manager->RecvData(); }
+	void AddPlayer(SC::PACKET::ADD_PLAYER* packet = nullptr);
 
 	void BuildObjects();
 	void ReleaseObjects();
@@ -42,6 +53,10 @@ public:
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+
+	CPlayer* GetPlayer() { return m_pPlayer; }
+	CScene* GetScene() { return m_pScene; }
+	CGameTimer* GetTimer() { return &m_GameTimer; }
 
 private:
 	HINSTANCE					m_hInstance;
@@ -76,7 +91,7 @@ private:
 	UINT64						m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE						m_hFenceEvent;
 
-#if defined(_DEBUG)
+#ifndef _DEBUG
 	ID3D12Debug* m_pd3dDebugController;
 #endif
 
@@ -88,5 +103,6 @@ private:
 
 	CGameTimer					m_GameTimer;
 	_TCHAR						m_pszFrameRate[50];
-};
 
+	std::unique_ptr<CNetwork> network_manager;
+};

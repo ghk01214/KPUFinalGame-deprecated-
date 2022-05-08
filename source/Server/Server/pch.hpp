@@ -29,6 +29,9 @@
 
 extern std::default_random_engine dre;
 
+// 최대 동접 인원
+inline constexpr int MAX_USER{ 10 };
+
 void ErrorQuit(std::wstring_view msg, int errorNum);
 void DisplayError(std::wstring_view msg, int errorNum);
 
