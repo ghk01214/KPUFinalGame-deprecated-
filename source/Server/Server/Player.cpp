@@ -21,6 +21,14 @@ CPlayer::CPlayer(short x, short y, short z, char* new_name) : x(x), y(y), z(z)
 	strcpy_s(name, new_name);
 }
 
+void CPlayer::Reset()
+{
+	x = y = z = 0;
+	max_speed = 5.0f;
+	name[0] = '\0';
+	name[0] = 0;
+}
+
 void CPlayer::Move(int direction, float look_x, float look_z, float right_x, float right_z)
 {
 	int input_count{ 0 };

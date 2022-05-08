@@ -3,7 +3,6 @@
 
 #include "protocol.hpp"
 
-
 class CPlayer
 {
 public:
@@ -11,6 +10,8 @@ public:
 	CPlayer(short x, short y, short z);
 	CPlayer(char* new_name);
 	CPlayer(short x, short y, short z, char* new_name);
+
+	void Reset();
 
 	void Move(int direction, float look_x, float look_z, float right_x, float right_z);
 	void Attack(int interaction);

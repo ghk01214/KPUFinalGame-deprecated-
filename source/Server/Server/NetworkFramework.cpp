@@ -18,6 +18,14 @@ CNetworkFramework::CNetworkFramework() :
 
 CNetworkFramework::~CNetworkFramework()
 {
+	for (auto& id : id_in_use)
+	{
+		if (id)
+		{
+			clients[id].OnDestroy();
+		}
+	}
+
 	if (packet)
 	{
 		delete packet;
@@ -344,13 +352,9 @@ void CNetworkFramework::ProcessMovePacket(int id, char* pack)
 
 		if (client.GetState() == SESSION_STATE::INGAME)
 		{
-			client.SendMovePlayerPacket(id, client.GetPlayer());
+			client.SendMovePlayerPacket(id, clients[id].GetPlayer());
 		}
 	}
-}
-
-void CNetworkFramework::ProcessRemovePlayerPacket(int id, char* pack)
-{
 }
 
 void CNetworkFramework::ProcessPlayerAttackPacket(int id, char* pack)
@@ -402,8 +406,10 @@ void CNetworkFramework::DisconnectClient(ULONG_PTR id)
 		return;
 	}
 
-	closesocket(clients[id].GetSocket());
-	clients[id].SetState(SESSION_STATE::FREE);
+	//closesocket(clients[id].GetSocket());
+	//clients[id].SetState(SESSION_STATE::FREE);
+	clients[id].Reset();
+	id_in_use[id] = false;
 	--active_users;
 
 	clients[id].mu.unlock();
@@ -419,7 +425,7 @@ void CNetworkFramework::DisconnectClient(ULONG_PTR id)
 
 		std::lock_guard<std::mutex> a{ player.mu };
 
-		if (player.GetState() == SESSION_STATE::INGAME)
+		if (player.GetState() != SESSION_STATE::INGAME)
 		{
 			continue;
 		}

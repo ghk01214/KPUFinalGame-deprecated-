@@ -216,6 +216,11 @@ void CNetwork::ProcessPacket()
 		ProcessAddPlayerPacket();
 	}
 	break;
+	case SC::REMOVE_PLAYER:
+	{
+		ProcessRemovePlayerPacket();
+	}
+	break;
 	}
 }
 

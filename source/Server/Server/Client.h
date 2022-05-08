@@ -15,6 +15,9 @@ public:
 	CClient();
 	~CClient();
 
+	void Reset();
+	void OnDestroy();
+
 	void RecvData();
 	void SendData(void* packet);
 

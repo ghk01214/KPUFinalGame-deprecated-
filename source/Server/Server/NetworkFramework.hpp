@@ -21,7 +21,6 @@ public:
 	void ProcessPacket(int id);
 	void ProcessLoginPacket(int id, char* pack);
 	void ProcessMovePacket(int id, char* pack);
-	void ProcessRemovePlayerPacket(int id, char* pack);
 	void ProcessPlayerAttackPacket(int id, char* pack);
 
 	int GetNewClientID();
