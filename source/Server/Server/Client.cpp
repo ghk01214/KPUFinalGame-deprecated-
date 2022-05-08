@@ -54,14 +54,15 @@ void CClient::SendMovePlayerPacket(int player_id, CPlayer* pl)
 	SendData(&sc_move_player_packet);
 }
 
-void CClient::SendAddPlayerPacket(int player_id, CClient* client)
+void CClient::SendAddPlayerPacket(int player_id, CPlayer* pl)
 {
 	sc_add_player_packet.id = player_id;
-	strcpy_s(sc_add_player_packet.name, player->GetName());
-	sc_add_player_packet.x = player->GetPosX();
-	sc_add_player_packet.y = player->GetPosY();
+	strcpy_s(sc_add_player_packet.name, pl->GetName());
+	sc_add_player_packet.x = pl->GetPosX();
+	sc_add_player_packet.y = pl->GetPosY();
+	sc_add_player_packet.z = pl->GetPosZ();
 
-	client->SendData(&sc_add_player_packet);
+	SendData(&sc_add_player_packet);
 }
 
 void CClient::SendRemovePlayerPacket(int player_id)

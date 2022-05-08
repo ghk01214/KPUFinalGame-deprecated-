@@ -23,7 +23,7 @@ public:
 
 	void SendLoginPakcet();
 	void SendMovePlayerPacket(int player_id, CPlayer* pl);
-	void SendAddPlayerPacket(int player_id, CClient* client);
+	void SendAddPlayerPacket(int player_id, CPlayer* pl);
 	void SendRemovePlayerPacket(int player_id);
 
 	void SetState(SESSION_STATE session) { state = session; }

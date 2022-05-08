@@ -340,7 +340,7 @@ void CNetworkFramework::ProcessLoginPacket(int id, char* pack)
 		//sc_add_player_packet.y = clients[id].GetPlayer()->GetPosY();
 		//client.SendData(&sc_add_player_packet);
 
-		clients[id].SendAddPlayerPacket(id, &client);
+		client.SendAddPlayerPacket(id, clients[id].GetPlayer());
 
 		// 나에게 접속해 있는 모든 플레이어의 정보 전송
 		//sc_add_player_packet.id = client.GetID();
@@ -349,7 +349,7 @@ void CNetworkFramework::ProcessLoginPacket(int id, char* pack)
 		//sc_add_player_packet.y = client.GetPlayer()->GetPosY();
 		//clients[id].SendData(&sc_add_player_packet);
 
-		client.SendAddPlayerPacket(client.GetID(), &clients[id]);
+		clients[id].SendAddPlayerPacket(client.GetID(), client.GetPlayer());
 	}
 
 	std::cout << "player" << id << " login" << std::endl;
