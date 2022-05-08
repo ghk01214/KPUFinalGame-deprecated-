@@ -514,6 +514,7 @@ void CGameFramework::ReleaseObjects()
 void CGameFramework::ProcessInput()
 {
 	static UCHAR pKeysBuffer[256];
+	static DWORD old_direction{ 0 };		// 추후 데드레커닝 기법을 이용하기 위한 변수
 	DWORD dwDirection = 0;
 	DWORD left_click = 0;
 
@@ -564,6 +565,8 @@ void CGameFramework::ProcessInput()
 			//m_pPlayer->Move(dwDirection, m_GameTimer.GetTimeElapsed(), true);
 			network_manager->SendMovePlayerPacket(dwDirection, m_pPlayer->GetLookVector().x, m_pPlayer->GetLookVector().z,
 				m_pPlayer->GetRightVector().x, m_pPlayer->GetRightVector().z);
+
+			//old_direction = dwDirection;
 		}
 		if (left_click && m_pPlayer->GetAttackMode() == ATTACK_MODE::BURST)
 		{
@@ -576,7 +579,8 @@ void CGameFramework::ProcessInput()
 
 void CGameFramework::AnimateObjects()
 {
-	if (m_pScene) m_pScene->AnimateObjects(m_GameTimer.GetTimeElapsed());
+	if (m_pScene)
+		m_pScene->AnimateObjects(m_GameTimer.GetTimeElapsed());
 }
 
 void CGameFramework::CreateShaderVariables()

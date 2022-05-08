@@ -53,6 +53,8 @@ private:
 	CPlayer* player;
 
 	int remain_size;
+
+	DWORD flag;
 public:
 
 	std::mutex mu;

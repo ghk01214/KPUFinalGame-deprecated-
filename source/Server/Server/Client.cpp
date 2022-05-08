@@ -1,7 +1,13 @@
 ﻿#include "pch.hpp"
 #include "Client.h"
 
-CClient::CClient() : id(-1), player(new CPlayer{}), sock(INVALID_SOCKET), state(SESSION_STATE::FREE), remain_size(0)
+CClient::CClient() :
+	id(-1),
+	player(new CPlayer{}),
+	sock(INVALID_SOCKET),
+	state(SESSION_STATE::FREE),
+	remain_size(0),
+	flag(0)
 {
 }
 
@@ -18,7 +24,7 @@ CClient::~CClient()
 
 void CClient::RecvData()
 {
-	DWORD flag{ 0 };
+	flag = 0;
 	ZeroMemory(&recv_ex.over, sizeof(recv_ex.over));
 
 	recv_ex.wsa_buf.buf = recv_ex.data + remain_size;
