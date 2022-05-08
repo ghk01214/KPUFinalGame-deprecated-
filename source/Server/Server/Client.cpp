@@ -22,6 +22,29 @@ CClient::~CClient()
 	closesocket(sock);
 }
 
+void CClient::Reset()
+{
+	closesocket(sock);
+
+	id = -1;
+	player->Reset();
+	sock = INVALID_SOCKET;
+	state = SESSION_STATE::FREE;
+	remain_size = 0;
+	flag = 0;
+}
+
+void CClient::OnDestroy()
+{
+	if (player)
+	{
+		delete player;
+		player = nullptr;
+	}
+
+	closesocket(sock);
+}
+
 void CClient::RecvData()
 {
 	flag = 0;
