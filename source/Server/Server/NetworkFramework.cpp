@@ -348,6 +348,21 @@ void CNetworkFramework::ProcessLoginPacket(int id, char* pack)
 		//sc_add_player_packet.x = client.GetPlayer()->GetPosX();
 		//sc_add_player_packet.y = client.GetPlayer()->GetPosY();
 		//clients[id].SendData(&sc_add_player_packet);
+	}
+
+	for (auto& client : clients)
+	{
+		if (client.GetID() == id)
+		{
+			continue;
+		}
+
+		std::lock_guard<std::mutex> a{ client.mu };
+
+		if (client.GetState() != SESSION_STATE::INGAME)
+		{
+			continue;
+		}
 
 		clients[id].SendAddPlayerPacket(client.GetID(), client.GetPlayer());
 	}
