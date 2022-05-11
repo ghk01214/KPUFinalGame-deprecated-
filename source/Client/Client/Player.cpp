@@ -100,7 +100,7 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 
 void CPlayer::Move(short x, short y, short z)
 {
-	XMFLOAT3 temp = XMFLOAT3{ static_cast<float>(x), static_cast<float>(y), static_cast<float>(z) };
+	//m_xmf3Position = XMFLOAT3{ static_cast<float>(x), static_cast<float>(y), static_cast<float>(z) };
 
 	//if (m_pCamera->GetMode() == FIRST_PERSON_CAMERA)
 	//{
@@ -111,11 +111,11 @@ void CPlayer::Move(short x, short y, short z)
 	//	m_pCamera->Move(m_xmf3Position);
 	//}
 
-	m_xmf3Position = Vector3::Add(m_xmf3Position, temp);
-	m_pCamera->Move(temp);
-	//XMFLOAT3 temp = XMFLOAT3{ static_cast<float>(x), static_cast<float>(y), static_cast<float>(z) };
+	//m_xmf3Position = Vector3::Add(m_xmf3Position, temp);
+	//m_pCamera->Move(temp);
 
-	//m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, temp);
+	XMFLOAT3 temp = XMFLOAT3{ static_cast<float>(x), static_cast<float>(y), static_cast<float>(z) };
+	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, temp);
 }
 
 void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
