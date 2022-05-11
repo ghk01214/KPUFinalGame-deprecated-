@@ -127,6 +127,11 @@ void CNetwork::ProcessThread()
 		ret = GetQueuedCompletionStatus(iocp, &bytes, &key, &over, INFINITE);
 		over_ex = reinterpret_cast<OVERLAPPEDEX*>(over);
 
+		if (!ret)
+		{
+			ErrorQuit(L"GetQueuedCompletionStatus error", WSAGetLastError());
+		}
+
 		switch (over_ex->type)
 		{
 		case static_cast<int>(COMPLETION_TYPE::RECV):
@@ -234,7 +239,8 @@ void CNetwork::ProcessLoginPacket()
 {
 	sc_login_packet = reinterpret_cast<SC::PACKET::LOGIN*>(packet);
 	
-	game_instance->GetScene()->players.emplace(sc_login_packet->id, game_instance->GetPlayer());
+	//game_instance->GetScene()->players.emplace(sc_login_packet->id, game_instance->GetPlayer());
+	game_instance->GetPlayers()->emplace(sc_login_packet->id, game_instance->GetPlayer());
 
 	float x{ static_cast<float>(sc_login_packet->x) };
 	float y{ static_cast<float>(sc_login_packet->y) };
@@ -243,7 +249,8 @@ void CNetwork::ProcessLoginPacket()
 	XMFLOAT3 temp{ x, y, z };
 
 	//game_instance->GetPlayer()->SetPosition(temp);
-	game_instance->GetScene()->players[sc_login_packet->id]->SetPosition(temp);
+	//game_instance->GetScene()->players[sc_login_packet->id]->SetPosition(temp);
+	game_instance->GetPlayer(sc_login_packet->id)->SetPosition(temp);
 }
 
 void CNetwork::ProcessMovePacket()
@@ -257,7 +264,8 @@ void CNetwork::ProcessMovePacket()
 	//}
 	//else
 	//{
-		auto& player{ game_instance->GetScene()->players[sc_move_player_packet->id] };
+		//auto& player{ game_instance->GetScene()->players[sc_move_player_packet->id] };
+	auto player{ game_instance->GetPlayer(sc_move_player_packet->id) };
 		
 		player->Move(sc_move_player_packet->x, sc_move_player_packet->y, sc_move_player_packet->z);
 		player->Update(game_instance->GetTimer()->GetTimeElapsed());
@@ -275,7 +283,8 @@ void CNetwork::ProcessRemovePlayerPacket()
 {
 	sc_remove_player_packet = reinterpret_cast<SC::PACKET::REMOVE_PLAYER*>(packet);
 
-	game_instance->GetScene()->players.erase(sc_remove_player_packet->id);
+	//game_instance->GetScene()->players.erase(sc_remove_player_packet->id);
+	game_instance->GetPlayers()->erase(sc_remove_player_packet->id);
 }
 
 void CNetwork::SendLoginPacket()

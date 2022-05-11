@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Timer.h"
 #include "Player.h"
@@ -49,8 +49,10 @@ public:
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 	CPlayer* GetPlayer() { return m_pPlayer; }
+	CPlayer* GetPlayer(int id) { return players[id]; }
 	CScene* GetScene() { return m_pScene; }
 	CGameTimer* GetTimer() { return &m_GameTimer; }
+	std::unordered_map<int, CPlayer*>* GetPlayers() { return &players; }
 
 private:
 	HINSTANCE					m_hInstance;
@@ -94,6 +96,8 @@ private:
 	CScene* m_pScene;
 	CPlayer* m_pPlayer;
 	CCamera* m_pCamera;
+
+	std::unordered_map<int, CPlayer*> players;
 
 	POINT						m_ptOldCursorPos;
 

@@ -440,9 +440,10 @@ void CGameFramework::AddPlayer(SC::PACKET::ADD_PLAYER* packet)
 		XMFLOAT3 temp{ x, y, z };
 
 		pPlayer->SetPosition(temp);
-		pPlayer->SetCamera(pPlayer->ChangeCamera(SPACESHIP_CAMERA, 0.0f));
+		//pPlayer->SetCamera(pPlayer->ChangeCamera(SPACESHIP_CAMERA, 0.0f));
 
-		m_pScene->players.emplace(packet->id, pPlayer);
+		//m_pScene->players.emplace(packet->id, pPlayer);
+		players.emplace(packet->id, pPlayer);
 
 		// 추가 플레이어 접속 여부를 오브젝트 색상 변경으로 확인
 	}
@@ -637,9 +638,16 @@ void CGameFramework::FrameAdvance()
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif
-	if (m_pPlayer)
+	//if (m_pPlayer)
+	//{
+	//	m_pPlayer->Render(m_pd3dCommandList, m_pCamera);
+	//}
+	if (!players.empty())
 	{
-		m_pPlayer->Render(m_pd3dCommandList, m_pCamera);
+		for (auto& player : players)
+		{
+			player.second->Render(m_pd3dCommandList, m_pCamera);
+		}
 	}
 
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;

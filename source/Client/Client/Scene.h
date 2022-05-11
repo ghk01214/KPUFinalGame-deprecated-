@@ -60,7 +60,7 @@ public:
 	void ReleaseUploadBuffers();
 
 	CPlayer* m_pPlayer;
-	std::unordered_map<int, CPlayer*> players;
+	//std::unordered_map<int, CPlayer*> players;
 
 protected:
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature;
