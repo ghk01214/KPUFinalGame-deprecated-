@@ -1120,10 +1120,10 @@ CHeightMapTerrain::CHeightMapTerrain(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	CTexture *pTerrainBaseTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pTerrainBaseTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/Base_Texture.dds", 0);
+	pTerrainBaseTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Assets/Terrain/Base_Texture.dds", 0);
 
 	CTexture *pTerrainDetailTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pTerrainDetailTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Terrain/Detail_Texture_7.dds", 0);
+	pTerrainDetailTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Assets/Terrain/Detail_Texture_7.dds", 0);
 
 	CTerrainShader *pTerrainShader = new CTerrainShader();
 	pTerrainShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
@@ -1153,7 +1153,7 @@ CSkyBox::CSkyBox(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dComman
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	CTexture *pSkyBoxTexture = new CTexture(1, RESOURCE_TEXTURE_CUBE, 0);
-	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"SkyBox/SkyBox_0.dds", 0);
+	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Assets/SkyBox/SkyBox_0.dds", 0);
 
 	CSkyBoxShader *pSkyBoxShader = new CSkyBoxShader();
 	pSkyBoxShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);

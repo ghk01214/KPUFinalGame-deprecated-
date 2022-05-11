@@ -97,7 +97,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	XMFLOAT3 xmf3Scale(8.0f, 2.0f, 8.0f);
 	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
-	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/Plain.raw"), 257, 257, xmf3Scale, xmf4Color);
+	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, L"Assets/Terrain/Plain.raw", 257, 257, xmf3Scale, xmf4Color);
 
 	m_nGameObjects = 1;
 	m_ppGameObjects = new CGameObject * [m_nGameObjects];
@@ -108,7 +108,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	//m_ppGameObjects[0]->SetPosition(240.0f, m_pTerrain->GetHeight(240.0f, 640.0f), 640.0f);
 	//if (pLionModel) delete pLionModel;
 
-	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL);
+	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Assets/Model/Angrybot.bin", NULL);
 	m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 1);
 	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);

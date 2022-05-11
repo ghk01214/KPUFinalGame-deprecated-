@@ -1,7 +1,6 @@
 ﻿#pragma once
 
-//#include "../../Server/Server/protocol.hpp"
-#include "../../../Documents/대학/4학년/졸업작품/KPUFinalGame/source/Server/Server/protocol.hpp"
+#include "../../Server/Server/protocol.hpp"
 
 enum class COMPLETION_TYPE
 {

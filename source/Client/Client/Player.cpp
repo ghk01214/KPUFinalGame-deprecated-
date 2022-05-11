@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "../../../Documents/대학/4학년/졸업작품/KPUFinalGame/source/Server/Server/protocol.hpp"
+#include "../../Server/Server/protocol.hpp"
 #include "Player.h"
 #include "Shader.h"
 
@@ -305,7 +305,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 {
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
-	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL);
+	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Assets/Model/Angrybot.bin", NULL);
 	SetChild(pAngrybotModel->m_pModelRootObject, true);
 
 	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 2, pAngrybotModel);
@@ -316,7 +316,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 #ifdef _WITH_SOUND_CALLBACK
 	m_pSkinnedAnimationController->SetCallbackKeys(0, 1);
-	m_pSkinnedAnimationController->SetCallbackKey(0, 0, 0.001f, L"Sound/Footstep01.wav");
+	m_pSkinnedAnimationController->SetCallbackKey(0, 0, 0.001f, L"Assets/Sound/Footstep01.wav");
 
 	CAnimationCallbackHandler* pAnimationCallbackHandler = new CSoundCallbackHandler();
 	m_pSkinnedAnimationController->SetAnimationCallbackHandler(0, pAnimationCallbackHandler);
