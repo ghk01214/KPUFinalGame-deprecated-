@@ -140,7 +140,7 @@ void CNetworkFramework::ProcessThread()
 
 		if (!ret)
 		{
-			if (over_ex->type == static_cast<int>(COMPLETION_TYPE::ACCEPT))
+			if (over_ex && over_ex->type == static_cast<int>(COMPLETION_TYPE::ACCEPT))
 			{
 				std::cout << "Accept error" << std::endl;
 			}
@@ -150,7 +150,7 @@ void CNetworkFramework::ProcessThread()
 
 				DisconnectClient(key);
 
-				if (over_ex->type == static_cast<int>(COMPLETION_TYPE::SEND))
+				if (over_ex && over_ex->type == static_cast<int>(COMPLETION_TYPE::SEND))
 				{
 					ZeroMemory(over_ex, sizeof(over_ex));
 					over_ex = nullptr;
@@ -222,7 +222,8 @@ void CNetworkFramework::RecvData(DWORD bytes, ULONG_PTR key)
 {
 	if (!bytes)
 	{
-		DisconnectClient(key);
+		//DisconnectClient(key);
+		return;
 	}
 
 	int remain_size{ static_cast<int>(bytes) + clients[key].GetRemainSize() };
@@ -268,7 +269,8 @@ void CNetworkFramework::SendData(DWORD bytes, ULONG_PTR key)
 {
 	if (!bytes)
 	{
-		DisconnectClient(key);
+		//DisconnectClient(key);
+		return;
 	}
 
 	ZeroMemory(&over_ex, sizeof(over_ex));
