@@ -51,33 +51,28 @@ void CPlayer::Move(int direction, float look_x, float look_z, float right_x, flo
 	{
 		temp_x += look_x * max_speed;
 		temp_z += look_z * max_speed;
-
-		//z += 5.0f;
 	}
 	if (direction & KEYINPUT::BACKWARD)
 	{
 		temp_x += look_x * max_speed * (-1);
 		temp_z += look_z * max_speed * (-1);
-
-		//z -= 5.0f;
 	}
 	if (direction & KEYINPUT::RIGHT)
 	{
-		temp_x += right_x * max_speed;
-		temp_z += right_z * max_speed;
-	
-		//x += 5.0f;
+		temp_x += right_x * max_speed * (-1);
+		temp_z += right_z * max_speed * (-1);
 	}
 	if (direction & KEYINPUT::LEFT)
 	{
-		temp_x += right_x * max_speed * (-1);
-		temp_z += right_z * max_speed * (-1);
-	
-		//x -= 5.0f;
+		temp_x += right_x * max_speed;
+		temp_z += right_z * max_speed;
 	}
 
-	x += temp_x;
-	z += temp_z;
+	//x += temp_x;
+	//z += temp_z;
+
+	x = temp_x;
+	z = temp_z;
 
 	// 디버깅 용 플레이어 좌표 출력 문구
 	//std::cout << x << ", " << z << std::endl;

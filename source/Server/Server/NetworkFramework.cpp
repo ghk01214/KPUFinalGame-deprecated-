@@ -3,8 +3,10 @@
 #include "NetworkFramework.hpp"
 
 std::uniform_int_distribution<int> random_id(0, MAX_USER - 1);
-std::uniform_real_distribution<float> urd_x(0.0f, VAR_SIZE::WORLD_X);
-std::uniform_real_distribution<float> urd_z(0.0f, VAR_SIZE::WORLD_Z);
+//std::uniform_real_distribution<float> urd_x(0.0f, VAR_SIZE::WORLD_X);
+//std::uniform_real_distribution<float> urd_z(0.0f, VAR_SIZE::WORLD_Z);
+std::uniform_real_distribution<float> urd_x(0.0f, 2000);
+std::uniform_real_distribution<float> urd_z(0.0f, 2000);
 
 CNetworkFramework::CNetworkFramework() :
 	server(INVALID_SOCKET),
@@ -189,7 +191,7 @@ void CNetworkFramework::AcceptClient()
 	if (id != -1)
 	{
 		clients[id].GetPlayer()->SetPosX(urd_x(dre));
-		clients[id].GetPlayer()->SetPosY(0);
+		clients[id].GetPlayer()->SetPosY(270);
 		clients[id].GetPlayer()->SetPosZ(urd_z(dre));
 		//clients[id].GetPlayer()->SetPosX(1200);
 		//clients[id].GetPlayer()->SetPosY(500);
