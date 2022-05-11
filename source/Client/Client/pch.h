@@ -48,8 +48,8 @@ extern HINSTANCE ghAppInstance;
 
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 
-inline constexpr int FRAME_BUFFER_WIDTH{ 640 };
-inline constexpr int FRAME_BUFFER_HEIGHT{ 480 };
+inline constexpr int FRAME_BUFFER_WIDTH{ 960 };
+inline constexpr int FRAME_BUFFER_HEIGHT{ 720 };
 
 inline constexpr int SKINNED_ANIMATION_BONES{ 128 };
 
