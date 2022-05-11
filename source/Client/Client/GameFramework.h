@@ -11,7 +11,7 @@ public:
 	CGameFramework();
 	~CGameFramework();
 
-	// °ÔÀÓ ÇÁ·¹ÀÓ¿öÅ© º¹»ç ¹æÁö
+	// ê²Œì„ í”„ë ˆì„ì›Œí¬ ë³µì‚¬ ë°©ì§€
 	CGameFramework(const CGameFramework& other) = delete;
 	CGameFramework& operator=(const CGameFramework& other) = delete;
 
