@@ -16,9 +16,6 @@
 #include <shellapi.h>
 
 #include <fstream>
-#include <stdio.h>
-#include <wchar.h>
-
 #include <vector>
 #include <unordered_map>
 #include <random>
@@ -27,12 +24,15 @@
 #include <dxgi1_4.h>
 #include <D3Dcompiler.h>
 #include <DirectXMath.h>
-#include <DirectXPackedVector.h>
-#include <DirectXColors.h>
+#include <DirectXPackedVector.h>
+#include <DirectXColors.h>
 #include <DirectXCollision.h>
-#include <D3d12SDKLayers.h>
 
 #include <Mmsystem.h>
+
+#ifdef _DEBUG
+#include <dxgidebug.h>
+#endif
 
 // 네트워크 통신용 헤더 파일입니다.
 #include <thread>
@@ -44,46 +44,57 @@ using namespace DirectX::PackedVector;
 
 using Microsoft::WRL::ComPtr;
 
-inline constexpr int FRAME_BUFFER_WIDTH{ 800 };
-inline constexpr int FRAME_BUFFER_HEIGHT{ 600 };
+extern HINSTANCE ghAppInstance;
 
-inline constexpr int VK_W{ 0x57 };
-inline constexpr int VK_A{ 0x41 };
-inline constexpr int VK_D{ 0x44 };
-inline constexpr int VK_E{ 0x45 };
-inline constexpr int VK_Q{ 0x51 };
-inline constexpr int VK_S{ 0x53 };
+//#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 
-#define RANDOM_COLOR			XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
+inline constexpr int FRAME_BUFFER_WIDTH{ 640 };
+inline constexpr int FRAME_BUFFER_HEIGHT{ 480 };
 
-#define _WITH_DIERECTX_MATH_FRUSTUM
+inline constexpr int SKINNED_ANIMATION_BONES{ 128 };
 
+inline constexpr int ANIMATION_TYPE_ONCE{ 0 };
+inline constexpr int ANIMATION_TYPE_LOOP{ 1 };
+inline constexpr int ANIMATION_TYPE_PINGPONG{ 2 };
+
+inline constexpr float ANIMATION_CALLBACK_EPSILON{ 0.015f };
+
+//#define _WITH_LEFT_HAND_COORDINATES
+
+// Direct3D 12 렌더링용 라이브러리 파일입니다.
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "dxguid.lib")
 
-// 네트워크 통신용 라이브러리 링킹
+// 네트워크 통신용 라이브러리 파일입니다.
 #pragma comment(lib, "WS2_32")
 #pragma comment(lib, "MSWSock")
 
-extern UINT	gnCbvSrvDescriptorIncrementSize;
+int ReadStringFromFile(FILE* pInFile, char* pstrToken);
+UINT ReadUnsignedIntegerFromFile(FILE* pInFile);
+int ReadIntegerFromFile(FILE* pInFile);
+float ReadFloatFromFile(FILE* pInFile);
 
-// 서버 주소
-inline std::wstring SERVER_ADDR;
+extern UINT gnCbvSrvDescriptorIncrementSize;
+
+extern std::wstring SERVER_ADDR;		// 서버 주소
 
 ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, ID3D12Resource** ppd3dUploadBuffer = NULL);
-void ErrorQuit(std::wstring msg, int errorNum);
+ID3D12Resource* CreateTextureResourceFromDDSFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, wchar_t* pszFileName, ID3D12Resource** ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+ID3D12Resource* CreateTextureResourceFromWICFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, wchar_t* pszFileName, ID3D12Resource** ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+void ErrorQuit(std::wstring msg, int error);
 
-#define EPSILON 1.0e-10f
-inline bool IsZero(float fValue) { return((fabsf(fValue) < EPSILON)); }inline bool IsEqual(float fA, float fB) { return(::IsZero(fA - fB)); }
+#define RANDOM_COLOR XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
+
+inline constexpr float EPSILON{ 1.0e-10f };
+
+inline bool IsZero(float fValue) { return((fabsf(fValue) < EPSILON)); }
+inline bool IsEqual(float fA, float fB) { return(::IsZero(fA - fB)); }
+inline bool IsZero(float fValue, float fEpsilon) { return((fabsf(fValue) < fEpsilon)); }
+inline bool IsEqual(float fA, float fB, float fEpsilon) { return(::IsZero(fA - fB, fEpsilon)); }
 inline float InverseSqrt(float fValue) { return 1.0f / sqrtf(fValue); }
 inline void Swap(float* pfS, float* pfT) { float fTemp = *pfS; *pfS = *pfT; *pfT = fTemp; }
-inline int ABS(int x)
-{
-	int y{ x >> 32 };
-
-	return (x ^ y) - y;
-}
 
 namespace Vector3
 {
@@ -156,10 +167,17 @@ namespace Vector3
 		return(xmf3Result.x);
 	}
 
+	inline bool IsZero(XMFLOAT3& xmf3Vector)
+	{
+		XMFLOAT3 xmf3Result;
+		XMStoreFloat3(&xmf3Result, XMVector3Length(XMLoadFloat3(&xmf3Vector)));
+		return(::IsZero(xmf3Result.x));
+	}
+
 	inline float Angle(XMVECTOR& xmvVector1, XMVECTOR& xmvVector2)
 	{
 		XMVECTOR xmvAngle = XMVector3AngleBetweenNormals(xmvVector1, xmvVector2);
-		return(XMConvertToDegrees(acosf(XMVectorGetX(xmvAngle))));
+		return(XMConvertToDegrees(XMVectorGetX(xmvAngle)));
 	}
 
 	inline float Angle(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
@@ -185,13 +203,6 @@ namespace Vector3
 	{
 		return(TransformCoord(xmf3Vector, XMLoadFloat4x4(&xmmtx4x4Matrix)));
 	}
-
-	inline bool IsZero(XMFLOAT3& xmf3Vector)
-	{
-		if (::IsZero(xmf3Vector.x) && ::IsZero(xmf3Vector.y) && ::IsZero(xmf3Vector.z))
-			return(true);
-		return(false);
-	}
 }
 
 namespace Vector4
@@ -202,6 +213,14 @@ namespace Vector4
 		XMStoreFloat4(&xmf4Result, XMLoadFloat4(&xmf4Vector1) + XMLoadFloat4(&xmf4Vector2));
 		return(xmf4Result);
 	}
+
+	inline XMFLOAT4 Multiply(XMFLOAT4& xmf4Vector1, XMFLOAT4& xmf4Vector2)
+	{
+		XMFLOAT4 xmf4Result;
+		XMStoreFloat4(&xmf4Result, XMLoadFloat4(&xmf4Vector1) * XMLoadFloat4(&xmf4Vector2));
+		return(xmf4Result);
+	}
+
 	inline XMFLOAT4 Multiply(float fScalar, XMFLOAT4& xmf4Vector)
 	{
 		XMFLOAT4 xmf4Result;
@@ -214,58 +233,115 @@ namespace Matrix4x4
 {
 	inline XMFLOAT4X4 Identity()
 	{
-		XMFLOAT4X4 xmmtx4x4Result;
-		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixIdentity());
-		return(xmmtx4x4Result);
+		XMFLOAT4X4 xmf4x4Result;
+		XMStoreFloat4x4(&xmf4x4Result, XMMatrixIdentity());
+		return(xmf4x4Result);
+	}
+
+	inline XMFLOAT4X4 Zero()
+	{
+		XMFLOAT4X4 xmf4x4Result;
+		XMStoreFloat4x4(&xmf4x4Result, XMMatrixSet(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f));
+		return(xmf4x4Result);
 	}
 
 	inline XMFLOAT4X4 Multiply(XMFLOAT4X4& xmmtx4x4Matrix1, XMFLOAT4X4& xmmtx4x4Matrix2)
 	{
-		XMFLOAT4X4 xmmtx4x4Result;
-		XMStoreFloat4x4(&xmmtx4x4Result, XMLoadFloat4x4(&xmmtx4x4Matrix1) * XMLoadFloat4x4(&xmmtx4x4Matrix2));
-		return(xmmtx4x4Result);
+		XMFLOAT4X4 xmf4x4Result;
+		XMStoreFloat4x4(&xmf4x4Result, XMLoadFloat4x4(&xmmtx4x4Matrix1) * XMLoadFloat4x4(&xmmtx4x4Matrix2));
+		return(xmf4x4Result);
+	}
+
+	inline XMFLOAT4X4 Scale(XMFLOAT4X4& xmf4x4Matrix, float fScale)
+	{
+		XMFLOAT4X4 xmf4x4Result;
+		XMStoreFloat4x4(&xmf4x4Result, XMLoadFloat4x4(&xmf4x4Matrix) * fScale);
+		/*
+				XMVECTOR S, R, T;
+				XMMatrixDecompose(&S, &R, &T, XMLoadFloat4x4(&xmf4x4Matrix));
+				S = XMVectorScale(S, fScale);
+				T = XMVectorScale(T, fScale);
+				R = XMVectorScale(R, fScale);
+				//R = XMQuaternionMultiply(R, XMVectorSet(0, 0, 0, fScale));
+				XMStoreFloat4x4(&xmf4x4Result, XMMatrixAffineTransformation(S, XMVectorZero(), R, T));
+		*/
+		return(xmf4x4Result);
+	}
+
+	inline XMFLOAT4X4 Add(XMFLOAT4X4& xmmtx4x4Matrix1, XMFLOAT4X4& xmmtx4x4Matrix2)
+	{
+		XMFLOAT4X4 xmf4x4Result;
+		XMStoreFloat4x4(&xmf4x4Result, XMLoadFloat4x4(&xmmtx4x4Matrix1) + XMLoadFloat4x4(&xmmtx4x4Matrix2));
+		return(xmf4x4Result);
 	}
 
 	inline XMFLOAT4X4 Multiply(XMFLOAT4X4& xmmtx4x4Matrix1, XMMATRIX& xmmtxMatrix2)
 	{
-		XMFLOAT4X4 xmmtx4x4Result;
-		XMStoreFloat4x4(&xmmtx4x4Result, XMLoadFloat4x4(&xmmtx4x4Matrix1) * xmmtxMatrix2);
-		return(xmmtx4x4Result);
+		XMFLOAT4X4 xmf4x4Result;
+		XMStoreFloat4x4(&xmf4x4Result, XMLoadFloat4x4(&xmmtx4x4Matrix1) * xmmtxMatrix2);
+		return(xmf4x4Result);
 	}
 
 	inline XMFLOAT4X4 Multiply(XMMATRIX& xmmtxMatrix1, XMFLOAT4X4& xmmtx4x4Matrix2)
 	{
-		XMFLOAT4X4 xmmtx4x4Result;
-		XMStoreFloat4x4(&xmmtx4x4Result, xmmtxMatrix1 * XMLoadFloat4x4(&xmmtx4x4Matrix2));
-		return(xmmtx4x4Result);
+		XMFLOAT4X4 xmf4x4Result;
+		XMStoreFloat4x4(&xmf4x4Result, xmmtxMatrix1 * XMLoadFloat4x4(&xmmtx4x4Matrix2));
+		return(xmf4x4Result);
+	}
+
+	inline XMFLOAT4X4 Interpolate(XMFLOAT4X4& xmf4x4Matrix1, XMFLOAT4X4& xmf4x4Matrix2, float t)
+	{
+		XMFLOAT4X4 xmf4x4Result;
+		XMVECTOR S0, R0, T0, S1, R1, T1;
+		XMMatrixDecompose(&S0, &R0, &T0, XMLoadFloat4x4(&xmf4x4Matrix1));
+		XMMatrixDecompose(&S1, &R1, &T1, XMLoadFloat4x4(&xmf4x4Matrix2));
+		XMVECTOR S = XMVectorLerp(S0, S1, t);
+		XMVECTOR T = XMVectorLerp(T0, T1, t);
+		XMVECTOR R = XMQuaternionSlerp(R0, R1, t);
+		XMStoreFloat4x4(&xmf4x4Result, XMMatrixAffineTransformation(S, XMVectorZero(), R, T));
+		return(xmf4x4Result);
 	}
 
 	inline XMFLOAT4X4 Inverse(XMFLOAT4X4& xmmtx4x4Matrix)
 	{
-		XMFLOAT4X4 xmmtx4x4Result;
-		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixInverse(NULL, XMLoadFloat4x4(&xmmtx4x4Matrix)));
-		return(xmmtx4x4Result);
+		XMFLOAT4X4 xmf4x4Result;
+		XMStoreFloat4x4(&xmf4x4Result, XMMatrixInverse(NULL, XMLoadFloat4x4(&xmmtx4x4Matrix)));
+		return(xmf4x4Result);
 	}
 
 	inline XMFLOAT4X4 Transpose(XMFLOAT4X4& xmmtx4x4Matrix)
 	{
-		XMFLOAT4X4 xmmtx4x4Result;
-		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixTranspose(XMLoadFloat4x4(&xmmtx4x4Matrix)));
-		return(xmmtx4x4Result);
+		XMFLOAT4X4 xmf4x4Result;
+		XMStoreFloat4x4(&xmf4x4Result, XMMatrixTranspose(XMLoadFloat4x4(&xmmtx4x4Matrix)));
+		return(xmf4x4Result);
 	}
 
 	inline XMFLOAT4X4 PerspectiveFovLH(float FovAngleY, float AspectRatio, float NearZ, float FarZ)
 	{
-		XMFLOAT4X4 xmmtx4x4Result;
-		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixPerspectiveFovLH(FovAngleY, AspectRatio, NearZ, FarZ));
-		return(xmmtx4x4Result);
+		XMFLOAT4X4 xmf4x4Result;
+		XMStoreFloat4x4(&xmf4x4Result, XMMatrixPerspectiveFovLH(FovAngleY, AspectRatio, NearZ, FarZ));
+		return(xmf4x4Result);
 	}
 
 	inline XMFLOAT4X4 LookAtLH(XMFLOAT3& xmf3EyePosition, XMFLOAT3& xmf3LookAtPosition, XMFLOAT3& xmf3UpDirection)
 	{
-		XMFLOAT4X4 xmmtx4x4Result;
-		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixLookAtLH(XMLoadFloat3(&xmf3EyePosition), XMLoadFloat3(&xmf3LookAtPosition), XMLoadFloat3(&xmf3UpDirection)));
-		return(xmmtx4x4Result);
+		XMFLOAT4X4 xmf4x4Result;
+		XMStoreFloat4x4(&xmf4x4Result, XMMatrixLookAtLH(XMLoadFloat3(&xmf3EyePosition), XMLoadFloat3(&xmf3LookAtPosition), XMLoadFloat3(&xmf3UpDirection)));
+		return(xmf4x4Result);
+	}
+
+	inline XMFLOAT4X4 PerspectiveFovRH(float FovAngleY, float AspectRatio, float NearZ, float FarZ)
+	{
+		XMFLOAT4X4 xmf4x4Result;
+		XMStoreFloat4x4(&xmf4x4Result, XMMatrixPerspectiveFovRH(FovAngleY, AspectRatio, NearZ, FarZ));
+		return(xmf4x4Result);
+	}
+
+	inline XMFLOAT4X4 LookAtRH(const XMFLOAT3& xmf3EyePosition, const XMFLOAT3& xmf3LookAtPosition, const XMFLOAT3& xmf3UpDirection)
+	{
+		XMFLOAT4X4 xmf4x4Result;
+		XMStoreFloat4x4(&xmf4x4Result, XMMatrixLookAtRH(XMLoadFloat3(&xmf3EyePosition), XMLoadFloat3(&xmf3LookAtPosition), XMLoadFloat3(&xmf3UpDirection)));
+		return(xmf4x4Result);
 	}
 }
 

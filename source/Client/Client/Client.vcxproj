@@ -21,9 +21,9 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{d29990de-9b58-4470-9bcb-b12def91ad72}</ProjectGuid>
+    <ProjectGuid>{b21df2b3-a015-4d50-9320-0421a9ab5f4f}</ProjectGuid>
     <RootNamespace>Client</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -143,9 +143,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Server\Server\protocol.hpp" />
+    <ClInclude Include="..\..\..\Documents\대학\4학년\졸업작품\KPUFinalGame\source\Server\Server\protocol.hpp" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Client.h" />
+    <ClInclude Include="DDSTextureLoader12.h" />
     <ClInclude Include="GameFramework.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Network.h" />
@@ -158,13 +159,15 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="WICTextureLoader12.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Client.cpp" />
-    <ClCompile Include="Network.cpp" />
+    <ClCompile Include="DDSTextureLoader12.cpp" />
     <ClCompile Include="GameFramework.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Network.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="OVERLAPPEDEX.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -181,6 +184,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="WICTextureLoader12.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Client.rc" />
@@ -191,9 +195,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders.hlsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="Shaders_T.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

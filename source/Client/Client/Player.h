@@ -11,6 +11,8 @@ protected:
 	XMFLOAT3					m_xmf3Up;
 	XMFLOAT3					m_xmf3Look;
 
+	XMFLOAT3					m_xmf3Scale;
+
 	float           			m_fPitch;
 	float           			m_fYaw;
 	float           			m_fRoll;
@@ -24,14 +26,10 @@ protected:
 	LPVOID						m_pPlayerUpdatedContext;
 	LPVOID						m_pCameraUpdatedContext;
 
-	CCamera* m_pCamera = nullptr;
+	CCamera* m_pCamera;
 
-	float						m_fPlayerMaxHp;
-	float						m_fPlayerCurrentHp;
-	float						m_fPlayerMaxSpeed;
-	float						m_fPlayerCurrentSpeed;
 public:
-	CPlayer(int nMeshes = 1);
+	CPlayer();
 	virtual ~CPlayer();
 
 	XMFLOAT3 GetPosition() { return(m_xmf3Position); }
@@ -44,21 +42,22 @@ public:
 	void SetMaxVelocityXZ(float fMaxVelocity) { m_fMaxVelocityXZ = fMaxVelocity; }
 	void SetMaxVelocityY(float fMaxVelocity) { m_fMaxVelocityY = fMaxVelocity; }
 	void SetVelocity(const XMFLOAT3& xmf3Velocity) { m_xmf3Velocity = xmf3Velocity; }
-	void SetPosition(const XMFLOAT3& xmf3Position) { Move(XMFLOAT3{ xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z }, false); }
+	void SetPosition(const XMFLOAT3& xmf3Position) { Move(XMFLOAT3(xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z), false); }
+
+	void SetScale(XMFLOAT3& xmf3Scale) { m_xmf3Scale = xmf3Scale; }
 
 	const XMFLOAT3& GetVelocity() const { return(m_xmf3Velocity); }
 	float GetYaw() const { return(m_fYaw); }
 	float GetPitch() const { return(m_fPitch); }
 	float GetRoll() const { return(m_fRoll); }
 
-	CCamera* GetCamera() { return(m_pCamera); }
-	void SetCamera(CCamera* pCamera) { m_pCamera = pCamera; }
+	CCamera *GetCamera() { return(m_pCamera); }
+	void SetCamera(CCamera *pCamera) { m_pCamera = pCamera; }
 
-	void Move(DWORD dwDirection, float fTime, bool bVelocity = false);
+	void Move(DWORD dwDirection, float fDistance, bool bVelocity = false);
 	void Move(short x, short y, short z);
 	void Move(const XMFLOAT3& xmf3Shift, bool bVelocity = false);
 	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
-	void ResetPlayerPos() { m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); }
 	void Rotate(float x, float y, float z);
 
 	virtual void Update(float fTimeElapsed);
@@ -69,54 +68,45 @@ public:
 	virtual void OnCameraUpdateCallback(float fTimeElapsed) { }
 	void SetCameraUpdatedContext(LPVOID pContext) { m_pCameraUpdatedContext = pContext; }
 
-	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void ReleaseShaderVariables();
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 
-	CCamera* OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode);
+	CCamera *OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode);
 
-	virtual CCamera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed) { return(nullptr); }
+	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed) { return(NULL); }
 	virtual void OnPrepareRender();
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = nullptr);
-
-	void Attack();
-	int GetMissileNum() { return m_missileNum; }
-	CMissileObject* GetMissile(int index) { return m_missile[index]; }
-	CMissileObject* SetMissile(int index) { return m_missile[index]; }
-
-	void SetAttackMode(int mode) { attack_mode = mode; }
-	int GetAttackMode() { return attack_mode; }
-
-private:
-	int m_missileNum = 20;
-	CMissileObject** m_missile = 0;
-
-	int attack_mode;
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);
 };
 
-class CAirplanePlayer : public CPlayer
+class CSoundCallbackHandler : public CAnimationCallbackHandler
 {
 public:
-	CAirplanePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
-		ID3D12RootSignature* pd3dGraphicsRootSignature, int nMeshes = 1);
-	virtual ~CAirplanePlayer();
+	CSoundCallbackHandler() { }
+	~CSoundCallbackHandler() { }
 
-	virtual CCamera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
-	virtual void OnPrepareRender();
+public:
+	//virtual void HandleCallback(void *pCallbackData, float fTrackPosition); 
 };
+
+#define _WITH_SOUND_CALLBACK
 
 class CTerrainPlayer : public CPlayer
 {
 public:
-	CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
-		ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext, int nMeshes = 1);
+	CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext=NULL);
 	virtual ~CTerrainPlayer();
-	virtual CCamera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
+
+public:
+	virtual void OnPrepareRender();
+	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
+
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed);
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = nullptr);
+
+#ifdef _WITH_SOUND_CALLBACK
+	virtual void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
 	virtual void Update(float fTimeElapsed);
-
-	virtual void ResetPlayerPos();
-
+#endif
 };
+

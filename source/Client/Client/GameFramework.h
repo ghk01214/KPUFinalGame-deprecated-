@@ -1,10 +1,9 @@
-Ôªø#pragma once
+#pragma once
 
 #include "Timer.h"
 #include "Player.h"
 #include "Scene.h"
 #include "Network.h"
-#include "../../Server/Server/protocol.hpp"
 
 class CGameFramework
 {
@@ -12,7 +11,7 @@ public:
 	CGameFramework();
 	~CGameFramework();
 
-	// Í≤åÏûÑ ÌîÑÎ†àÏûÑÏõåÌÅ¨ Î≥µÏÇ¨ Î∞©ÏßÄ
+	// ∞‘¿” «¡∑π¿”øˆ≈© ∫πªÁ πÊ¡ˆ
 	CGameFramework(const CGameFramework& other) = delete;
 	CGameFramework& operator=(const CGameFramework& other) = delete;
 
@@ -27,7 +26,6 @@ public:
 
 	void CreateRenderTargetViews();
 	void CreateDepthStencilView();
-	void CreateRenderTargetViewsAndDepthStencilView();
 
 	void ChangeSwapChainState();
 
@@ -42,10 +40,6 @@ public:
 	void ProcessInput();
 	void AnimateObjects();
 	void FrameAdvance();
-
-	virtual void CreateShaderVariables();
-	virtual void UpdateShaderVariables();
-	virtual void ReleaseShaderVariables();
 
 	void WaitForGpuComplete();
 	void MoveToNextFrame();
@@ -69,8 +63,8 @@ private:
 	IDXGISwapChain3* m_pdxgiSwapChain;
 	ID3D12Device* m_pd3dDevice;
 
-	bool						m_bMsaa4xEnable = false;
-	UINT						m_nMsaa4xQualityLevels = 0;
+	bool						m_bMsaa4xEnable;
+	UINT						m_nMsaa4xQualityLevels;
 
 	static const UINT			m_nSwapChainBuffers = 2;
 	UINT						m_nSwapChainBufferIndex;
@@ -91,18 +85,22 @@ private:
 	UINT64						m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE						m_hFenceEvent;
 
-#ifndef _DEBUG
+#ifdef _DEBUG
 	ID3D12Debug* m_pd3dDebugController;
 #endif
 
-	CScene* m_pScene = nullptr;
-	CPlayer* m_pPlayer = nullptr;
-	CCamera* m_pCamera = nullptr;
+	CGameTimer					m_GameTimer;
+
+	CScene* m_pScene;
+	CPlayer* m_pPlayer;
+	CCamera* m_pCamera;
 
 	POINT						m_ptOldCursorPos;
 
-	CGameTimer					m_GameTimer;
-	_TCHAR						m_pszFrameRate[50];
+	_TCHAR						m_pszFrameRate[70];
 
 	std::unique_ptr<CNetwork> network_manager;
+	int send_timing;
+	float fps;
 };
+
