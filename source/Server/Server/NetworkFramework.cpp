@@ -138,27 +138,27 @@ void CNetworkFramework::ProcessThread()
 		ret = GetQueuedCompletionStatus(iocp, &bytes, &key, &over, INFINITE);
 		over_ex = reinterpret_cast<OVERLAPPEDEX*>(over);
 
-		if (!ret)
-		{
-			if (over_ex && over_ex->type == static_cast<int>(COMPLETION_TYPE::ACCEPT))
-			{
-				std::cout << "Accept error" << std::endl;
-			}
-			else
-			{
-				std::cout << "GetQueuedCompletionStatus error on client[" << key << "]" << std::endl;
+		//if (!ret)
+		//{
+		//	if (over_ex && over_ex->type == static_cast<int>(COMPLETION_TYPE::ACCEPT))
+		//	{
+		//		std::cout << "Accept error" << std::endl;
+		//	}
+		//	else
+		//	{
+		//		std::cout << "GetQueuedCompletionStatus error on client[" << key << "]" << std::endl;
 
-				DisconnectClient(key);
+		//		DisconnectClient(key);
 
-				if (over_ex && over_ex->type == static_cast<int>(COMPLETION_TYPE::SEND))
-				{
-					ZeroMemory(over_ex, sizeof(over_ex));
-					over_ex = nullptr;
-				}
+		//		if (over_ex && over_ex->type == static_cast<int>(COMPLETION_TYPE::SEND))
+		//		{
+		//			ZeroMemory(over_ex, sizeof(over_ex));
+		//			over_ex = nullptr;
+		//		}
 
-				continue;
-			}
-		}
+		//		continue;
+		//	}
+		//}
 
 		switch (over_ex->type)
 		{
@@ -169,6 +169,15 @@ void CNetworkFramework::ProcessThread()
 		break;
 		case static_cast<int>(COMPLETION_TYPE::RECV):
 		{
+			if (ret == 0 or bytes == 0)
+			{
+				std::cout << "GetQueuedCompletionStatus error on client[" << key << "]" << std::endl;
+
+				if (server_key != key)
+					DisconnectClient(key);
+
+				continue;
+			}
 			RecvData(bytes, key);
 		}
 		break;
