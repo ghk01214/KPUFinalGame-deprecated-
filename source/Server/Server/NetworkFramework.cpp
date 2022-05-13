@@ -255,6 +255,8 @@ void CNetworkFramework::RecvData(DWORD bytes, ULONG_PTR key)
 
 	for (; remain_size > 0 or packet_size <= remain_size; remain_size -= packet_size)
 	{
+		packet_size = packet[0];
+
 		ProcessPacket(key);
 
 		packet += packet_size;

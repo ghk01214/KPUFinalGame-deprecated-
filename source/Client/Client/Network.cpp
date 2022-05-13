@@ -180,6 +180,8 @@ void CNetwork::RecvData(DWORD bytes)
 
 	for (; remain > 0 || packet_size <= remain; remain -= packet_size)
 	{
+		packet_size = packet[0];
+
 		ProcessPacket();
 
 		packet += packet_size;
