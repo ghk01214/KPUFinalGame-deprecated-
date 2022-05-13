@@ -10,7 +10,7 @@ std::uniform_real_distribution<float> urd_z(0.0f, 2000);
 
 CNetworkFramework::CNetworkFramework() :
 	server(INVALID_SOCKET),
-	server_key(9999),
+	server_key(99999),
 	iocp(INVALID_HANDLE_VALUE),
 	over(nullptr),
 	over_ex(nullptr),
@@ -92,7 +92,7 @@ void CNetworkFramework::BootServer()
 	server_addr.sin_port = htons(SERVER_PORT);
 	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	CreateIoCompletionPort(reinterpret_cast<HANDLE>(server), iocp, server, 0);
+	CreateIoCompletionPort(reinterpret_cast<HANDLE>(server), iocp, server_key, 0);
 
 	if (bind(server, reinterpret_cast<sockaddr*>(&server_addr), sizeof(server_addr)) == SOCKET_ERROR)
 	{
