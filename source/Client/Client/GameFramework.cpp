@@ -34,7 +34,7 @@ CGameFramework::CGameFramework() :
 	m_pCamera(nullptr),
 	network_manager(std::make_unique<CNetwork>(this)),
 	send_timing(0),
-	fps(0.0f)
+	fps(60.0f)
 {
 	for (int i = 0; i < m_nSwapChainBuffers; ++i)
 	{
