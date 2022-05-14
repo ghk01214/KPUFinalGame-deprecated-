@@ -445,7 +445,10 @@ void CGameFramework::AddPlayer(SC::PACKET::ADD_PLAYER* packet)
 		//m_pScene->players.emplace(packet->id, pPlayer);
 		players.emplace(packet->id, pPlayer);
 
-		// 추가 플레이어 접속 여부를 오브젝트 색상 변경으로 확인
+		if (pPlayer)
+		{
+			pPlayer->ReleaseUploadBuffers();
+		}
 	}
 }
 
@@ -483,7 +486,14 @@ void CGameFramework::BuildObjects()
 
 void CGameFramework::ReleaseObjects()
 {
-	if (m_pPlayer) m_pPlayer->Release();
+	//if (m_pPlayer) m_pPlayer->Release();
+	if (!players.empty())
+	{
+		for (auto& play : players)
+		{
+			play.second->Release();
+		}
+	}
 
 	if (m_pScene) m_pScene->ReleaseObjects();
 	if (m_pScene) delete m_pScene;
@@ -568,7 +578,12 @@ void CGameFramework::AnimateObjects()
 
 	if (m_pScene) m_pScene->AnimateObjects(fTimeElapsed);
 
-	m_pPlayer->Animate(fTimeElapsed);
+	//m_pPlayer->Animate(fTimeElapsed);
+
+	for (auto& play : players)
+	{
+		play.second->Animate(fTimeElapsed);
+	}
 }
 
 void CGameFramework::WaitForGpuComplete()

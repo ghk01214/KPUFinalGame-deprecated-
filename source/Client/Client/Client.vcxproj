@@ -143,7 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Documents\대학\4학년\졸업작품\KPUFinalGame\source\Server\Server\protocol.hpp" />
+    <ClInclude Include="..\..\Server\Server\protocol.hpp" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
