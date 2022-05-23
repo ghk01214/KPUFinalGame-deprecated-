@@ -1,147 +1,166 @@
-
-cbuffer cbFrameworkInfo : register(b0)
+cbuffer cbCameraInfo : register(b1)
 {
-	float 		gfCurrentTime;
-	float		gfElapsedTime;
-	float2		gf2CursorPos;
+	matrix					gmtxView : packoffset(c0);
+	matrix					gmtxProjection : packoffset(c4);
+	float3					gvCameraPosition : packoffset(c8);
 };
 
-cbuffer cbGameObjectInfo : register(b1)
+cbuffer cbGameObjectInfo : register(b2)
 {
-	matrix		gmtxWorld : packoffset(c0);
-	float3		gf3ObjectColor : packoffset(c4);
+	matrix					gmtxGameObject : packoffset(c0);
+	float4					gcPixelColor : packoffset(c4);
 };
 
-cbuffer cbCameraInfo : register(b2)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct VS_WIREFRAME_INPUT
 {
-	matrix		gmtxView : packoffset(c0);
-	matrix		gmtxProjection : packoffset(c4);
-	float3		gf3CameraPosition : packoffset(c8);
+	float3 position : POSITION;
 };
 
-struct VS_INPUT
+struct VS_WIREFRAME_OUTPUT
 {
-	float3		position : POSITION;
-	float3		normal : NORMAL;
-	float2		uv : TEXTURECOORD;
+	float4 position : SV_POSITION;
 };
 
-struct VS_OUTPUT
+VS_WIREFRAME_OUTPUT VSWireFrame(VS_WIREFRAME_INPUT input)
 {
-	float4		positionH : SV_POSITION;
-	float3		positionW : POSITION;
-	float3		normal : NORMAL0;
-	float3		normalW : NORMAL1;
-	float2		uv : TEXTURECOORD;
-};
+	VS_WIREFRAME_OUTPUT output;
 
-VS_OUTPUT VSPseudoLighting(VS_INPUT input)
-{
-	VS_OUTPUT output;
-
-	output.positionW = mul(float4(input.position, 1.0f), gmtxWorld).xyz;
-	output.positionH = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-	output.normalW = mul(float4(input.normal, 0.0f), gmtxWorld).xyz;
-	output.normal = input.normal;
-	output.uv = input.uv;
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
 
 	return(output);
 }
 
-static float3 gf3AmbientLightColor = float3(0.15f, 0.15f, 0.15f);
-static float3 gf3AmbientSpecularColor = float3(0.15f, 0.15f, 0.15f);
-
-static float3 gf3LightDirection = float3(1.4142f, 1.4142f * 0.5f, 1.4142f * 0.5f);
-static float3 gf3LightColor = float3(0.65f, 0.65f, 0.65f);
-static float3 gf3SpecularColor = float3(0.85f, 0.85f, 0.85f);
-
-static float gfSpecular = 2.0f;
-static float gfGlossiness = 0.8f;
-static float gfSmoothness = 0.75f;
-static float gfOneMinusReflectivity = 0.15f;
-
-inline float Pow5(float x)
+float4 PSWireFrame(VS_WIREFRAME_OUTPUT input) : SV_TARGET
 {
-	return(x * x * x * x * x);
+	return(float4(0.0f, 0.0f, 1.0f, 1.0f));
 }
 
-inline float3 FresnelTerm(float3 F0, float cosA)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+#define MAX_VERTEX_INFLUENCES			4
+#define SKINNED_ANIMATION_BONES			128
+
+cbuffer cbBoneOffsets : register(b7)
 {
-	return((F0 + (1 - F0) * Pow5(1 - cosA)));
+	float4x4 gpmtxBoneOffsets[SKINNED_ANIMATION_BONES];
+};
+
+cbuffer cbBoneTransforms : register(b8)
+{
+	float4x4 gpmtxBoneTransforms[SKINNED_ANIMATION_BONES];
+};
+
+struct VS_SKINNED_WIREFRAME_INPUT
+{
+	float3 position : POSITION;
+	int4 indices : BONEINDEX;
+	float4 weights : BONEWEIGHT;
+};
+
+struct VS_SKINNED_WIREFRAME_OUTPUT
+{
+	float4 position : SV_POSITION;
+};
+
+VS_SKINNED_WIREFRAME_OUTPUT VSSkinnedAnimationWireFrame(VS_SKINNED_WIREFRAME_INPUT input)
+{
+	VS_SKINNED_WIREFRAME_OUTPUT output;
+
+	float3 positionW = float3(0.0f, 0.0f, 0.0f);
+	matrix mtxVertexToBoneWorld;
+	for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
+	{
+		mtxVertexToBoneWorld = mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]);
+		positionW += input.weights[i] * mul(float4(input.position, 1.0f), mtxVertexToBoneWorld).xyz;
+	}
+
+	output.position = mul(mul(float4(positionW, 1.0f), gmtxView), gmtxProjection);
+//	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+
+	return(output);
 }
 
-inline float3 FresnelLerp(float3 F0, float3 F90, half cosA)
+float4 PSSkinnedAnimationWireFrame(VS_SKINNED_WIREFRAME_OUTPUT input) : SV_TARGET
 {
-	return(lerp(F0, F90, Pow5(1 - cosA)));
+	return(float4(1.0f, 0.0f, 0.0f, 1.0f));
 }
 
-inline float PerceptualRoughnessToSpecPower(float fPerceptualRoughness)
-{
-	float m = fPerceptualRoughness * fPerceptualRoughness;
-	float sq = max(1e-4f, m * m);
-	float n = (2.0f / sq) - 2.0f;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+Texture2D gtxtTerrainBaseTexture : register(t1);
+Texture2D gtxtTerrainDetailTexture : register(t2);
 
-	return(max(n, 1e-4f));
+SamplerState gssWrap : register(s0);
+
+struct VS_TERRAIN_INPUT
+{
+	float3 position : POSITION;
+	float4 color : COLOR;
+	float2 uv0 : TEXCOORD0;
+	float2 uv1 : TEXCOORD1;
+};
+
+struct VS_TERRAIN_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float4 color : COLOR;
+	float2 uv0 : TEXCOORD0;
+	float2 uv1 : TEXCOORD1;
+};
+
+VS_TERRAIN_OUTPUT VSTerrain(VS_TERRAIN_INPUT input)
+{
+	VS_TERRAIN_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.color = input.color;
+	output.uv0 = input.uv0;
+	output.uv1 = input.uv1;
+
+	return(output);
 }
 
-float DisneyDiffuse(float NdotV, float NdotL, float LdotH, float fPerceptualRoughness)
+float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 {
-	float fd90 = 0.5f + 2.0f * LdotH * LdotH * fPerceptualRoughness;
-	float fLightScatter = (1.0f + (fd90 - 1.0f) * Pow5(1.0f - NdotL));
-	float fViewScatter = (1.0f + (fd90 - 1.0f) * Pow5(1.0f - NdotV));
+	float4 cBaseTexColor = gtxtTerrainBaseTexture.Sample(gssWrap, input.uv0);
+	float4 cDetailTexColor = gtxtTerrainDetailTexture.Sample(gssWrap, input.uv1);
+//	float4 cColor = saturate((cBaseTexColor * 0.5f) + (cDetailTexColor * 0.5f));
+	float4 cColor = input.color * saturate((cBaseTexColor * 0.5f) + (cDetailTexColor * 0.5f));
 
-	return(fLightScatter * fViewScatter);
+	return(cColor);
 }
 
-// Smith-Schlick derived for Beckmann
-inline float SmithBeckmannVisibilityTerm(float NdotL, float NdotV, float fRoughness)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+struct VS_SKYBOX_CUBEMAP_INPUT
 {
-	float k = fRoughness * 0.797884560802865f; //0.797884560802865 = sqrt(2.0f / Pi)
+	float3 position : POSITION;
+};
 
-	return(1.0f / ((NdotL * (1 - k) + k) * (NdotV * (1 - k) + k) + 1e-5f)); 
+struct VS_SKYBOX_CUBEMAP_OUTPUT
+{
+	float3	positionL : POSITION;
+	float4	position : SV_POSITION;
+};
+
+VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
+{
+	VS_SKYBOX_CUBEMAP_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.positionL = input.position;
+
+	return(output);
 }
 
-inline float NDFBlinnPhongNormalizedTerm(float NdotH, float fRoughnessToSpecPower)
+TextureCube gtxtSkyCubeTexture : register(t13);
+SamplerState gssClamp : register(s1);
+
+float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
 {
-	float fNormTerm = (fRoughnessToSpecPower + 2.0f) * (0.5f / 3.14159f);
-	float fSpecTerm = pow(NdotH, fRoughnessToSpecPower);
-
-	return(fNormTerm * fSpecTerm);
-}
-
-float4 PSPseudoLighting(VS_OUTPUT input) : SV_TARGET
-{
-	float4 cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-
-	float3 f3Normal = normalize(input.normalW);
-	float3 f3ToCamera = normalize(gf3CameraPosition - input.positionW);
-	float3 f3Reflection = reflect(f3ToCamera, f3Normal);
-	float3 f3Half = normalize(gf3LightDirection + f3ToCamera);
-
-	float nl = saturate(dot(f3Normal, gf3LightDirection));
-	float nh = saturate(dot(f3Normal, f3Half));
-	float nv = saturate(dot(f3Normal, f3ToCamera));
-//	float lv = saturate(dot(gf3LightDirection, f3ToCamera));
-	float lh = saturate(dot(gf3LightDirection, f3Half));
-
-	float fPerceptualRoughness = 1.0f - gfSmoothness;
-	float fDiffuseFactor = DisneyDiffuse(nv, nl, lh, fPerceptualRoughness) * nl;
-
-	float fRoughness = fPerceptualRoughness * fPerceptualRoughness;
-	float V = SmithBeckmannVisibilityTerm(nl, nv, fRoughness);
-	float D = NDFBlinnPhongNormalizedTerm(nh, PerceptualRoughnessToSpecPower(fPerceptualRoughness));
-	float fSpecularFactor = max(0.0f, V * D * 3.14159f * nl);
-	fSpecularFactor *= any(gf3SpecularColor) ? 1.0f : 0.0f;
-
-	float fSurfaceReduction = 1.0f / ((fRoughness * fRoughness) + 1.0f);
-	float fGrazingTerm = saturate(gfSmoothness + (1 - gfOneMinusReflectivity));
-
-	cColor.rgb = gf3ObjectColor * (gf3AmbientLightColor + (gf3LightColor * fDiffuseFactor));
-	cColor.rgb += fSpecularFactor * gf3LightColor * FresnelTerm(gf3SpecularColor, lh);
-	cColor.rgb += fSurfaceReduction * gf3AmbientSpecularColor * FresnelLerp(gf3SpecularColor, fGrazingTerm, nv);
-
-	float fRim = saturate(dot(f3ToCamera, f3Normal));
-	cColor.rgb += float3(0.25f, 0.0f, 0.0f) * pow(fRim, 4.0f);
+	float4 cColor = gtxtSkyCubeTexture.Sample(gssClamp, input.positionL);
 
 	return(cColor);
 }
