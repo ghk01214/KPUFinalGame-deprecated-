@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "Scene.h"
 
-ID3D12DescriptorHeap *CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
+ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap{ nullptr };
 
 D3D12_CPU_DESCRIPTOR_HANDLE	CScene::m_d3dCbvCPUDescriptorStartHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dCbvGPUDescriptorStartHandle;
@@ -13,7 +13,20 @@ D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dCbvGPUDescriptorNextHandle;
 D3D12_CPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvCPUDescriptorNextHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvGPUDescriptorNextHandle;
 
-CScene::CScene()
+CScene::CScene() :
+	m_pPlayer(nullptr),
+	m_pd3dGraphicsRootSignature(nullptr),
+	m_ppGameObjects(nullptr),
+	m_nGameObjects(0),
+	m_fElapsedTime(0.0f),
+	m_nShaders(0),
+	m_ppShaders(nullptr),
+	m_pSkyBox(nullptr),
+	m_pTerrain(nullptr),
+	m_pLights(nullptr),
+	m_nLights(0),
+	m_pd3dcbLights(nullptr),
+	m_pcbMappedLights(nullptr)
 {
 }
 
@@ -70,13 +83,13 @@ void CScene::BuildDefaultLightsAndMaterials()
 	m_pLights[3].m_fTheta = (float)cos(XMConvertToRadians(30.0f));
 }
 
-void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 45); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()
 
-	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature); 
+	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature);
 
 	BuildDefaultLightsAndMaterials();
 
@@ -87,7 +100,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/Plain.raw"), 257, 257, xmf3Scale, xmf4Color);
 
 	m_nGameObjects = 6;
-	m_ppGameObjects = new CGameObject*[m_nGameObjects];
+	m_ppGameObjects = new CGameObject * [m_nGameObjects];
 
 	//CLoadedModelInfo *pLionModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Lion.bin", NULL);
 	//m_ppGameObjects[0] = new CLionObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pLionModel, 1);
@@ -95,35 +108,35 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	//m_ppGameObjects[0]->SetPosition(240.0f, m_pTerrain->GetHeight(240.0f, 640.0f), 640.0f);
 	//if (pLionModel) delete pLionModel;
 
-	CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL);
+	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL);
 	m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
-	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);									   
-	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);							   
-	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);									   
-	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);										   
-	m_ppGameObjects[0]->SetPosition(380.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);							   
-																													   
+	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);
+	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
+	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
+	m_ppGameObjects[0]->SetPosition(380.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
+
 	m_ppGameObjects[1] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
-	m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);									   
-	m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);							   
-	m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);									   
-	m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);										   
-	m_ppGameObjects[1]->SetPosition(480.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);							   
-																													   
+	m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);
+	m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
+	m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
+	m_ppGameObjects[1]->SetPosition(480.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
+
 	m_ppGameObjects[2] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
-	m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);									   
-	m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);							   
-	m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);									   
-	m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);										   
-	m_ppGameObjects[2]->SetPosition(580.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);							   
-																													   
+	m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);
+	m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
+	m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
+	m_ppGameObjects[2]->SetPosition(580.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
+
 	m_ppGameObjects[3] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
-	m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);									   
-	m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);							   
-	m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);									   
-	m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);										   
-	m_ppGameObjects[3]->SetPosition(680.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);							   
-																													   
+	m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);
+	m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
+	m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
+	m_ppGameObjects[3]->SetPosition(680.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
+
 	m_ppGameObjects[4] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
 	m_ppGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppGameObjects[4]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);
@@ -196,9 +209,9 @@ void CScene::ReleaseObjects()
 	if (m_pLights) delete[] m_pLights;
 }
 
-ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevice)
+ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
 {
-	ID3D12RootSignature *pd3dGraphicsRootSignature = NULL;
+	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
 
 	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[10];
 
@@ -377,25 +390,25 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	d3dRootSignatureDesc.pStaticSamplers = pd3dSamplerDescs;
 	d3dRootSignatureDesc.Flags = d3dRootSignatureFlags;
 
-	ID3DBlob *pd3dSignatureBlob = NULL;
-	ID3DBlob *pd3dErrorBlob = NULL;
+	ID3DBlob* pd3dSignatureBlob = NULL;
+	ID3DBlob* pd3dErrorBlob = NULL;
 	D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &pd3dSignatureBlob, &pd3dErrorBlob);
-	pd3dDevice->CreateRootSignature(0, pd3dSignatureBlob->GetBufferPointer(), pd3dSignatureBlob->GetBufferSize(), __uuidof(ID3D12RootSignature), (void **)&pd3dGraphicsRootSignature);
+	pd3dDevice->CreateRootSignature(0, pd3dSignatureBlob->GetBufferPointer(), pd3dSignatureBlob->GetBufferSize(), __uuidof(ID3D12RootSignature), (void**)&pd3dGraphicsRootSignature);
 	if (pd3dSignatureBlob) pd3dSignatureBlob->Release();
 	if (pd3dErrorBlob) pd3dErrorBlob->Release();
 
 	return(pd3dGraphicsRootSignature);
 }
 
-void CScene::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+void CScene::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	UINT ncbElementBytes = ((sizeof(LIGHTS) + 255) & ~255); //256의 배수
 	m_pd3dcbLights = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
-	m_pd3dcbLights->Map(0, NULL, (void **)&m_pcbMappedLights);
+	m_pd3dcbLights->Map(0, NULL, (void**)&m_pcbMappedLights);
 }
 
-void CScene::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
+void CScene::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	::memcpy(m_pcbMappedLights->m_pLights, m_pLights, sizeof(LIGHT) * m_nLights);
 	::memcpy(&m_pcbMappedLights->m_xmf4GlobalAmbient, &m_xmf4GlobalAmbient, sizeof(XMFLOAT4));
@@ -420,14 +433,14 @@ void CScene::ReleaseUploadBuffers()
 	for (int i = 0; i < m_nGameObjects; i++) m_ppGameObjects[i]->ReleaseUploadBuffers();
 }
 
-void CScene::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, int nConstantBufferViews, int nShaderResourceViews)
+void CScene::CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews)
 {
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
 	d3dDescriptorHeapDesc.NumDescriptors = nConstantBufferViews + nShaderResourceViews; //CBVs + SRVs 
 	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	d3dDescriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	d3dDescriptorHeapDesc.NodeMask = 0;
-	pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void **)&m_pd3dCbvSrvDescriptorHeap);
+	pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_pd3dCbvSrvDescriptorHeap);
 
 	m_d3dCbvCPUDescriptorNextHandle = m_d3dCbvCPUDescriptorStartHandle = m_pd3dCbvSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	m_d3dCbvGPUDescriptorNextHandle = m_d3dCbvGPUDescriptorStartHandle = m_pd3dCbvSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
@@ -435,7 +448,7 @@ void CScene::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, int nConstant
 	m_d3dSrvGPUDescriptorNextHandle.ptr = m_d3dSrvGPUDescriptorStartHandle.ptr = m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * nConstantBufferViews);
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE CScene::CreateConstantBufferViews(ID3D12Device *pd3dDevice, int nConstantBufferViews, ID3D12Resource *pd3dConstantBuffers, UINT nStride)
+D3D12_GPU_DESCRIPTOR_HANDLE CScene::CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride)
 {
 	D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle = m_d3dCbvGPUDescriptorNextHandle;
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = pd3dConstantBuffers->GetGPUVirtualAddress();
@@ -458,41 +471,41 @@ D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3
 	d3dShaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	switch (nTextureType)
 	{
-		case RESOURCE_TEXTURE2D: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize == 1)
-		case RESOURCE_TEXTURE2D_ARRAY:
-			d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-			d3dShaderResourceViewDesc.Texture2D.MipLevels = -1;
-			d3dShaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-			d3dShaderResourceViewDesc.Texture2D.PlaneSlice = 0;
-			d3dShaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-			break;
-		case RESOURCE_TEXTURE2DARRAY: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize != 1)
-			d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
-			d3dShaderResourceViewDesc.Texture2DArray.MipLevels = -1;
-			d3dShaderResourceViewDesc.Texture2DArray.MostDetailedMip = 0;
-			d3dShaderResourceViewDesc.Texture2DArray.PlaneSlice = 0;
-			d3dShaderResourceViewDesc.Texture2DArray.ResourceMinLODClamp = 0.0f;
-			d3dShaderResourceViewDesc.Texture2DArray.FirstArraySlice = 0;
-			d3dShaderResourceViewDesc.Texture2DArray.ArraySize = d3dResourceDesc.DepthOrArraySize;
-			break;
-		case RESOURCE_TEXTURE_CUBE: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize == 6)
-			d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-			d3dShaderResourceViewDesc.TextureCube.MipLevels = -1;
-			d3dShaderResourceViewDesc.TextureCube.MostDetailedMip = 0;
-			d3dShaderResourceViewDesc.TextureCube.ResourceMinLODClamp = 0.0f;
-			break;
-		case RESOURCE_BUFFER: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
-			d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-			d3dShaderResourceViewDesc.Buffer.FirstElement = 0;
-			d3dShaderResourceViewDesc.Buffer.NumElements = 0;
-			d3dShaderResourceViewDesc.Buffer.StructureByteStride = 0;
-			d3dShaderResourceViewDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-			break;
+	case RESOURCE_TEXTURE2D: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize == 1)
+	case RESOURCE_TEXTURE2D_ARRAY:
+		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		d3dShaderResourceViewDesc.Texture2D.MipLevels = -1;
+		d3dShaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+		d3dShaderResourceViewDesc.Texture2D.PlaneSlice = 0;
+		d3dShaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+		break;
+	case RESOURCE_TEXTURE2DARRAY: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize != 1)
+		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+		d3dShaderResourceViewDesc.Texture2DArray.MipLevels = -1;
+		d3dShaderResourceViewDesc.Texture2DArray.MostDetailedMip = 0;
+		d3dShaderResourceViewDesc.Texture2DArray.PlaneSlice = 0;
+		d3dShaderResourceViewDesc.Texture2DArray.ResourceMinLODClamp = 0.0f;
+		d3dShaderResourceViewDesc.Texture2DArray.FirstArraySlice = 0;
+		d3dShaderResourceViewDesc.Texture2DArray.ArraySize = d3dResourceDesc.DepthOrArraySize;
+		break;
+	case RESOURCE_TEXTURE_CUBE: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize == 6)
+		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+		d3dShaderResourceViewDesc.TextureCube.MipLevels = -1;
+		d3dShaderResourceViewDesc.TextureCube.MostDetailedMip = 0;
+		d3dShaderResourceViewDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+		break;
+	case RESOURCE_BUFFER: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
+		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		d3dShaderResourceViewDesc.Buffer.FirstElement = 0;
+		d3dShaderResourceViewDesc.Buffer.NumElements = 0;
+		d3dShaderResourceViewDesc.Buffer.StructureByteStride = 0;
+		d3dShaderResourceViewDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+		break;
 	}
 	return(d3dShaderResourceViewDesc);
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE CScene::CreateShaderResourceViews(ID3D12Device *pd3dDevice, CTexture *pTexture, UINT nRootParameter, bool bAutoIncrement)
+D3D12_GPU_DESCRIPTOR_HANDLE CScene::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nRootParameter, bool bAutoIncrement)
 {
 	D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGPUDescriptorHandle = m_d3dSrvGPUDescriptorNextHandle;
 	if (pTexture)
@@ -501,7 +514,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE CScene::CreateShaderResourceViews(ID3D12Device *pd3d
 		int nTextureType = pTexture->GetTextureType();
 		for (int i = 0; i < nTextures; i++)
 		{
-			ID3D12Resource *pShaderResource = pTexture->GetTexture(i);
+			ID3D12Resource* pShaderResource = pTexture->GetTexture(i);
 			D3D12_RESOURCE_DESC d3dResourceDesc = pShaderResource->GetDesc();
 			D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc = GetShaderResourceViewDesc(d3dResourceDesc, nTextureType);
 			pd3dDevice->CreateShaderResourceView(pShaderResource, &d3dShaderResourceViewDesc, m_d3dSrvCPUDescriptorNextHandle);
@@ -526,12 +539,12 @@ bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
-		//case 'W': m_ppGameObjects[0]->MoveForward(+3.0f); break;
-		//case 'S': m_ppGameObjects[0]->MoveForward(-3.0f); break;
-		//case 'A': m_ppGameObjects[0]->MoveStrafe(-3.0f); break;
-		//case 'D': m_ppGameObjects[0]->MoveStrafe(+3.0f); break;
-		//case 'Q': m_ppGameObjects[0]->MoveUp(+3.0f); break;
-		//case 'R': m_ppGameObjects[0]->MoveUp(-3.0f); break;
+			//case 'W': m_ppGameObjects[0]->MoveForward(+3.0f); break;
+			//case 'S': m_ppGameObjects[0]->MoveForward(-3.0f); break;
+			//case 'A': m_ppGameObjects[0]->MoveStrafe(-3.0f); break;
+			//case 'D': m_ppGameObjects[0]->MoveStrafe(+3.0f); break;
+			//case 'Q': m_ppGameObjects[0]->MoveUp(+3.0f); break;
+			//case 'R': m_ppGameObjects[0]->MoveUp(-3.0f); break;
 		default:
 			break;
 		}
@@ -542,7 +555,7 @@ bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 	return(false);
 }
 
-bool CScene::ProcessInput(UCHAR *pKeysBuffer)
+bool CScene::ProcessInput(UCHAR* pKeysBuffer)
 {
 	return(false);
 }
@@ -551,10 +564,10 @@ void CScene::AnimateObjects(float fTimeElapsed)
 {
 	m_fElapsedTime = fTimeElapsed;
 
-	for (int i = 0; i < m_nShaders; i++) 
-		if (m_ppShaders[i]) 
+	for (int i = 0; i < m_nShaders; i++)
+		if (m_ppShaders[i])
 			m_ppShaders[i]->AnimateObjects(fTimeElapsed);
-	
+
 	if (m_pLights)
 	{
 		m_pLights[1].m_xmf3Position = m_pPlayer->GetPosition();
@@ -565,14 +578,14 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	{
 		float xamount{ m_pPlayer->GetPosition().x - m_ppGameObjects[i]->GetPosition().x };
 		float zamount{ m_pPlayer->GetPosition().z - m_ppGameObjects[i]->GetPosition().z };
-		
+
 		XMFLOAT3 distance{ xamount, 0, zamount };
 
 		distance = Vector3::Normalize(distance);
 		XMFLOAT3 temp{ m_ppGameObjects[i]->GetLook().x,  m_ppGameObjects[i]->GetLook().y, m_ppGameObjects[i]->GetLook().z };
 		float Dot = Vector3::DotProduct(temp, distance);
 		float   Radian = (float)acos(Dot);
-		
+
 		if (Vector3::DotProduct(m_ppGameObjects[i]->GetRight(), distance) > 0)
 		{
 			m_ppGameObjects[i]->Rotate(0, 0, +1.0f);
@@ -587,7 +600,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 	}
 }
 
-void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 	if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);

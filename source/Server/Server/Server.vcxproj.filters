@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="GameServer">
+      <UniqueIdentifier>{16ee60d1-daae-4921-bf1b-00b8a657e5f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameServer\Zone">
+      <UniqueIdentifier>{a386aead-f628-4e6a-be29-20d65a537744}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameServer\Sector">
+      <UniqueIdentifier>{11f84716-5533-4c01-9dec-3a65b1ca71ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object">
+      <UniqueIdentifier>{7e012f4d-757d-4e8d-9190-104ad3ad131a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\NPC">
+      <UniqueIdentifier>{a6619dda-a011-4605-a6fc-6e4a341057e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Player">
+      <UniqueIdentifier>{7e3118c1-50f5-4076-968e-a7b8f7163035}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameServer\OVERLAPPEDEX">
+      <UniqueIdentifier>{0db677bc-e163-46c9-b428-9938b0d02f6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameServer\Session">
+      <UniqueIdentifier>{7c574bad-4abb-41b8-86ce-4984212df79f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lua">
+      <UniqueIdentifier>{6520d089-014c-4f72-9ea5-d8d6e6064e95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lua\include">
+      <UniqueIdentifier>{ff673c73-ed38-4512-b614-56854338a939}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="OVERLAPPEDEX.cpp">
+      <Filter>GameServer\OVERLAPPEDEX</Filter>
+    </ClCompile>
+    <ClCompile Include="GameServer.cpp">
+      <Filter>GameServer</Filter>
+    </ClCompile>
+    <ClCompile Include="Session.cpp">
+      <Filter>GameServer\Session</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaScript.cpp">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC.cpp">
+      <Filter>Object\NPC</Filter>
+    </ClCompile>
+    <ClCompile Include="Sector.cpp">
+      <Filter>GameServer\Sector</Filter>
+    </ClCompile>
+    <ClCompile Include="Zone.cpp">
+      <Filter>GameServer\Zone</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.hpp">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol.hpp">
+      <Filter>GameServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.hpp">
+      <Filter>Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="OVERLAPPEDEX.hpp">
+      <Filter>GameServer\OVERLAPPEDEX</Filter>
+    </ClInclude>
+    <ClInclude Include="GameServer.hpp">
+      <Filter>GameServer</Filter>
+    </ClInclude>
+    <ClInclude Include="Session.hpp">
+      <Filter>GameServer\Session</Filter>
+    </ClInclude>
+    <ClInclude Include="include\lauxlib.h">
+      <Filter>Lua\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\lua.h">
+      <Filter>Lua\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\lua.hpp">
+      <Filter>Lua\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\luaconf.h">
+      <Filter>Lua\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\lualib.h">
+      <Filter>Lua\include</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaScript.hpp">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.hpp">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="NPC.hpp">
+      <Filter>Object\NPC</Filter>
+    </ClInclude>
+    <ClInclude Include="Sector.hpp">
+      <Filter>GameServer\Sector</Filter>
+    </ClInclude>
+    <ClInclude Include="Zone.hpp">
+      <Filter>GameServer\Zone</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="include\lua54.lib">
+      <Filter>Lua\include</Filter>
+    </Library>
+  </ItemGroup>
+</Project>

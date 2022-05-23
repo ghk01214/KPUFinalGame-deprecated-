@@ -555,7 +555,7 @@ void CSkinnedMesh::LoadSkinDeformationsFromFile(ID3D12Device *pd3dDevice, ID3D12
 		{
 			m_nBonesPerVertex = ::ReadIntegerFromFile(pInFile);
 		}
-		else if (!strcmp(pstrToken, "<5s>:"))
+		else if (!strcmp(pstrToken, "<Bounds>:"))
 		{
 			nReads = (UINT)::fread(&m_xmf3AABBCenter, sizeof(XMFLOAT3), 1, pInFile);
 			nReads = (UINT)::fread(&m_xmf3AABBExtents, sizeof(XMFLOAT3), 1, pInFile);

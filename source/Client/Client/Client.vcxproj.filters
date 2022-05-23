@@ -9,20 +9,38 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="셰이더">
-      <UniqueIdentifier>{3ec3fecd-bf01-46e7-bd00-07b00d39f7f2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="클래스">
-      <UniqueIdentifier>{cbfe7844-e5b9-4973-a86e-f0be4492ce1a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="클래스\헤더">
-      <UniqueIdentifier>{bc2045ca-e153-47c2-96e5-e7cf2d9993ff}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="클래스\소스">
-      <UniqueIdentifier>{339f6854-6213-4edc-865f-65be29d243c4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="리소스 파일">
       <UniqueIdentifier>{91fa4363-91c6-46b2-981d-46f2159aa8db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameClient">
+      <UniqueIdentifier>{5b2dd2cf-6599-473b-8981-7212b9bad29c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object">
+      <UniqueIdentifier>{9d349f14-3378-4728-8da0-1a894a92e6a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Player">
+      <UniqueIdentifier>{c1206ed2-0f29-463d-9115-223b142cc681}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameClient\Network">
+      <UniqueIdentifier>{e90db6ac-1d50-4b77-ab9d-cb1be3b40605}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameClient\Camera">
+      <UniqueIdentifier>{bf09bd1c-5542-460f-aa0c-6b9bf0f6bf24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameClient\Timer">
+      <UniqueIdentifier>{d54d4f1f-e111-4cda-afcb-6ea1d19c4161}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameClient\Shader">
+      <UniqueIdentifier>{5489ff5c-bc33-47a2-8a8d-9503b87b017b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameClient\Scene">
+      <UniqueIdentifier>{7357c405-2dad-4040-b0bb-a2eac581046f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Mesh">
+      <UniqueIdentifier>{8c548f2a-35c6-4d65-8697-dc555017a7f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameClient\Texture">
+      <UniqueIdentifier>{ec9b0ba0-77c7-49ed-a564-33ead84227a3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -35,91 +53,91 @@
     <ClInclude Include="Client.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>클래스\헤더</Filter>
-    </ClInclude>
-    <ClInclude Include="GameFramework.h">
-      <Filter>클래스\헤더</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>클래스\헤더</Filter>
-    </ClInclude>
-    <ClInclude Include="Object.h">
-      <Filter>클래스\헤더</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>클래스\헤더</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>클래스\헤더</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>클래스\헤더</Filter>
-    </ClInclude>
-    <ClInclude Include="Timer.h">
-      <Filter>클래스\헤더</Filter>
-    </ClInclude>
-    <ClInclude Include="WICTextureLoader12.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Server\Server\protocol.hpp">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="GameFramework.h">
+      <Filter>GameClient</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Object\Player</Filter>
     </ClInclude>
     <ClInclude Include="Network.h">
-      <Filter>클래스\h</Filter>
+      <Filter>GameClient\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>GameClient\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>GameClient\Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>GameClient\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>GameClient\Scene</Filter>
     </ClInclude>
     <ClInclude Include="OVERLAPPEDEX.h">
-      <Filter>클래스\h</Filter>
+      <Filter>GameClient\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Object\Mesh</Filter>
     </ClInclude>
     <ClInclude Include="DDSTextureLoader12.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>GameClient\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="WICTextureLoader12.h">
+      <Filter>GameClient\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Server\protocol.hpp">
+      <Filter>GameClient\Network</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="DDSTextureLoader12.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="WICTextureLoader12.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>클래스\소스</Filter>
-    </ClCompile>
     <ClCompile Include="GameFramework.cpp">
-      <Filter>클래스\소스</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>클래스\소스</Filter>
+      <Filter>GameClient</Filter>
     </ClCompile>
     <ClCompile Include="Object.cpp">
-      <Filter>클래스\소스</Filter>
+      <Filter>Object</Filter>
     </ClCompile>
     <ClCompile Include="Player.cpp">
-      <Filter>클래스\소스</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>클래스\소스</Filter>
-    </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>클래스\소스</Filter>
-    </ClCompile>
-    <ClCompile Include="Timer.cpp">
-      <Filter>클래스\소스</Filter>
+      <Filter>Object\Player</Filter>
     </ClCompile>
     <ClCompile Include="Network.cpp">
-      <Filter>클래스\cpp</Filter>
+      <Filter>GameClient\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>GameClient\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>GameClient\Timer</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>GameClient\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>GameClient\Scene</Filter>
     </ClCompile>
     <ClCompile Include="OVERLAPPEDEX.cpp">
-      <Filter>클래스\cpp</Filter>
+      <Filter>GameClient\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Object\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="DDSTextureLoader12.cpp">
+      <Filter>GameClient\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="WICTextureLoader12.cpp">
+      <Filter>GameClient\Texture</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -131,13 +149,13 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders.hlsl">
-      <Filter>셰이더</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="Client.rc">
       <Filter>리소스 파일</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders.hlsl">
+      <Filter>GameClient\Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

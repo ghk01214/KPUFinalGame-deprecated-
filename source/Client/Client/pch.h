@@ -1,20 +1,15 @@
-﻿
-#pragma once
+﻿#pragma once
 
 #define WIN32_LEAN_AND_MEAN             // 거의 사용되지 않는 내용은 Windows 헤더에서 제외합니다.
 // Windows 헤더 파일:
 #include <windows.h>
 
 // C의 런타임 헤더 파일입니다.
-<<<<<<< HEAD
-=======
-#include <iostream>
->>>>>>> Player
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
-#include <cmath>
+#include <math.h>
 
 #include <string>
 #include <wrl.h>
@@ -22,15 +17,8 @@
 
 #include <fstream>
 #include <vector>
-<<<<<<< HEAD
 #include <unordered_map>
 #include <random>
-=======
-
-#include <unordered_map>
-
-using namespace std;
->>>>>>> Player
 
 #include <d3d12.h>
 #include <dxgi1_4.h>
@@ -39,103 +27,73 @@ using namespace std;
 #include <DirectXPackedVector.h>
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
-<<<<<<< HEAD
-#include <D3d12SDKLayers.h>
-
-#include <Mmsystem.h>
-
-// 네트워크 통신용 헤더 파일입니다.
-#include <thread>
-#include <WS2tcpip.h>
-#include <MSWSock.h>
-=======
 
 #include <Mmsystem.h>
 
 #ifdef _DEBUG
 #include <dxgidebug.h>
 #endif
->>>>>>> Player
+
+// 네트워크 통신용 헤더 파일입니다.
+#include <thread>
+#include <WS2tcpip.h>
+#include <MSWSock.h>
 
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 
 using Microsoft::WRL::ComPtr;
 
-<<<<<<< HEAD
-inline constexpr int FRAME_BUFFER_WIDTH{ 800 };
-inline constexpr int FRAME_BUFFER_HEIGHT{ 600 };
-
-inline constexpr int VK_W{ 0x57 };
-inline constexpr int VK_A{ 0x41 };
-inline constexpr int VK_D{ 0x44 };
-inline constexpr int VK_E{ 0x45 };
-inline constexpr int VK_Q{ 0x51 };
-inline constexpr int VK_S{ 0x53 };
-=======
-extern HINSTANCE					ghAppInstance;
-
-#define _USE_MATH_DEFINES
+extern HINSTANCE ghAppInstance;
 
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 
-#define FRAME_BUFFER_WIDTH			640
-#define FRAME_BUFFER_HEIGHT			480
->>>>>>> Player
+inline constexpr int FRAME_BUFFER_WIDTH{ 960 };
+inline constexpr int FRAME_BUFFER_HEIGHT{ 720 };
 
-#define SKINNED_ANIMATION_BONES		128
+inline constexpr int SKINNED_ANIMATION_BONES{ 128 };
 
-#define ANIMATION_TYPE_ONCE			0
-#define ANIMATION_TYPE_LOOP			1
-#define ANIMATION_TYPE_PINGPONG		2
+inline constexpr int ANIMATION_TYPE_ONCE{ 0 };
+inline constexpr int ANIMATION_TYPE_LOOP{ 1 };
+inline constexpr int ANIMATION_TYPE_PINGPONG{ 2 };
 
-#define ANIMATION_CALLBACK_EPSILON	0.015f
+inline constexpr float ANIMATION_CALLBACK_EPSILON{ 0.015f };
 
 //#define _WITH_LEFT_HAND_COORDINATES
 
+// Direct3D 12 렌더링용 라이브러리 파일입니다.
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "dxguid.lib")
 
-<<<<<<< HEAD
-// 네트워크 통신용 라이브러리 링킹
+// 네트워크 통신용 라이브러리 파일입니다.
 #pragma comment(lib, "WS2_32")
 #pragma comment(lib, "MSWSock")
 
-extern UINT	gnCbvSrvDescriptorIncrementSize;
-
-// 서버 주소
-inline std::wstring SERVER_ADDR;
-
-ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, ID3D12Resource** ppd3dUploadBuffer = NULL);
-void ErrorQuit(std::wstring msg, int errorNum);
-=======
-#pragma comment(lib, "dxguid.lib")
-
-// TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
-
-extern int ReadStringFromFile(FILE *pInFile, char *pstrToken);
-extern UINT ReadUnsignedIntegerFromFile(FILE *pInFile);
-extern int ReadIntegerFromFile(FILE *pInFile);
-extern float ReadFloatFromFile(FILE *pInFile);
+int ReadStringFromFile(FILE* pInFile, char* pstrToken);
+UINT ReadUnsignedIntegerFromFile(FILE* pInFile);
+int ReadIntegerFromFile(FILE* pInFile);
+float ReadFloatFromFile(FILE* pInFile);
 
 extern UINT gnCbvSrvDescriptorIncrementSize;
 
-extern ID3D12Resource *CreateBufferResource(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, ID3D12Resource **ppd3dUploadBuffer = NULL);
-extern ID3D12Resource *CreateTextureResourceFromDDSFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, wchar_t *pszFileName, ID3D12Resource **ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-extern ID3D12Resource *CreateTextureResourceFromWICFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, wchar_t *pszFileName, ID3D12Resource **ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+extern std::wstring SERVER_ADDR;		// 서버 주소
 
-#define RANDOM_COLOR				XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
->>>>>>> Player
+ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, ID3D12Resource** ppd3dUploadBuffer = NULL);
+ID3D12Resource* CreateTextureResourceFromDDSFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, wchar_t* pszFileName, ID3D12Resource** ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+ID3D12Resource* CreateTextureResourceFromWICFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, wchar_t* pszFileName, ID3D12Resource** ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+void ErrorQuit(std::wstring msg);
 
-#define EPSILON						1.0e-10f
+#define RANDOM_COLOR XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
+
+inline constexpr float EPSILON{ 1.0e-10f };
 
 inline bool IsZero(float fValue) { return((fabsf(fValue) < EPSILON)); }
 inline bool IsEqual(float fA, float fB) { return(::IsZero(fA - fB)); }
 inline bool IsZero(float fValue, float fEpsilon) { return((fabsf(fValue) < fEpsilon)); }
 inline bool IsEqual(float fA, float fB, float fEpsilon) { return(::IsZero(fA - fB, fEpsilon)); }
 inline float InverseSqrt(float fValue) { return 1.0f / sqrtf(fValue); }
-<<<<<<< HEAD
 inline void Swap(float* pfS, float* pfT) { float fTemp = *pfS; *pfS = *pfT; *pfT = fTemp; }
 inline int ABS(int x)
 {
@@ -143,9 +101,6 @@ inline int ABS(int x)
 
 	return (x ^ y) - y;
 }
-=======
-inline void Swap(float *pfS, float *pfT) { float fTemp = *pfS; *pfS = *pfT; *pfT = fTemp; }
->>>>>>> Player
 
 namespace Vector3
 {
@@ -307,15 +262,15 @@ namespace Matrix4x4
 	{
 		XMFLOAT4X4 xmf4x4Result;
 		XMStoreFloat4x4(&xmf4x4Result, XMLoadFloat4x4(&xmf4x4Matrix) * fScale);
-/*
-		XMVECTOR S, R, T;
-		XMMatrixDecompose(&S, &R, &T, XMLoadFloat4x4(&xmf4x4Matrix));
-		S = XMVectorScale(S, fScale);
-		T = XMVectorScale(T, fScale);
-		R = XMVectorScale(R, fScale);
-		//R = XMQuaternionMultiply(R, XMVectorSet(0, 0, 0, fScale));
-		XMStoreFloat4x4(&xmf4x4Result, XMMatrixAffineTransformation(S, XMVectorZero(), R, T));
-*/
+		/*
+				XMVECTOR S, R, T;
+				XMMatrixDecompose(&S, &R, &T, XMLoadFloat4x4(&xmf4x4Matrix));
+				S = XMVectorScale(S, fScale);
+				T = XMVectorScale(T, fScale);
+				R = XMVectorScale(R, fScale);
+				//R = XMQuaternionMultiply(R, XMVectorSet(0, 0, 0, fScale));
+				XMStoreFloat4x4(&xmf4x4Result, XMMatrixAffineTransformation(S, XMVectorZero(), R, T));
+		*/
 		return(xmf4x4Result);
 	}
 

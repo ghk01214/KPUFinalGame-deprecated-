@@ -1,5 +1,4 @@
-﻿
-#include "pch.h"
+﻿#include "pch.h"
 #include "Shader.h"
 
 CShader::CShader()
@@ -31,17 +30,17 @@ D3D12_SHADER_BYTECODE CShader::CreatePixelShader()
 	return(d3dShaderByteCode);
 }
 
-D3D12_SHADER_BYTECODE CShader::CompileShaderFromFile(WCHAR *pszFileName, LPCSTR pszShaderName, LPCSTR pszShaderProfile, ID3DBlob **ppd3dShaderBlob)
+D3D12_SHADER_BYTECODE CShader::CompileShaderFromFile(WCHAR* pszFileName, LPCSTR pszShaderName, LPCSTR pszShaderProfile, ID3DBlob** ppd3dShaderBlob)
 {
 	UINT nCompileFlags = 0;
-#ifndef _DEBUG
+#if defined(_DEBUG)
 	nCompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
 
-	ID3DBlob *pd3dErrorBlob = NULL;
+	ID3DBlob* pd3dErrorBlob = NULL;
 	HRESULT hResult = ::D3DCompileFromFile(pszFileName, NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, pszShaderName, pszShaderProfile, nCompileFlags, 0, ppd3dShaderBlob, &pd3dErrorBlob);
-	char *pErrorString = NULL;
-	if (pd3dErrorBlob) pErrorString = (char *)pd3dErrorBlob->GetBufferPointer();
+	char* pErrorString = NULL;
+	if (pd3dErrorBlob) pErrorString = (char*)pd3dErrorBlob->GetBufferPointer();
 
 	D3D12_SHADER_BYTECODE d3dShaderByteCode;
 	d3dShaderByteCode.BytecodeLength = (*ppd3dShaderBlob)->GetBufferSize();
@@ -59,15 +58,15 @@ D3D12_SHADER_BYTECODE CShader::CompileShaderFromFile(WCHAR *pszFileName, LPCSTR 
 #include <sstream>
 #endif
 
-D3D12_SHADER_BYTECODE CShader::ReadCompiledShaderFromFile(WCHAR *pszFileName, ID3DBlob **ppd3dShaderBlob)
+D3D12_SHADER_BYTECODE CShader::ReadCompiledShaderFromFile(WCHAR* pszFileName, ID3DBlob** ppd3dShaderBlob)
 {
 	UINT nReadBytes = 0;
 #ifdef _WITH_WFOPEN
-	FILE *pFile = NULL;
+	FILE* pFile = NULL;
 	::_wfopen_s(&pFile, pszFileName, L"rb");
 	::fseek(pFile, 0, SEEK_END);
 	int nFileSize = ::ftell(pFile);
-	BYTE *pByteCode = new BYTE[nFileSize];
+	BYTE* pByteCode = new BYTE[nFileSize];
 	::rewind(pFile);
 	nReadBytes = (UINT)::fread(pByteCode, sizeof(BYTE), nFileSize, pFile);
 	::fclose(pFile);
@@ -76,9 +75,9 @@ D3D12_SHADER_BYTECODE CShader::ReadCompiledShaderFromFile(WCHAR *pszFileName, ID
 	std::ifstream ifsFile;
 	ifsFile.open(pszFileName, std::ios::in | std::ios::ate | std::ios::binary);
 	nReadBytes = (int)ifsFile.tellg();
-	BYTE *pByteCode = new BYTE[*pnReadBytes];
+	BYTE* pByteCode = new BYTE[*pnReadBytes];
 	ifsFile.seekg(0);
-	ifsFile.read((char *)pByteCode, nReadBytes);
+	ifsFile.read((char*)pByteCode, nReadBytes);
 	ifsFile.close();
 #endif
 
@@ -175,7 +174,7 @@ D3D12_BLEND_DESC CShader::CreateBlendState()
 	return(d3dBlendDesc);
 }
 
-void CShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12RootSignature *pd3dGraphicsRootSignature)
+void CShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	::ZeroMemory(&m_d3dPipelineStateDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 	m_d3dPipelineStateDesc.pRootSignature = pd3dGraphicsRootSignature;
@@ -193,22 +192,22 @@ void CShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12RootSignature *pd3dGr
 	m_d3dPipelineStateDesc.SampleDesc.Count = 1;
 	m_d3dPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
-	HRESULT hResult = pd3dDevice->CreateGraphicsPipelineState(&m_d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void **)&m_pd3dPipelineState);
+	HRESULT hResult = pd3dDevice->CreateGraphicsPipelineState(&m_d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void**)&m_pd3dPipelineState);
 
 	if (m_pd3dVertexShaderBlob) m_pd3dVertexShaderBlob->Release();
 	if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
 
-	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) 
+	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs)
 		delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
 
-void CShader::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int nPipelineState)
+void CShader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState)
 {
 	if (m_pd3dPipelineState)
 		pd3dCommandList->SetPipelineState(m_pd3dPipelineState);
 }
 
-void CShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	OnPrepareRender(pd3dCommandList);
 }
@@ -226,7 +225,7 @@ CTerrainShader::~CTerrainShader()
 D3D12_INPUT_LAYOUT_DESC CTerrainShader::CreateInputLayout()
 {
 	UINT nInputElementDescs = 4;
-	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[1] = { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
@@ -247,14 +246,7 @@ D3D12_SHADER_BYTECODE CTerrainShader::CreateVertexShader()
 
 D3D12_SHADER_BYTECODE CTerrainShader::CreatePixelShader()
 {
-<<<<<<< HEAD
-	if (m_pd3dPipelineState)
-	{
-		pd3dCommandList->SetPipelineState(m_pd3dPipelineState);
-	}
-=======
 	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSTerrain", "ps_5_1", &m_pd3dPixelShaderBlob));
->>>>>>> Player
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -270,7 +262,7 @@ CSkyBoxShader::~CSkyBoxShader()
 D3D12_INPUT_LAYOUT_DESC CSkyBoxShader::CreateInputLayout()
 {
 	UINT nInputElementDescs = 1;
-	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
@@ -349,7 +341,7 @@ D3D12_RASTERIZER_DESC CWireFrameShader::CreateRasterizerState()
 D3D12_INPUT_LAYOUT_DESC CWireFrameShader::CreateInputLayout()
 {
 	UINT nInputElementDescs = 1;
-	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
@@ -383,7 +375,7 @@ CSkinnedAnimationWireFrameShader::~CSkinnedAnimationWireFrameShader()
 D3D12_INPUT_LAYOUT_DESC CSkinnedAnimationWireFrameShader::CreateInputLayout()
 {
 	UINT nInputElementDescs = 3;
-	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[1] = { "BONEINDEX", 0, DXGI_FORMAT_R32G32B32A32_SINT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
@@ -400,7 +392,7 @@ D3D12_RASTERIZER_DESC CSkinnedAnimationWireFrameShader::CreateRasterizerState()
 {
 	D3D12_RASTERIZER_DESC d3dRasterizerDesc;
 	::ZeroMemory(&d3dRasterizerDesc, sizeof(D3D12_RASTERIZER_DESC));
-//	d3dRasterizerDesc.FillMode = D3D12_FILL_MODE_WIREFRAME;
+	//	d3dRasterizerDesc.FillMode = D3D12_FILL_MODE_WIREFRAME;
 	d3dRasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 	d3dRasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
 #ifdef _WITH_LEFT_HAND_COORDINATES
@@ -440,7 +432,7 @@ CSkinnedAnimationObjectsWireFrameShader::~CSkinnedAnimationObjectsWireFrameShade
 {
 }
 
-void CSkinnedAnimationObjectsWireFrameShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CLoadedModelInfo *pModel, void *pContext)
+void CSkinnedAnimationObjectsWireFrameShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, void* pContext)
 {
 }
 
@@ -463,7 +455,7 @@ void CSkinnedAnimationObjectsWireFrameShader::ReleaseUploadBuffers()
 	for (int j = 0; j < m_nObjects; j++) if (m_ppObjects[j]) m_ppObjects[j]->ReleaseUploadBuffers();
 }
 
-void CSkinnedAnimationObjectsWireFrameShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CSkinnedAnimationObjectsWireFrameShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	CSkinnedAnimationWireFrameShader::Render(pd3dCommandList, pCamera);
 
@@ -487,20 +479,20 @@ CAngrybotObjectsShader::~CAngrybotObjectsShader()
 {
 }
 
-void CAngrybotObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CLoadedModelInfo *pModel, void *pContext)
+void CAngrybotObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, void* pContext)
 {
 	int xObjects = 7, zObjects = 7, i = 0;
 
 	m_nObjects = (xObjects * 2 + 1) * (zObjects * 2 + 1);
 
-	m_ppObjects = new CGameObject*[m_nObjects];
+	m_ppObjects = new CGameObject * [m_nObjects];
 
 	float fxPitch = 7.0f * 2.5f;
 	float fzPitch = 7.0f * 2.5f;
 
-	CHeightMapTerrain *pTerrain = (CHeightMapTerrain *)pContext;
+	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)pContext;
 
-	CLoadedModelInfo *pAngrybotModel = pModel;
+	CLoadedModelInfo* pAngrybotModel = pModel;
 	if (!pAngrybotModel) pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL);
 
 	int nObjects = 0;
@@ -512,15 +504,14 @@ void CAngrybotObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12Graphi
 			m_ppObjects[nObjects]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, (nObjects % 2));
 			m_ppObjects[nObjects]->m_pSkinnedAnimationController->SetTrackSpeed(0, (nObjects % 2) ? 0.25f : 1.0f);
 			m_ppObjects[nObjects]->m_pSkinnedAnimationController->SetTrackPosition(0, (nObjects % 3) ? 0.85f : 0.0f);
-			XMFLOAT3 xmf3Position = XMFLOAT3(fxPitch*x + 390.0f, 0.0f, 730.0f + fzPitch * z);
+			XMFLOAT3 xmf3Position = XMFLOAT3(fxPitch * x + 390.0f, 0.0f, 730.0f + fzPitch * z);
 			xmf3Position.y = pTerrain->GetHeight(xmf3Position.x, xmf3Position.z);
 			m_ppObjects[nObjects]->SetPosition(xmf3Position);
 			m_ppObjects[nObjects++]->SetScale(2.0f, 2.0f, 2.0f);
 		}
-    }
+	}
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	if (!pModel && pAngrybotModel) delete pAngrybotModel;
 }
-

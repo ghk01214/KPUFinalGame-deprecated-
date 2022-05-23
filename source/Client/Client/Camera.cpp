@@ -19,7 +19,7 @@ CCamera::CCamera()
 	m_fTimeLag = 0.0f;
 	m_xmf3LookAtWorld = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_nMode = 0x00;
-	m_pPlayer = NULL;
+	m_pPlayer = nullptr;
 }
 
 CCamera::CCamera(CCamera *pCamera)
@@ -45,7 +45,7 @@ CCamera::CCamera(CCamera *pCamera)
 		m_fTimeLag = 0.0f;
 		m_xmf3LookAtWorld = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		m_nMode = 0x00;
-		m_pPlayer = NULL;
+		m_pPlayer = nullptr;
 	}
 }
 
@@ -73,64 +73,8 @@ void CCamera::SetScissorRect(LONG xLeft, LONG yTop, LONG xRight, LONG yBottom)
 
 void CCamera::GenerateProjectionMatrix(float fNearPlaneDistance, float fFarPlaneDistance, float fAspectRatio, float fFOVAngle)
 {
-<<<<<<< HEAD
-	XMMATRIX xmmtxProjection = XMMatrixPerspectiveFovLH(XMConvertToRadians(fFOVAngle), fAspectRatio, fNearPlaneDistance, fFarPlaneDistance);
-	XMStoreFloat4x4(&m_xmf4x4Projection, xmmtxProjection);
-
-#ifdef _WITH_DIERECTX_MATH_FRUSTUM
-	BoundingFrustum::CreateFromMatrix(m_xmFrustumView, xmmtxProjection);
-#endif
-}
-
-void CCamera::CalculateFrustumPlanes()
-{
-#ifdef _WITH_DIERECTX_MATH_FRUSTUM
-	m_xmFrustumView.Transform(m_xmFrustumWorld, XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_xmf4x4View)));
-#else
-	XMFLOAT4X4 mtxViewProjection = Matrix4x4::Multiply(m_xmf4x4View, m_xmf4x4Projection);
-
-	m_pxmf4FrustumPlanes[0].x = -(mtxViewProjection._14 + mtxViewProjection._11);
-	m_pxmf4FrustumPlanes[0].y = -(mtxViewProjection._24 + mtxViewProjection._21);
-	m_pxmf4FrustumPlanes[0].z = -(mtxViewProjection._34 + mtxViewProjection._31);
-	m_pxmf4FrustumPlanes[0].w = -(mtxViewProjection._44 + mtxViewProjection._41);
-
-	m_pxmf4FrustumPlanes[1].x = -(mtxViewProjection._14 - mtxViewProjection._11);
-	m_pxmf4FrustumPlanes[1].y = -(mtxViewProjection._24 - mtxViewProjection._21);
-	m_pxmf4FrustumPlanes[1].z = -(mtxViewProjection._34 - mtxViewProjection._31);
-	m_pxmf4FrustumPlanes[1].w = -(mtxViewProjection._44 - mtxViewProjection._41);
-
-	m_pxmf4FrustumPlanes[2].x = -(mtxViewProjection._14 - mtxViewProjection._12);
-	m_pxmf4FrustumPlanes[2].y = -(mtxViewProjection._24 - mtxViewProjection._22);
-	m_pxmf4FrustumPlanes[2].z = -(mtxViewProjection._34 - mtxViewProjection._32);
-	m_pxmf4FrustumPlanes[2].w = -(mtxViewProjection._44 - mtxViewProjection._42);
-
-	m_pxmf4FrustumPlanes[3].x = -(mtxViewProjection._14 + mtxViewProjection._12);
-	m_pxmf4FrustumPlanes[3].y = -(mtxViewProjection._24 + mtxViewProjection._22);
-	m_pxmf4FrustumPlanes[3].z = -(mtxViewProjection._34 + mtxViewProjection._32);
-	m_pxmf4FrustumPlanes[3].w = -(mtxViewProjection._44 + mtxViewProjection._42);
-
-	m_pxmf4FrustumPlanes[4].x = -(mtxViewProjection._13);
-	m_pxmf4FrustumPlanes[4].y = -(mtxViewProjection._23);
-	m_pxmf4FrustumPlanes[4].z = -(mtxViewProjection._33);
-	m_pxmf4FrustumPlanes[4].w = -(mtxViewProjection._43);
-
-	m_pxmf4FrustumPlanes[5].x = -(mtxViewProjection._14 - mtxViewProjection._13);
-	m_pxmf4FrustumPlanes[5].y = -(mtxViewProjection._24 - mtxViewProjection._23);
-	m_pxmf4FrustumPlanes[5].z = -(mtxViewProjection._34 - mtxViewProjection._33);
-	m_pxmf4FrustumPlanes[5].w = -(mtxViewProjection._44 - mtxViewProjection._43);
-
-	for (int i = 0; i < 6; i++) m_pxmf4FrustumPlanes[i] = Plane::Normalize(m_pxmf4FrustumPlanes[i]);
-#endif
-}
-
-bool CCamera::IsInFrustum(BoundingOrientedBox& xmBoundingBox)
-{
-#ifdef _WITH_DIERECTX_MATH_FRUSTUM
-	return(m_xmFrustumWorld.Intersects(xmBoundingBox));
-=======
 #ifdef _WITH_LEFT_HAND_COORDINATES
 	m_xmf4x4Projection = Matrix4x4::PerspectiveFovLH(XMConvertToRadians(fFOVAngle), fAspectRatio, fNearPlaneDistance, fFarPlaneDistance);
->>>>>>> Player
 #else
 	m_xmf4x4Projection = Matrix4x4::PerspectiveFovRH(XMConvertToRadians(fFOVAngle), fAspectRatio, fNearPlaneDistance, fFarPlaneDistance);
 #endif
@@ -251,11 +195,7 @@ void CSpaceShipCamera::Rotate(float x, float y, float z)
 	}
 }
 
-<<<<<<< HEAD
-CFirstPersonCamera::CFirstPersonCamera(CCamera* pCamera) : CCamera(pCamera)
-=======
 CFirstPersonCamera::CFirstPersonCamera(CCamera *pCamera) : CCamera(pCamera)
->>>>>>> Player
 {
 	m_nMode = FIRST_PERSON_CAMERA;
 	if (pCamera)
@@ -283,7 +223,7 @@ void CFirstPersonCamera::Rotate(float x, float y, float z)
 	if (m_pPlayer && (y != 0.0f))
 	{
 		XMFLOAT3 xmf3Up = m_pPlayer->GetUpVector();
-		XMMATRIX xmmtxRotate = XMMatrixRotationY(XMConvertToRadians(y));
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up), XMConvertToRadians(y));
 		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
 		m_xmf3Up = Vector3::TransformNormal(m_xmf3Up, xmmtxRotate);
 		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
@@ -301,11 +241,7 @@ void CFirstPersonCamera::Rotate(float x, float y, float z)
 	}
 }
 
-<<<<<<< HEAD
-CThirdPersonCamera::CThirdPersonCamera(CCamera* pCamera) : CCamera(pCamera)
-=======
 CThirdPersonCamera::CThirdPersonCamera(CCamera *pCamera) : CCamera(pCamera)
->>>>>>> Player
 {
 	m_nMode = THIRD_PERSON_CAMERA;
 	if (pCamera)

@@ -1,42 +1,52 @@
 ﻿#include "pch.h"
 #include "GameFramework.h"
 
-CGameFramework::CGameFramework() : network_manager(nullptr)
+constexpr int VK_W{ 0x57 };
+constexpr int VK_A{ 0x41 };
+constexpr int VK_D{ 0x44 };
+constexpr int VK_E{ 0x45 };
+constexpr int VK_Q{ 0x51 };
+constexpr int VK_S{ 0x53 };
+
+CGameFramework::CGameFramework() :
+	m_hWnd(nullptr),
+	m_hInstance(nullptr),
+	m_nWndClientWidth(FRAME_BUFFER_WIDTH),
+	m_nWndClientHeight(FRAME_BUFFER_HEIGHT),
+	m_pdxgiFactory(nullptr),
+	m_pdxgiSwapChain(nullptr),
+	m_pd3dDevice(nullptr),
+	m_bMsaa4xEnable(false),
+	m_nMsaa4xQualityLevels(0),
+	m_nSwapChainBufferIndex(0),
+	m_pd3dRtvDescriptorHeap(nullptr),
+	m_nRtvDescriptorIncrementSize(0),
+	m_pd3dDepthStencilBuffer(nullptr),
+	m_pd3dDsvDescriptorHeap(nullptr),
+	m_nDsvDescriptorIncrementSize(0),
+	m_pd3dCommandAllocator(nullptr),
+	m_pd3dCommandQueue(nullptr),
+	m_pd3dCommandList(nullptr),
+	m_hFenceEvent(nullptr),
+	m_pd3dFence(nullptr),
+	m_pScene(nullptr),
+	m_pPlayer(nullptr),
+	m_pCamera(nullptr),
+	network_manager(std::make_unique<CNetwork>(this)),
+	send_timing(0),
+	fps(0.0f)
 {
-	m_pdxgiFactory = NULL;
-	m_pdxgiSwapChain = NULL;
-	m_pd3dDevice = NULL;
+	for (int i = 0; i < m_nSwapChainBuffers; ++i)
+	{
+		m_ppd3dSwapChainBackBuffers[i] = nullptr;
+	}
 
-	for (int i = 0; i < m_nSwapChainBuffers; i++) m_ppd3dSwapChainBackBuffers[i] = NULL;
-	m_nSwapChainBufferIndex = 0;
+	for (int i = 0; i < m_nSwapChainBuffers; ++i)
+	{
+		m_nFenceValues[i] = 0;
+	}
 
-	m_pd3dCommandAllocator = NULL;
-	m_pd3dCommandQueue = NULL;
-	m_pd3dCommandList = NULL;
-
-	m_pd3dRtvDescriptorHeap = NULL;
-	m_pd3dDsvDescriptorHeap = NULL;
-
-	m_nRtvDescriptorIncrementSize = 0;
-	m_nDsvDescriptorIncrementSize = 0;
-
-	m_hFenceEvent = NULL;
-	m_pd3dFence = NULL;
-	for (int i = 0; i < m_nSwapChainBuffers; i++) m_nFenceValues[i] = 0;
-
-	m_nWndClientWidth = FRAME_BUFFER_WIDTH;
-	m_nWndClientHeight = FRAME_BUFFER_HEIGHT;
-
-	m_pScene = NULL;
-	m_pPlayer = NULL;
-
-<<<<<<< HEAD
-	network_manager = std::make_unique<CNetwork>(this);
-
-	_tcscpy_s(m_pszFrameRate, _T("LabProject ("));
-=======
-	_tcscpy_s(m_pszFrameRate, _T("Client")); //프레임 레이트 작성
->>>>>>> Player
+	_tcscpy_s(m_pszFrameRate, L"Client");		 //프레임 레이트 작성
 }
 
 CGameFramework::~CGameFramework()
@@ -54,11 +64,11 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateSwapChain();
 	CreateDepthStencilView();
 
-	CoInitialize(NULL);
+	CoInitialize(nullptr);
 
 	BuildObjects();
 
-	return(true);
+	return true;
 }
 
 void CGameFramework::CreateSwapChain()
@@ -91,7 +101,7 @@ void CGameFramework::CreateSwapChain()
 	dxgiSwapChainFullScreenDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 	dxgiSwapChainFullScreenDesc.Windowed = TRUE;
 
-	HRESULT hResult = m_pdxgiFactory->CreateSwapChainForHwnd(m_pd3dCommandQueue, m_hWnd, &dxgiSwapChainDesc, &dxgiSwapChainFullScreenDesc, NULL, (IDXGISwapChain1 **)&m_pdxgiSwapChain);
+	HRESULT hResult = m_pdxgiFactory->CreateSwapChainForHwnd(m_pd3dCommandQueue, m_hWnd, &dxgiSwapChainDesc, &dxgiSwapChainFullScreenDesc, NULL, (IDXGISwapChain1**)&m_pdxgiSwapChain);
 #else
 	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
 	::ZeroMemory(&dxgiSwapChainDesc, sizeof(dxgiSwapChainDesc));
@@ -125,15 +135,9 @@ void CGameFramework::CreateDirect3DDevice()
 	HRESULT hResult;
 
 	UINT nDXGIFactoryFlags = 0;
-<<<<<<< HEAD
-#ifndef _DEBUG
-	ID3D12Debug* pd3dDebugController = nullptr;
-	hResult = D3D12GetDebugInterface(__uuidof(ID3D12Debug), (void**)&pd3dDebugController);
-=======
-#if defined(_DEBUG)
-	ID3D12Debug *pd3dDebugController = NULL;
-	hResult = D3D12GetDebugInterface(__uuidof(ID3D12Debug), (void **)&pd3dDebugController);
->>>>>>> Player
+#ifdef _DEBUG
+	ID3D12Debug* pd3dDebugController = NULL;
+	hResult = D3D12GetDebugInterface(__uuidof(ID3D12Debug), reinterpret_cast<void**>(&pd3dDebugController));
 	if (pd3dDebugController)
 	{
 		pd3dDebugController->EnableDebugLayer();
@@ -142,22 +146,22 @@ void CGameFramework::CreateDirect3DDevice()
 	nDXGIFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 #endif
 
-	hResult = ::CreateDXGIFactory2(nDXGIFactoryFlags, __uuidof(IDXGIFactory4), (void **)&m_pdxgiFactory);
+	hResult = ::CreateDXGIFactory2(nDXGIFactoryFlags, __uuidof(IDXGIFactory4), reinterpret_cast<void**>(&m_pdxgiFactory));
 
-	IDXGIAdapter1 *pd3dAdapter = NULL;
+	IDXGIAdapter1* pd3dAdapter = NULL;
 
 	for (UINT i = 0; DXGI_ERROR_NOT_FOUND != m_pdxgiFactory->EnumAdapters1(i, &pd3dAdapter); i++)
 	{
 		DXGI_ADAPTER_DESC1 dxgiAdapterDesc;
 		pd3dAdapter->GetDesc1(&dxgiAdapterDesc);
 		if (dxgiAdapterDesc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) continue;
-		if (SUCCEEDED(D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), (void **)&m_pd3dDevice))) break;
+		if (SUCCEEDED(D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), reinterpret_cast<void**>(&m_pd3dDevice)))) break;
 	}
 
 	if (!pd3dAdapter)
 	{
-		m_pdxgiFactory->EnumWarpAdapter(_uuidof(IDXGIFactory4), (void **)&pd3dAdapter);
-		hResult = D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), (void **)&m_pd3dDevice);
+		m_pdxgiFactory->EnumWarpAdapter(_uuidof(IDXGIFactory4), reinterpret_cast<void**>(&pd3dAdapter));
+		hResult = D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), reinterpret_cast<void**>(&m_pd3dDevice));
 	}
 
 	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS d3dMsaaQualityLevels;
@@ -169,8 +173,8 @@ void CGameFramework::CreateDirect3DDevice()
 	m_nMsaa4xQualityLevels = d3dMsaaQualityLevels.NumQualityLevels;
 	m_bMsaa4xEnable = (m_nMsaa4xQualityLevels > 1) ? true : false;
 
-	hResult = m_pd3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), (void **)&m_pd3dFence);
-	for (UINT i = 0; i < m_nSwapChainBuffers; i++) m_nFenceValues[i] = 0;
+	hResult = m_pd3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), reinterpret_cast<void**>(&m_pd3dFence));
+	for (UINT i = 0; i < m_nSwapChainBuffers; ++i) m_nFenceValues[i] = 0;
 
 	m_hFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
 
@@ -185,11 +189,11 @@ void CGameFramework::CreateCommandQueueAndList()
 	::ZeroMemory(&d3dCommandQueueDesc, sizeof(D3D12_COMMAND_QUEUE_DESC));
 	d3dCommandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	d3dCommandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-	hResult = m_pd3dDevice->CreateCommandQueue(&d3dCommandQueueDesc, _uuidof(ID3D12CommandQueue), (void **)&m_pd3dCommandQueue);
+	hResult = m_pd3dDevice->CreateCommandQueue(&d3dCommandQueueDesc, _uuidof(ID3D12CommandQueue), reinterpret_cast<void**>(&m_pd3dCommandQueue));
 
-	hResult = m_pd3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), (void **)&m_pd3dCommandAllocator);
+	hResult = m_pd3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), reinterpret_cast<void**>(&m_pd3dCommandAllocator));
 
-	hResult = m_pd3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pd3dCommandAllocator, NULL, __uuidof(ID3D12GraphicsCommandList), (void **)&m_pd3dCommandList);
+	hResult = m_pd3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pd3dCommandAllocator, NULL, __uuidof(ID3D12GraphicsCommandList), reinterpret_cast<void**>(&m_pd3dCommandList));
 	hResult = m_pd3dCommandList->Close();
 }
 
@@ -201,12 +205,12 @@ void CGameFramework::CreateRtvAndDsvDescriptorHeaps()
 	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	d3dDescriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	d3dDescriptorHeapDesc.NodeMask = 0;
-	HRESULT hResult = m_pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void **)&m_pd3dRtvDescriptorHeap);
+	HRESULT hResult = m_pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), reinterpret_cast<void**>(&m_pd3dRtvDescriptorHeap));
 	m_nRtvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
 	d3dDescriptorHeapDesc.NumDescriptors = 1;
 	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-	hResult = m_pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void **)&m_pd3dDsvDescriptorHeap);
+	hResult = m_pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), reinterpret_cast<void**>(&m_pd3dDsvDescriptorHeap));
 	m_nDsvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 
 	::gnCbvSrvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -217,7 +221,7 @@ void CGameFramework::CreateRenderTargetViews()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	for (UINT i = 0; i < m_nSwapChainBuffers; i++)
 	{
-		m_pdxgiSwapChain->GetBuffer(i, __uuidof(ID3D12Resource), (void **)&m_ppd3dSwapChainBackBuffers[i]);
+		m_pdxgiSwapChain->GetBuffer(i, __uuidof(ID3D12Resource), reinterpret_cast<void**>(&m_ppd3dSwapChainBackBuffers[i]));
 		m_pd3dDevice->CreateRenderTargetView(m_ppd3dSwapChainBackBuffers[i], NULL, d3dRtvCPUDescriptorHandle);
 		d3dRtvCPUDescriptorHandle.ptr += m_nRtvDescriptorIncrementSize;
 	}
@@ -251,7 +255,7 @@ void CGameFramework::CreateDepthStencilView()
 	d3dClearValue.DepthStencil.Depth = 1.0f;
 	d3dClearValue.DepthStencil.Stencil = 0;
 
-	m_pd3dDevice->CreateCommittedResource(&d3dHeapProperties, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &d3dClearValue, __uuidof(ID3D12Resource), (void **)&m_pd3dDepthStencilBuffer);
+	m_pd3dDevice->CreateCommittedResource(&d3dHeapProperties, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &d3dClearValue, __uuidof(ID3D12Resource), reinterpret_cast<void**>(&m_pd3dDepthStencilBuffer));
 
 	D3D12_DEPTH_STENCIL_VIEW_DESC d3dDepthStencilViewDesc;
 	::ZeroMemory(&d3dDepthStencilViewDesc, sizeof(D3D12_DEPTH_STENCIL_VIEW_DESC));
@@ -297,48 +301,18 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	if (m_pScene) m_pScene->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 	switch (nMessageID)
 	{
-<<<<<<< HEAD
 	case WM_LBUTTONDOWN:
-	{
-		if (GetCapture() != hWnd)
-		{
-			::SetCapture(hWnd);
-			::GetCursorPos(&m_ptOldCursorPos);
-		}
-		else if (m_pPlayer->GetAttackMode() == ATTACK_MODE::SHOT)		// 단발 모드이면서 쏘지 않았을 경우
-		{
-			//network_manager->SendPlayerAttackPacket(m_pPlayer->GetAttackMode());
-			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->Attack();
-		}
-	}
-	break;
+	case WM_RBUTTONDOWN:
+		::SetCapture(hWnd);
+		::GetCursorPos(&m_ptOldCursorPos);
+		break;
 	case WM_LBUTTONUP:
-	{
-		//::ReleaseCapture();		게임에서 마우스 놓는것
-	}
-	break;
+	case WM_RBUTTONUP:
+		break;
 	case WM_MOUSEMOVE:
 		break;
 	default:
 		break;
-=======
-		case WM_LBUTTONDOWN:
-			::SetCapture(hWnd);
-			::GetCursorPos(&m_ptOldCursorPos);
-			((CTerrainPlayer*)m_pPlayer)->Attack();
-			break;
-		case WM_RBUTTONDOWN:
-			::SetCapture(hWnd);
-			::GetCursorPos(&m_ptOldCursorPos);
-			break;
-		case WM_LBUTTONUP:
-		case WM_RBUTTONUP:
-			break;
-		case WM_MOUSEMOVE:
-			break;
-		default:
-			break;
->>>>>>> Player
 	}
 }
 
@@ -347,51 +321,30 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 	if (m_pScene) m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 	switch (nMessageID)
 	{
-<<<<<<< HEAD
 	case WM_KEYUP:
 		switch (wParam)
 		{
-		case VK_SPACE:
-			//dynamic_cast<CTerrainPlayer*>(m_pPlayer)->Attack();
-			break;
 		case VK_ESCAPE:
 			::PostQuitMessage(0);
 			break;
 		case VK_RETURN:
 			break;
+		case VK_F1:
+		case VK_F2:
+			::ReleaseCapture();
+			break;
 		case VK_F3:
-			::ReleaseCapture(); //마우스 커서 사용시
+			m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
 			break;
 		case VK_F9:
-			ChangeSwapChainState(); //전체 화면
-=======
-		case WM_KEYUP:
-			switch (wParam)
-			{
-			case VK_SPACE:
-				break;
-			case VK_ESCAPE:
-				::PostQuitMessage(0);
-				break;
-			case VK_RETURN:
-				break;
-			case VK_F1:
-			case VK_F2:
-				//::ReleaseCapture();
-				break;
-			case VK_F3:
-				m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
-				break;
-			case VK_F9:
-				ChangeSwapChainState();
-				break;
-			default:
-				break;
-			}
->>>>>>> Player
+			ChangeSwapChainState();
 			break;
 		default:
 			break;
+		}
+		break;
+	default:
+		break;
 	}
 }
 
@@ -399,41 +352,48 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 {
 	switch (nMessageID)
 	{
-		case WM_ACTIVATE:
-		{
-			if (LOWORD(wParam) == WA_INACTIVE)
-				m_GameTimer.Stop();
-			else
-				m_GameTimer.Start();
-			break;
-		}
-		case WM_SIZE:
-			break;
-		case WM_LBUTTONDOWN:
-        case WM_RBUTTONDOWN:
-        case WM_LBUTTONUP:
-        case WM_RBUTTONUP:
-        case WM_MOUSEMOVE:
-			OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
-            break;
-        case WM_KEYDOWN:
-        case WM_KEYUP:
-			OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
-			break;
+	case WM_ACTIVATE:
+	{
+		if (LOWORD(wParam) == WA_INACTIVE)
+			m_GameTimer.Stop();
+		else
+			m_GameTimer.Start();
+		break;
+	}
+	case WM_SIZE:
+		break;
+	case WM_LBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+	case WM_MOUSEMOVE:
+		OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
+		break;
+	case WM_KEYDOWN:
+	case WM_KEYUP:
+		OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+		break;
 	}
 	return(0);
 }
 
 void CGameFramework::OnDestroy()
 {
-    ReleaseObjects();
+	ReleaseObjects();
 
 	::CloseHandle(m_hFenceEvent);
 
 	if (m_pd3dDepthStencilBuffer) m_pd3dDepthStencilBuffer->Release();
 	if (m_pd3dDsvDescriptorHeap) m_pd3dDsvDescriptorHeap->Release();
 
-	for (int i = 0; i < m_nSwapChainBuffers; i++) if (m_ppd3dSwapChainBackBuffers[i]) m_ppd3dSwapChainBackBuffers[i]->Release();
+	for (int i = 0; i < m_nSwapChainBuffers; ++i)
+	{
+		if (m_ppd3dSwapChainBackBuffers[i])
+		{
+			m_ppd3dSwapChainBackBuffers[i]->Release();
+		}
+	}
+
 	if (m_pd3dRtvDescriptorHeap) m_pd3dRtvDescriptorHeap->Release();
 
 	if (m_pd3dCommandAllocator) m_pd3dCommandAllocator->Release();
@@ -442,32 +402,39 @@ void CGameFramework::OnDestroy()
 
 	if (m_pd3dFence) m_pd3dFence->Release();
 
-	m_pdxgiSwapChain->SetFullscreenState(FALSE, NULL);
+	m_pdxgiSwapChain->SetFullscreenState(FALSE, nullptr);
 	if (m_pdxgiSwapChain) m_pdxgiSwapChain->Release();
-    if (m_pd3dDevice) m_pd3dDevice->Release();
+	if (m_pd3dDevice) m_pd3dDevice->Release();
 	if (m_pdxgiFactory) m_pdxgiFactory->Release();
 
-<<<<<<< HEAD
 	if (network_manager)
 	{
 		network_manager.release();
 	}
 
-#ifndef _DEBUG
-	if (m_pd3dDebugController) m_pd3dDebugController->Release();
+#ifdef _DEBUG
+	IDXGIDebug1* pdxgiDebug{ nullptr };
+	DXGIGetDebugInterface1(0, __uuidof(IDXGIDebug1), reinterpret_cast<void**>(&pdxgiDebug));
+	HRESULT hResult = pdxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_DETAIL);
+	pdxgiDebug->Release();
 #endif
 }
 
-void CGameFramework::AddPlayer(SC::PACKET::ADD_PLAYER* packet)
-{
-	CTerrainPlayer* pAirplanePlayer{ new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList,
-	m_pScene->GetGraphicsRootSignature(), m_pScene->GetTerrain(), 1) };
+#define _WITH_TERRAIN_PLAYER
 
+void CGameFramework::AddPlayer(SC::PACKET::ADD_OBJECT* packet)
+{
 	if (!packet)
 	{
-		m_pPlayer = pAirplanePlayer;
+		for (int i = -1; i >= -4; --i)
+		{
+			CTerrainPlayer* pPlayer{ new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->m_pTerrain) };
+
+			players.emplace(i, pPlayer);
+		}
+
+		m_pScene->m_pPlayer = m_pPlayer = (*players.begin()).second;
 		m_pCamera = m_pPlayer->GetCamera();
-		m_pScene->m_pPlayer = m_pPlayer;
 	}
 	else
 	{
@@ -477,87 +444,37 @@ void CGameFramework::AddPlayer(SC::PACKET::ADD_PLAYER* packet)
 
 		XMFLOAT3 temp{ x, y, z };
 
-		pAirplanePlayer->SetPosition(temp);
-		pAirplanePlayer->SetCamera(pAirplanePlayer->ChangeCamera(SPACESHIP_CAMERA, 0.0f));
+		auto player{ players.extract(players.begin()) };
+		player.key() = packet->id;
+		players.insert(std::move(player));
 
-		m_pScene->players.emplace(packet->id, pAirplanePlayer);
-
-		// 추가 플레이어 접속 여부를 오브젝트 색상 변경으로 확인
-		for (int i = 0; i < 8; ++i)
-		{
-			m_pScene->GetObjects(i)->SetColor(XMFLOAT3(0.2f, 0.0f, 0.0f));
-		}
-=======
-#if defined(_DEBUG)
-	IDXGIDebug1	*pdxgiDebug = NULL;
-	DXGIGetDebugInterface1(0, __uuidof(IDXGIDebug1), (void **)&pdxgiDebug);
-	HRESULT hResult = pdxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_DETAIL);
-	pdxgiDebug->Release();
-#endif
-}
-
-#define _WITH_TERRAIN_PLAYER
-
-void CGameFramework::AddPlayer(unsigned short id, short x, short y, short z)
-{
-	if (id == 2)
-	{
-		CTerrainPlayer* pPlayer2 = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->m_pTerrain);
-		m_pPlayer2 = pPlayer2;
-		m_pPlayer2->SetPosition(XMFLOAT3(x, y, z));
-	}
-	if (id == 3)
-	{
-		CTerrainPlayer* pPlayer3 = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->m_pTerrain);
-		m_pPlayer3 = pPlayer3;
-		m_pPlayer3->SetPosition(XMFLOAT3(x, y, z));
-	}
-	if (id == 4)
-	{
-		CTerrainPlayer* pPlayer4 = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->m_pTerrain);
-		m_pPlayer4 = pPlayer4;
-		m_pPlayer4->SetPosition(XMFLOAT3(x, y, z));
->>>>>>> Player
+		players[packet->id]->SetPosition(temp);
+		players[packet->id]->SetLookVector(XMFLOAT3{ packet->look_x, packet->look_y, packet->look_z });
+		players[packet->id]->SetRightVector(XMFLOAT3{ packet->right_x, packet->right_y, packet->right_z });
+		players[packet->id]->SetUpVector(XMFLOAT3{ packet->up_x, packet->up_y, packet->up_z });
 	}
 }
 
 void CGameFramework::BuildObjects()
 {
-	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
+	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, nullptr);
 
 	m_pScene = new CScene();
-<<<<<<< HEAD
 
-=======
->>>>>>> Player
 	if (m_pScene)
 	{
 		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 	}
-<<<<<<< HEAD
 
 	AddPlayer();
 
 	m_pd3dCommandList->Close();
-	ID3D12CommandList* ppd3dCommandLists[]{ m_pd3dCommandList };
-=======
-	CTerrainPlayer *pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->m_pTerrain);
-	
-	m_pScene->m_pPlayer = m_pPlayer = pPlayer;
-	m_pCamera = m_pPlayer->GetCamera();
-	//AddPlayer(2, 100, 300, 100);
-	//AddPlayer(3, 200, 300, 100);
-	//AddPlayer(4, 300, 300, 100);
-
-	m_pd3dCommandList->Close();
-	ID3D12CommandList *ppd3dCommandLists[] = { m_pd3dCommandList };
->>>>>>> Player
+	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
 	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 
 	WaitForGpuComplete();
 
 	if (m_pScene)
-<<<<<<< HEAD
 	{
 		m_pScene->ReleaseUploadBuffers();
 	}
@@ -567,25 +484,19 @@ void CGameFramework::BuildObjects()
 		m_pPlayer->ReleaseUploadBuffers();
 	}
 
-=======
-		m_pScene->ReleaseUploadBuffers();
-
-	if (m_pPlayer)
-		m_pPlayer->ReleaseUploadBuffers();
-	if (m_pPlayer2)
-		m_pPlayer2->ReleaseUploadBuffers();
-	if (m_pPlayer3)
-		m_pPlayer3->ReleaseUploadBuffers();
-	if (m_pPlayer4)
-		m_pPlayer4->ReleaseUploadBuffers();
-	
->>>>>>> Player
 	m_GameTimer.Reset();
 }
 
 void CGameFramework::ReleaseObjects()
 {
-	if (m_pPlayer) m_pPlayer->Release();
+	//if (m_pPlayer) m_pPlayer->Release();
+	if (!players.empty())
+	{
+		for (auto& play : players)
+		{
+			play.second->Release();
+		}
+	}
 
 	if (m_pScene) m_pScene->ReleaseObjects();
 	if (m_pScene) delete m_pScene;
@@ -594,13 +505,18 @@ void CGameFramework::ReleaseObjects()
 void CGameFramework::ProcessInput()
 {
 	static UCHAR pKeysBuffer[256];
-<<<<<<< HEAD
-	static DWORD old_direction{ 0 };		// 추후 데드레커닝 기법을 이용하기 위한 변수
-	DWORD dwDirection = 0;
-	DWORD left_click = 0;
+	bool bProcessedByScene{ false };
 
-	if (::GetKeyboardState(pKeysBuffer))
+	if (GetKeyboardState(pKeysBuffer) && m_pScene)
 	{
+		bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
+	}
+
+	if (!bProcessedByScene)
+	{
+		DWORD dwDirection{ 0 };
+		DWORD left_click{ 0 };
+
 		if (pKeysBuffer[VK_W] & 0xF0)
 			dwDirection |= KEYINPUT::FORWARD;
 		if (pKeysBuffer[VK_S] & 0xF0)
@@ -615,100 +531,65 @@ void CGameFramework::ProcessInput()
 			dwDirection |= KEYINPUT::DOWN;
 		if (pKeysBuffer[VK_LBUTTON] & 0xF0)
 			left_click |= VK_LBUTTON;
-	}
-
-	float cxDelta = 0.0f, cyDelta = 0.0f;
-	if (GetCapture() == m_hWnd)
-=======
-	bool bProcessedByScene = false;
-	if (GetKeyboardState(pKeysBuffer) && m_pScene) bProcessedByScene = m_pScene->ProcessInput(pKeysBuffer);
-	if (!bProcessedByScene)
->>>>>>> Player
-	{
-		DWORD dwDirection = 0;
-		if (pKeysBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;
-		if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;
-		if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;
-		if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;
-		if (pKeysBuffer[VK_PRIOR] & 0xF0) dwDirection |= DIR_UP;
-		if (pKeysBuffer[VK_NEXT] & 0xF0) dwDirection |= DIR_DOWN;
 
 		float cxDelta = 0.0f, cyDelta = 0.0f;
 		POINT ptCursorPos;
 		if (GetCapture() == m_hWnd)
 		{
-			SetCursor(NULL);
+			SetCursor(nullptr);
 			GetCursorPos(&ptCursorPos);
-			cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
-			cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
-			SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);																					
+			cxDelta = static_cast<float>(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
+			cyDelta = static_cast<float>(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
+			SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
 		}
 
-		if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
+		// 1초에 이동 패킷을 30번 보낸다
+		if (send_timing >= fps / 30.0f)
 		{
-			if (cxDelta || cyDelta)
+			if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
 			{
-				if (pKeysBuffer[VK_RBUTTON] & 0xF0)
-					m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
-				else
-					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
-			}
-			if (dwDirection) m_pPlayer->Move(dwDirection, 2.25f, true);
-		}
-<<<<<<< HEAD
-		if (dwDirection)
-		{
-			//m_pPlayer->Move(dwDirection, m_GameTimer.GetTimeElapsed(), true);
-			network_manager->SendMovePlayerPacket(dwDirection, m_pPlayer->GetLookVector().x, m_pPlayer->GetLookVector().z,
-				m_pPlayer->GetRightVector().x, m_pPlayer->GetRightVector().z);
+				if (cxDelta || cyDelta)
+				{
+					if (pKeysBuffer[VK_RBUTTON] & 0xF0)
+					{
+						m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
+						network_manager->SendRotateObjectPacket(0.0f);
+						
+					}
+					else
+					{
+						m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+						network_manager->SendRotateObjectPacket(cxDelta);
+					}
+				}
+				if (dwDirection)
+				{
+					//m_pPlayer->Move(dwDirection, 2.25f, true);
 
-			//old_direction = dwDirection;
+					network_manager->SendMoveObjectPacket(dwDirection, m_pPlayer->GetLookVector().x, m_pPlayer->GetLookVector().z,
+						m_pPlayer->GetRightVector().x, m_pPlayer->GetRightVector().z);
+				}
+			}
+
+			send_timing = 0;
 		}
-		if (left_click && m_pPlayer->GetAttackMode() == ATTACK_MODE::BURST)
-		{
-			dynamic_cast<CTerrainPlayer*>(m_pPlayer)->Attack();
-		}
-=======
->>>>>>> Player
 	}
+
 	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
 }
 
 void CGameFramework::AnimateObjects()
 {
-<<<<<<< HEAD
-	if (m_pScene)
-		m_pScene->AnimateObjects(m_GameTimer.GetTimeElapsed());
-}
-
-void CGameFramework::CreateShaderVariables()
-{
-}
-
-void CGameFramework::ReleaseShaderVariables()
-{
-}
-
-void CGameFramework::UpdateShaderVariables()
-{
-	float fCurrentTime = m_GameTimer.GetTotalTime();
-	float fElapsedTime = m_GameTimer.GetTimeElapsed();
-
-	m_pd3dCommandList->SetGraphicsRoot32BitConstants(0, 1, &fCurrentTime, 0);
-	m_pd3dCommandList->SetGraphicsRoot32BitConstants(0, 1, &fElapsedTime, 1);
-=======
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
->>>>>>> Player
 
 	if (m_pScene) m_pScene->AnimateObjects(fTimeElapsed);
 
-	m_pPlayer->Animate(fTimeElapsed);
-	if (m_pPlayer2 != NULL)
-		m_pPlayer2->Animate(fTimeElapsed);
-	if (m_pPlayer3 != NULL)
-		m_pPlayer3->Animate(fTimeElapsed);
-	if (m_pPlayer4 != NULL)
-		m_pPlayer4->Animate(fTimeElapsed);
+	//m_pPlayer->Animate(fTimeElapsed);
+
+	for (auto& play : players)
+	{
+		play.second->Animate(fTimeElapsed);
+	}
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -739,13 +620,15 @@ void CGameFramework::MoveToNextFrame()
 
 void CGameFramework::FrameAdvance()
 {
-	m_GameTimer.Tick(0.0f);
+	m_GameTimer.Tick(fps);
+
+	++send_timing;
 
 	ProcessInput();
 	AnimateObjects();
 
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
-	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
+	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, nullptr);
 
 	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
 	::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
@@ -761,72 +644,32 @@ void CGameFramework::FrameAdvance()
 	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
 
 	float pfClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f };
-<<<<<<< HEAD
-	m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor, 0, nullptr);
+	m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, nullptr);
 
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
 	if (m_pScene)
 	{
 		m_pScene->Render(m_pd3dCommandList, m_pCamera);
-
-		if (!m_pScene->players.empty())
-		{
-			for (auto& player : m_pScene->players)
-			{
-				player.second->Render(m_pd3dCommandList, player.second->GetCamera());
-			}
-		}
 	}
-=======
-	m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, NULL);
-
-	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
-
-	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
-
-
-
-	if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
->>>>>>> Player
 
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif
-<<<<<<< HEAD
-	//if (m_pPlayer) m_pPlayer->Render(m_pd3dCommandList, m_pCamera);
-=======
-	///////////////////////////////////////////////////////////////////////////////
-
-
-	///////////////////////////////////////////////////////////////////////////////////
-
-
-	if (m_pPlayer)
+	//if (m_pPlayer)
+	//{
+	//	m_pPlayer->Render(m_pd3dCommandList, m_pCamera);
+	//}
+	if (!players.empty())
 	{
-		for (int i = 0; i < m_pPlayer->GetBulletNum(); i++)
+		for (auto& player : players)
 		{
-			m_pPlayer->MoveBullet();
+			player.second->Render(m_pd3dCommandList, m_pCamera);
 		}
 	}
-	if (m_pPlayer)
-	{
-		for (int i = 0; i < m_pPlayer->GetBulletNum(); i++)
-		{
-			m_pPlayer->GetBullet()[i]->UpdateTransform(NULL);
- 			m_pPlayer->GetBullet()[i]->Render(m_pd3dCommandList, m_pCamera);
-		}
-	}
-	if (m_pPlayer2)
-		m_pPlayer2->Render(m_pd3dCommandList, m_pCamera);
-	if (m_pPlayer3)
-		m_pPlayer3->Render(m_pd3dCommandList, m_pCamera);
-	if (m_pPlayer4)
-		m_pPlayer4->Render(m_pd3dCommandList, m_pCamera);
->>>>>>> Player
 
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
@@ -834,8 +677,8 @@ void CGameFramework::FrameAdvance()
 	m_pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);
 
 	hResult = m_pd3dCommandList->Close();
-	
-	ID3D12CommandList *ppd3dCommandLists[] = { m_pd3dCommandList };
+
+	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
 	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 
 	WaitForGpuComplete();
@@ -860,6 +703,6 @@ void CGameFramework::FrameAdvance()
 	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
 	size_t nLength = _tcslen(m_pszFrameRate);
 	XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
-	_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
+	_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, L"(%4f, %4f, %4f)", xmf3Position.x, xmf3Position.y, xmf3Position.z);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
-}
+	}

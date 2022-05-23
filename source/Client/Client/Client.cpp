@@ -1,32 +1,25 @@
-﻿
-#include "pch.h"
+﻿#include "pch.h"
 #include "Client.h"
 #include "GameFramework.h"
 
 #define MAX_LOADSTRING 100
 
-#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
-
-HINSTANCE						ghAppInstance;
+HINSTANCE						hInst;
 TCHAR							szTitle[MAX_LOADSTRING];
 TCHAR							szWindowClass[MAX_LOADSTRING];
 
-<<<<<<< HEAD
-ATOM                MyRegisterClass(HINSTANCE hInstance);
-BOOL                InitInstance(HINSTANCE, int);
-LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
-LRESULT CALLBACK	DlgProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
-=======
 CGameFramework					gGameFramework;
->>>>>>> Player
 
-ATOM MyRegisterClass(HINSTANCE hInstance);
-BOOL InitInstance(HINSTANCE, int);
+ATOM			 MyRegisterClass(HINSTANCE hInstance);
+BOOL			 InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 
-int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
+int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
+					_In_opt_ HINSTANCE hPrevInstance,
+					_In_ LPWSTR    lpCmdLine,
+					_In_ int       nCmdShow)
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
@@ -34,23 +27,26 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	MSG msg;
 	HACCEL hAccelTable;
 
-	::LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-	::LoadString(hInstance, IDC_CLIENT, szWindowClass, MAX_LOADSTRING);
+	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+	LoadString(hInstance, IDC_CLIENT, szWindowClass, MAX_LOADSTRING);
 	MyRegisterClass(hInstance);
 
 	if (!InitInstance(hInstance, nCmdShow)) return(FALSE);
 
-	hAccelTable = ::LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CLIENT));
+	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CLIENT));
 
-	while (1)
+	while (true)
 	{
-		if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
-			if (msg.message == WM_QUIT) break;
-			if (!::TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+			if (msg.message == WM_QUIT)
 			{
-				::TranslateMessage(&msg);
-				::DispatchMessage(&msg);
+				break;
+			}
+			if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
 			}
 		}
 		else
@@ -58,9 +54,10 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 			gGameFramework.FrameAdvance();
 		}
 	}
+
 	gGameFramework.OnDestroy();
 
-	return((int)msg.wParam);
+	return (int)msg.wParam;
 }
 
 ATOM MyRegisterClass(HINSTANCE hInstance)
@@ -69,68 +66,53 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
 
-	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = WndProc;
-	wcex.cbClsExtra = 0;
-	wcex.cbWndExtra = 0;
-	wcex.hInstance = hInstance;
-	wcex.hIcon = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_CLIENT));
-	wcex.hCursor = ::LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wcex.lpszMenuName = NULL;
-	wcex.lpszClassName = szWindowClass;
-	wcex.hIconSm = ::LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+	wcex.style			 = CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc	 = WndProc;
+	wcex.cbClsExtra		 = 0;
+	wcex.cbWndExtra		 = 0;
+	wcex.hInstance		 = hInstance;
+	wcex.hIcon			 = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_CLIENT));
+	wcex.hCursor		 = LoadCursor(NULL, IDC_ARROW);
+	wcex.hbrBackground	 = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.lpszMenuName	 = NULL;
+	wcex.lpszClassName	 = szWindowClass;
+	wcex.hIconSm		 = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
-	return ::RegisterClassEx(&wcex);
+	return RegisterClassExW(&wcex);
 }
 
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-	ghAppInstance = hInstance;
+	hInst = hInstance;
 
-	RECT rc = { 0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT };
-	DWORD dwStyle = WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER;
-	AdjustWindowRect(&rc, dwStyle, FALSE);
-	HWND hMainWnd = CreateWindow(szWindowClass, szTitle, dwStyle, CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, hInstance, NULL);
+	HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER,
+		CW_USEDEFAULT, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, nullptr, nullptr, hInstance, nullptr);
 
-	if (!hMainWnd) return(FALSE);
+	if (!hWnd)
+	{
+		return FALSE;
+	}
 
-<<<<<<< HEAD
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
-=======
-	gGameFramework.OnCreate(hInstance, hMainWnd);
+	ShowWindow(hWnd, nCmdShow);
+	UpdateWindow(hWnd);
 
-	::ShowWindow(hMainWnd, nCmdShow);
-	::UpdateWindow(hMainWnd);
->>>>>>> Player
-
-	return(TRUE);
+	return TRUE;
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-<<<<<<< HEAD
-    switch (message)
-    {
+	switch (message)
+	{
 	case WM_CREATE:
 	{
-		DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG1), hWnd, DlgProc);
-		//SERVER_ADDR = L"127.0.0.1";
+		//DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG1), hWnd, DlgProc);
+		SERVER_ADDR = L"127.0.0.1";
 		gGameFramework.ConnectToServer();
 		gGameFramework.Login();
 		gGameFramework.OnCreate(hInst, hWnd);
 		gGameFramework.RecvData();
 	}
 	break;
-=======
-	int wmId, wmEvent;
-	PAINTSTRUCT ps;
-	HDC hdc;
-
-	switch (message)
-	{
->>>>>>> Player
 	case WM_SIZE:
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:
@@ -139,32 +121,38 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEMOVE:
 	case WM_KEYDOWN:
 	case WM_KEYUP:
+	{
 		gGameFramework.OnProcessingWindowMessage(hWnd, message, wParam, lParam);
-		break;
+	}
+	break;
 	case WM_COMMAND:
-		wmId = LOWORD(wParam);
-		wmEvent = HIWORD(wParam);
+	{
+		int wmId = LOWORD(wParam);
 		switch (wmId)
 		{
 		case IDM_ABOUT:
-			::DialogBox(ghAppInstance, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
 			break;
 		case IDM_EXIT:
-			::DestroyWindow(hWnd);
+			DestroyWindow(hWnd);
 			break;
 		default:
-			return(::DefWindowProc(hWnd, message, wParam, lParam));
+			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
-		break;
+	}
+	break;
 	case WM_PAINT:
-		hdc = ::BeginPaint(hWnd, &ps);
+	{
+		PAINTSTRUCT ps;
+		HDC hdc = BeginPaint(hWnd, &ps);
 		EndPaint(hWnd, &ps);
-		break;
+	}
+	break;
 	case WM_DESTROY:
-		::PostQuitMessage(0);
+		PostQuitMessage(0);
 		break;
 	default:
-		return(::DefWindowProc(hWnd, message, wParam, lParam));
+		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
 }
@@ -183,7 +171,7 @@ LRESULT CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			SERVER_ADDR.resize(20);
 
-			GetDlgItemText(hDlg, IDC_IPADDRESS1, const_cast<wchar_t*>(SERVER_ADDR.data()), SERVER_ADDR.length());
+			//GetDlgItemText(hDlg, IDC_IPADDRESS1, const_cast<wchar_t*>(SERVER_ADDR.data()), SERVER_ADDR.length());
 			SERVER_ADDR.shrink_to_fit();
 
 			EndDialog(hDlg, LOWORD(wParam));

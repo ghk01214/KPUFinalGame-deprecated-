@@ -1,39 +1,32 @@
 ﻿#pragma once
 
-#define DIR_FORWARD				0x01
-#define DIR_BACKWARD			0x02
-#define DIR_LEFT				0x04
-#define DIR_RIGHT				0x08
-#define DIR_UP					0x10
-#define DIR_DOWN				0x20
-
 #include "Object.h"
 #include "Camera.h"
 
 class CPlayer : public CGameObject
 {
 protected:
-	XMFLOAT3					m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	XMFLOAT3					m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	XMFLOAT3					m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	XMFLOAT3					m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	XMFLOAT3					m_xmf3Position;
+	XMFLOAT3					m_xmf3Right;
+	XMFLOAT3					m_xmf3Up;
+	XMFLOAT3					m_xmf3Look;
 
-	XMFLOAT3					m_xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	XMFLOAT3					m_xmf3Scale;
 
-	float           			m_fPitch = 0.0f;
-	float           			m_fYaw = 0.0f;
-	float           			m_fRoll = 0.0f;
+	float           			m_fPitch;
+	float           			m_fYaw;
+	float           			m_fRoll;
 
-	XMFLOAT3					m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	XMFLOAT3     				m_xmf3Gravity = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	float           			m_fMaxVelocityXZ = 0.0f;
-	float           			m_fMaxVelocityY = 0.0f;
-	float           			m_fFriction = 0.0f;
+	XMFLOAT3					m_xmf3Velocity;
+	XMFLOAT3     				m_xmf3Gravity;
+	float           			m_fMaxVelocityXZ;
+	float           			m_fMaxVelocityY;
+	float           			m_fFriction;
 
-	LPVOID						m_pPlayerUpdatedContext = NULL;
-	LPVOID						m_pCameraUpdatedContext = NULL;
+	LPVOID						m_pPlayerUpdatedContext;
+	LPVOID						m_pCameraUpdatedContext;
 
-	CCamera						*m_pCamera = NULL;
+	CCamera* m_pCamera;
 
 public:
 	CPlayer();
@@ -44,12 +37,16 @@ public:
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 
+	void SetLookVector(const XMFLOAT3& xmf3Look) { m_xmf3Look = xmf3Look; }
+	void SetRightVector(const XMFLOAT3& xmf3Look) { m_xmf3Look = xmf3Look; }
+	void SetUpVector(const XMFLOAT3& xmf3Look) { m_xmf3Look = xmf3Look; }
+
 	void SetFriction(float fFriction) { m_fFriction = fFriction; }
 	void SetGravity(const XMFLOAT3& xmf3Gravity) { m_xmf3Gravity = xmf3Gravity; }
 	void SetMaxVelocityXZ(float fMaxVelocity) { m_fMaxVelocityXZ = fMaxVelocity; }
 	void SetMaxVelocityY(float fMaxVelocity) { m_fMaxVelocityY = fMaxVelocity; }
 	void SetVelocity(const XMFLOAT3& xmf3Velocity) { m_xmf3Velocity = xmf3Velocity; }
-	void SetPosition(const XMFLOAT3& xmf3Position) { Move(XMFLOAT3{ xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z }, false); }
+	void SetPosition(const XMFLOAT3& xmf3Position) { Move(XMFLOAT3(xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z), false); }
 
 	void SetScale(XMFLOAT3& xmf3Scale) { m_xmf3Scale = xmf3Scale; }
 
@@ -61,14 +58,10 @@ public:
 	CCamera *GetCamera() { return(m_pCamera); }
 	void SetCamera(CCamera *pCamera) { m_pCamera = pCamera; }
 
-<<<<<<< HEAD
-	void Move(DWORD dwDirection, float fTime, bool bVelocity = false);
+	void Move(DWORD dwDirection, float fDistance, bool bVelocity = false);
 	void Move(short x, short y, short z);
-=======
-	void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
->>>>>>> Player
 	void Move(const XMFLOAT3& xmf3Shift, bool bVelocity = false);
-	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
+	//void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
 	void Rotate(float x, float y, float z);
 
 	virtual void Update(float fTimeElapsed);
@@ -90,29 +83,19 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);
 
 	void Attack();
-<<<<<<< HEAD
-	int GetMissileNum() { return m_missileNum; }
-	CMissileObject* GetMissile(int index) { return m_missile[index]; }
-	CMissileObject* SetMissile(int index) { return m_missile[index]; }
-
-	void SetAttackMode(int mode) { attack_mode = mode; }
-	int GetAttackMode() { return attack_mode; }
-
-private:
-	int m_missileNum = 20;
-	CMissileObject** m_missile = 0;
-
-	int attack_mode;
-=======
 	int GetBulletNum() { return m_bulletNum; }
 	CBulletObject** GetBullet() { return m_bullet; }
 	void SetBullet(int index, CBulletObject& bullet) { m_bullet[index] = &bullet; }
 	void MoveBullet();
 
+	void SetAttackMode(int mode) { attack_mode = mode; }
+	int GetAttackMode() { return attack_mode; }
+
 protected:
-	int m_bulletNum = 50;
-	CBulletObject** m_bullet = 0;
->>>>>>> Player
+	int m_bulletNum;
+	CBulletObject** m_bullet;
+
+	int attack_mode;
 };
 
 class CSoundCallbackHandler : public CAnimationCallbackHandler
