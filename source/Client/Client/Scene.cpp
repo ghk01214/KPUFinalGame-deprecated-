@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "Scene.h"
 
-ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap{ nullptr };
+ID3D12DescriptorHeap* CScene::m_pd3dCbvSrvDescriptorHeap = NULL;
 
 D3D12_CPU_DESCRIPTOR_HANDLE	CScene::m_d3dCbvCPUDescriptorStartHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dCbvGPUDescriptorStartHandle;
@@ -13,20 +13,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dCbvGPUDescriptorNextHandle;
 D3D12_CPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvCPUDescriptorNextHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvGPUDescriptorNextHandle;
 
-CScene::CScene() :
-	m_pPlayer(nullptr),
-	m_pd3dGraphicsRootSignature(nullptr),
-	m_ppGameObjects(nullptr),
-	m_nGameObjects(0),
-	m_fElapsedTime(0.0f),
-	m_nShaders(0),
-	m_ppShaders(nullptr),
-	m_pSkyBox(nullptr),
-	m_pTerrain(nullptr),
-	m_pLights(nullptr),
-	m_nLights(0),
-	m_pd3dcbLights(nullptr),
-	m_pcbMappedLights(nullptr)
+CScene::CScene()
 {
 }
 
@@ -109,6 +96,15 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	//if (pLionModel) delete pLionModel;
 
 	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL);
+	for (int i = 0; i < 6; i++)
+	{
+		m_vGameObjects.push_back(new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2));
+		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);
+		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
+		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
+		(*(m_vGameObjects.end() - 1))->SetPosition(100.0f * i, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
+	}
 	m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
 	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);
@@ -202,6 +198,15 @@ void CScene::ReleaseObjects()
 	{
 		for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Release();
 		delete[] m_ppGameObjects;
+	}
+
+	if (m_vGameObjects.begin() != m_vGameObjects.end())
+	{
+		for (auto t : m_vGameObjects)
+		{
+			t->Release();
+		}
+		m_vGameObjects.clear();
 	}
 
 	ReleaseShaderVariables();
@@ -431,6 +436,7 @@ void CScene::ReleaseUploadBuffers()
 
 	for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
 	for (int i = 0; i < m_nGameObjects; i++) m_ppGameObjects[i]->ReleaseUploadBuffers();
+	for (auto temp : m_vGameObjects) temp->ReleaseUploadBuffers();
 }
 
 void CScene::CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews)
@@ -576,26 +582,29 @@ void CScene::AnimateObjects(float fTimeElapsed)
 
 	for (int i = 0; i < m_nGameObjects; ++i)
 	{
-		float xamount{ m_pPlayer->GetPosition().x - m_ppGameObjects[i]->GetPosition().x };
-		float zamount{ m_pPlayer->GetPosition().z - m_ppGameObjects[i]->GetPosition().z };
+		//float xamount{ m_pPlayer->GetPosition().x - m_ppGameObjects[i]->GetPosition().x };
+		//float zamount{ m_pPlayer->GetPosition().z - m_ppGameObjects[i]->GetPosition().z };
+		float xamount{ m_pPlayer->GetPosition().x - m_vGameObjects[i]->GetPosition().x };
+		float zamount{ m_pPlayer->GetPosition().z - m_vGameObjects[i]->GetPosition().z };
 
 		XMFLOAT3 distance{ xamount, 0, zamount };
 
 		distance = Vector3::Normalize(distance);
-		XMFLOAT3 temp{ m_ppGameObjects[i]->GetLook().x,  m_ppGameObjects[i]->GetLook().y, m_ppGameObjects[i]->GetLook().z };
+		//XMFLOAT3 temp{ m_ppGameObjects[i]->GetLook().x,  m_ppGameObjects[i]->GetLook().y, m_ppGameObjects[i]->GetLook().z };
+		XMFLOAT3 temp{ m_vGameObjects[i]->GetLook().x,  m_vGameObjects[i]->GetLook().y, m_vGameObjects[i]->GetLook().z };
 		float Dot = Vector3::DotProduct(temp, distance);
 		float   Radian = (float)acos(Dot);
 
-		if (Vector3::DotProduct(m_ppGameObjects[i]->GetRight(), distance) > 0)
+		if (Vector3::DotProduct(m_vGameObjects[i]->GetRight(), distance) > 0)
 		{
-			m_ppGameObjects[i]->Rotate(0, 0, +1.0f);
+			m_vGameObjects[i]->Rotate(0, 0, +1.0f);
 		}
 		else
 		{
-			m_ppGameObjects[i]->Rotate(0, 0, -1.0f);
+			m_vGameObjects[i]->Rotate(0, 0, -1.0f);
 		}
 
-		m_ppGameObjects[i]->MoveUp(-1);
+		m_vGameObjects[i]->MoveUp(-1);
 
 	}
 }
@@ -616,15 +625,39 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
 	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
 
-	for (int i = 0; i < 0; i++)
+	for (int i = 0; i < m_vGameObjects.size(); i++)
 	{
-		if (m_ppGameObjects[i])
+		if (m_vGameObjects[i])
 		{
-			m_ppGameObjects[i]->Animate(m_fElapsedTime);
-			if (!m_ppGameObjects[i]->m_pSkinnedAnimationController) m_ppGameObjects[i]->UpdateTransform(NULL);
-			m_ppGameObjects[i]->Render(pd3dCommandList, pCamera);
+			m_vGameObjects[i]->Animate(m_fElapsedTime);
+			if (!m_vGameObjects[i]->m_pSkinnedAnimationController) m_vGameObjects[i]->UpdateTransform(NULL);
+			m_vGameObjects[i]->Render(pd3dCommandList, pCamera);
 		}
 	}
 
 	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
+}
+
+
+bool CScene::Collider()
+{
+	XMFLOAT3 k;
+	XMFLOAT3 center;
+	for (int i = 0; i < m_nGameObjects; i++)
+	{
+		center = m_vGameObjects[i]->GetPosition();
+		std::cout << center.x << std::endl;
+
+		for (int j = 0; j < m_pPlayer->GetBulletNum(); j++)
+		{
+			k = XMFLOAT3(center.x - (m_pPlayer->GetBullet()[j]->GetPosition().x), center.y - (m_pPlayer->GetBullet()[j]->GetPosition().y), center.z - (m_pPlayer->GetBullet()[j]->GetPosition().z));
+			float result = sqrt(m_pPlayer->GetBullet()[j]->GetPosition().x) + center.y - (m_pPlayer->GetBullet()[j]->GetPosition().y) + center.z - (m_pPlayer->GetBullet()[j]->GetPosition().z);
+			if (result <= 10)
+			{
+				m_vGameObjects[i]->Release();
+			}
+		}
+		return false;
+
+	}
 }

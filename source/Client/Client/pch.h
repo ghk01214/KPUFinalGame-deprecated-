@@ -15,6 +15,7 @@
 #include <wrl.h>
 #include <shellapi.h>
 
+#include <iostream>
 #include <fstream>
 #include <vector>
 #include <unordered_map>

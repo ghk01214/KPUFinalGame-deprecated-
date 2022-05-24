@@ -3,11 +3,11 @@
 #include "Shader.h"
 #include "Player.h"
 
-inline constexpr int MAX_LIGHTS{ 16 };
+#define MAX_LIGHTS						16 
 
-inline constexpr int POINT_LIGHT{ 1 };
-inline constexpr int SPOT_LIGHT{ 2 };
-inline constexpr int DIRECTIONAL_LIGHT{ 3 };
+#define POINT_LIGHT						1
+#define SPOT_LIGHT						2
+#define DIRECTIONAL_LIGHT				3
 
 struct LIGHT
 {
@@ -55,14 +55,14 @@ public:
 
 	bool ProcessInput(UCHAR* pKeysBuffer);
 	void AnimateObjects(float fTimeElapsed);
-	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = nullptr);
+	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
 
 	void ReleaseUploadBuffers();
 
-	CPlayer* m_pPlayer;
+	CPlayer* m_pPlayer = NULL;
 
 protected:
-	ID3D12RootSignature* m_pd3dGraphicsRootSignature;
+	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
 
 	static ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap;
 
@@ -92,22 +92,27 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvDescriptorNextHandle() { return(m_d3dSrvCPUDescriptorNextHandle); }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorNextHandle() { return(m_d3dSrvGPUDescriptorNextHandle); }
 
-	int									m_nGameObjects;
-	CGameObject** m_ppGameObjects;
+	bool Collider();
 
-	float								m_fElapsedTime;
+	int									m_nGameObjects = 0;
+	std::vector<CGameObject*>					m_vGameObjects;
+	CGameObject** m_ppGameObjects = NULL;
 
-	int									m_nShaders;
-	CShader** m_ppShaders;
+	float								m_fElapsedTime = 0.0f;
 
-	CSkyBox* m_pSkyBox;
-	CHeightMapTerrain* m_pTerrain;
+	int									m_nShaders = 0;
+	CShader** m_ppShaders = NULL;
 
-	LIGHT* m_pLights;
-	int									m_nLights;
+	CSkyBox* m_pSkyBox = NULL;
+	CHeightMapTerrain* m_pTerrain = NULL;
+
+	LIGHT* m_pLights = NULL;
+	int									m_nLights = 0;
 
 	XMFLOAT4							m_xmf4GlobalAmbient;
 
-	ID3D12Resource* m_pd3dcbLights;
-	LIGHTS* m_pcbMappedLights;
+	ID3D12Resource* m_pd3dcbLights = NULL;
+	LIGHTS* m_pcbMappedLights = NULL;
+
+
 };
