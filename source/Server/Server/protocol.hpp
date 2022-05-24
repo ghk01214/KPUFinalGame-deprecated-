@@ -3,7 +3,7 @@
 
 using SIZE_ = unsigned char;
 using TYPE_ = char;
-using ID_ = unsigned short;
+using ID_ = unsigned int;
 using POS_ = short;
 using VECTOR_ = float;
 
