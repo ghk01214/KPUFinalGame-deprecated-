@@ -53,10 +53,6 @@
 
 // Lua 스크립트 언어 라이브러리
 #pragma comment(lib, "lua54")
-
-#pragma comment(lib, "d3dcompiler.lib")
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "dxguid.lib")
 #pragma endregion
 
 using namespace DirectX;

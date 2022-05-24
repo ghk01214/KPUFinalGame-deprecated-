@@ -454,6 +454,7 @@ void CGameFramework::BuildObjects()
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
 	m_pScene = new CScene();
+
 	if (m_pScene)
 	{
 		m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
@@ -470,8 +471,13 @@ void CGameFramework::BuildObjects()
 	if (m_pScene)
 		m_pScene->ReleaseUploadBuffers();
 
-	if (m_pPlayer)
-		m_pPlayer->ReleaseUploadBuffers();
+	if (!players.empty())
+	{
+		for (auto& iter : players)
+		{
+			iter.second->ReleaseUploadBuffers();
+		}
+	}
 
 	m_GameTimer.Reset();
 }
