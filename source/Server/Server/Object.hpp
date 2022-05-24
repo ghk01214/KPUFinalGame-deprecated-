@@ -12,6 +12,8 @@ public:
 
 	virtual void Move(int direction) {}
 
+	bool IsInWorld();
+
 	constexpr POS GetX() const noexcept { return x; }
 	constexpr POS GetY() const noexcept { return y; }
 	constexpr POS GetZ() const noexcept { return z; }
