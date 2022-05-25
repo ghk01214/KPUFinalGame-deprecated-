@@ -432,9 +432,9 @@ void CGameFramework::AddPlayer(SC::PACKET::ADD_OBJECT* packet)
 	}
 	else
 	{
-		float x{ static_cast<float>(packet->x) };
-		float y{ static_cast<float>(packet->y) };
-		float z{ static_cast<float>(packet->z) };
+		float x{ packet->x };
+		float y{ packet->y };
+		float z{ packet->z };
 
 		XMFLOAT3 temp{ x, y, z };
 
@@ -446,6 +446,14 @@ void CGameFramework::AddPlayer(SC::PACKET::ADD_OBJECT* packet)
 		players[packet->id]->SetLookVector(XMFLOAT3{ packet->look_x, packet->look_y, packet->look_z });
 		players[packet->id]->SetRightVector(XMFLOAT3{ packet->right_x, packet->right_y, packet->right_z });
 		players[packet->id]->SetUpVector(XMFLOAT3{ packet->up_x, packet->up_y, packet->up_z });
+
+		for (auto& iter : players)
+		{
+			if (iter.first >= 0)
+			{
+				std::cout << iter.first << " : " << iter.second->GetPosition().x << ", " << iter.second->GetPosition().z << std::endl;
+			}
+		}
 	}
 }
 
@@ -564,6 +572,7 @@ void CGameFramework::ProcessInput()
 
 	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
 }
+
 void CGameFramework::AnimateObjects()
 {
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();

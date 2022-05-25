@@ -9,22 +9,23 @@ Player::Player(POS x, POS y, POS z) : NPC{ x, y, z }, pitch{0.0f}, yaw{0.0f}
 void Player::Move(int direction)
 {
 	XMFLOAT3 shift{ 0.0f, 0.0f, 0.0f };
+	XMFLOAT3 temp_look{ look.x, 0.0f, look.z };
 
 	if (direction & KEYINPUT::FORWARD)
 	{
-		DXMATH::AddVector(&shift, &look, max_speed);
+		DXMATH::AddVector(&shift, &temp_look, -max_speed);
 	}
 	if (direction & KEYINPUT::BACKWARD)
 	{
-		DXMATH::AddVector(&shift, &look, -max_speed);
+		DXMATH::AddVector(&shift, &temp_look, +max_speed);
 	}
 	if (direction & KEYINPUT::LEFT)
 	{
-		DXMATH::AddVector(&shift, &right, +max_speed);
+		DXMATH::AddVector(&shift, &right, -max_speed);
 	}
 	if (direction & KEYINPUT::RIGHT)
 	{
-		DXMATH::AddVector(&shift, &right, -max_speed);
+		DXMATH::AddVector(&shift, &right, max_speed);
 	}
 
 	XMFLOAT3 position{ x, y, z };
@@ -33,8 +34,6 @@ void Player::Move(int direction)
 	x = position.x;
 	y = position.y;
 	z = position.z;
-
-	std::cout << x << ", " << z << std::endl;
 }
 
 void Player::Rotate(float cx, float cy)
@@ -45,12 +44,12 @@ void Player::Rotate(float cx, float cy)
 
 		if (pitch > 89.0f)
 		{
-			x -= (pitch - 89.0f);
+			cx -= (pitch - 89.0f);
 			pitch = 89.0f;
 		}
 		else if (pitch < -89.0f)
 		{
-			x -= (pitch + 78.0f);
+			cx -= (pitch + 89.0f);
 			pitch -= 89.0f;
 		}
 	}

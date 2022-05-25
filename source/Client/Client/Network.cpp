@@ -312,8 +312,8 @@ void CNetwork::SendRotateObjectPacket(float cx, float cy)
 {
 	cs_rotate_object_packet->size = sizeof(CS::PACKET::ROTATE_OBJECT);
 	cs_rotate_object_packet->type = CS::ROTATE_OBJECT;
-	cs_rotate_object_packet->cx = cx;
-	cs_rotate_object_packet->cy = cy;
+	cs_rotate_object_packet->cx = -cx;
+	cs_rotate_object_packet->cy = -cy;
 
 	SendData(cs_rotate_object_packet);
 }
