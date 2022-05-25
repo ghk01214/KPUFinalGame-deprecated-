@@ -130,8 +130,8 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 	}
 	else
 	{
-		//m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
-		//m_pCamera->Move(xmf3Shift);
+		m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
+		m_pCamera->Move(xmf3Shift);
 	}
 }
 
@@ -198,7 +198,7 @@ void CPlayer::Update(float fTimeElapsed)
 	if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
 
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
-	Move(xmf3Velocity, false);
+	//Move(xmf3Velocity, false);
 
 	if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
 
