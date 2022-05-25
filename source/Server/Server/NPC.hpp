@@ -10,7 +10,7 @@ public:
 	NPC(POS x, POS y, POS z);
 	~NPC() = default;
 
-	virtual void Rotate(float cy) {}
+	virtual void Rotate(float cx, float cy) {}
 
 	void SetLook(XMFLOAT3 new_look) { look = new_look; }
 	void SetRight(XMFLOAT3 new_right) { right = new_right; }

@@ -337,7 +337,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 		case VK_F1:
 		case VK_F2:
-			//::ReleaseCapture();
+			::ReleaseCapture();
 			break;
 		case VK_F3:
 			m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
@@ -541,21 +541,20 @@ void CGameFramework::ProcessInput()
 					if (pKeysBuffer[VK_RBUTTON] & 0xF0)
 					{
 						m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
-						network_manager->SendRotateObjectPacket(0.0f);
+						network_manager->SendRotateObjectPacket(cyDelta, 0.0f);
 
 					}
 					else
 					{
 						m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
-						//network_manager->SendRotateObjectPacket(cxDelta);
+						network_manager->SendRotateObjectPacket(cyDelta, cxDelta);
 					}
 				}
 				if (dwDirection)
 				{
 					//m_pPlayer->Move(dwDirection, 2.25f, true);
 
-					network_manager->SendMoveObjectPacket(dwDirection, m_pPlayer->GetLookVector().x, m_pPlayer->GetLookVector().z,
-						m_pPlayer->GetRightVector().x, m_pPlayer->GetRightVector().z);
+					network_manager->SendMoveObjectPacket(dwDirection);
 				}
 			}
 

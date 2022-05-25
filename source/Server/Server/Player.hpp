@@ -11,10 +11,15 @@ public:
 	~Player() = default;
 
 	void Move(int direction) override;
-	void Rotate(float cy) override;
+	void Rotate(float cx, float cy) override;
 	void Attack(int interaction);
 
+	void SetPitch(float new_pitch) { pitch = new_pitch; }
+	void SetYaw(float new_yaw) { yaw = new_yaw; }
+
 private:
+	float pitch;
+	float yaw;
 };
 
 #endif // !_PLAYER_HPP_

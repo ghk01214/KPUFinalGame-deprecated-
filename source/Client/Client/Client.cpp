@@ -4,6 +4,8 @@
 
 #define MAX_LOADSTRING 100
 
+#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
+
 HINSTANCE						hInst;
 TCHAR							szTitle[MAX_LOADSTRING];
 TCHAR							szWindowClass[MAX_LOADSTRING];

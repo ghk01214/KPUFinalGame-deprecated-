@@ -26,6 +26,7 @@ public:
 	void ProcessPacket(int id);
 	void ProcessLoginPacket(int id, char* pack);
 	void ProcessMovePacket(int id, char* pack);
+	void ProcessRotatePacket(int id, char* pack);
 	void ProcessPlayerAttackPacket(int id, char* pack);
 
 	int GetNewClientID();
@@ -50,7 +51,8 @@ private:
 
 	CS::PACKET::LOGIN* cs_login_packet;
 	CS::PACKET::MOVE_OBJECT* cs_move_object_packet;
-	CS::PACKET::PLAYER_ATTACK* cs_player_object_packet;
+	CS::PACKET::ROTATE_OBJECT* cs_rotate_object_packet;
+	CS::PACKET::PLAYER_ATTACK* cs_attack_object_packet;
 
 	Zone* zone;
 };

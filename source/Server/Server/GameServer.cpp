@@ -20,7 +20,8 @@ GameServer::GameServer() :
 	packet{ nullptr },
 	cs_login_packet{ new CS::PACKET::LOGIN },
 	cs_move_object_packet{ new CS::PACKET::MOVE_OBJECT },
-	cs_player_object_packet{ new CS::PACKET::PLAYER_ATTACK },
+	cs_rotate_object_packet{ new CS::PACKET::ROTATE_OBJECT },
+	cs_attack_object_packet{ new CS::PACKET::PLAYER_ATTACK },
 	zone{ new Zone{} },
 	active_users{ 0 }
 {
@@ -65,10 +66,15 @@ GameServer::~GameServer()
 		delete cs_move_object_packet;
 		cs_move_object_packet = nullptr;
 	}
-	if (cs_player_object_packet)
+	if (cs_rotate_object_packet)
 	{
-		delete cs_player_object_packet;
-		cs_player_object_packet = nullptr;
+		delete cs_rotate_object_packet;
+		cs_rotate_object_packet = nullptr;
+	}
+	if (cs_attack_object_packet)
+	{
+		delete cs_attack_object_packet;
+		cs_attack_object_packet = nullptr;
 	}
 	if (zone)
 	{
@@ -300,6 +306,11 @@ void GameServer::ProcessPacket(int id)
 		ProcessPlayerAttackPacket(id, packet);
 	}
 	break;
+	case CS::ROTATE_OBJECT:
+	{
+		ProcessRotatePacket(id, packet);
+	}
+	break;
 	}
 }
 
@@ -331,6 +342,8 @@ void GameServer::ProcessLoginPacket(int id, char* pack)
 	dynamic_cast<Player*>(sessions[id]->GetMyObject())->SetLook(look);
 	dynamic_cast<Player*>(sessions[id]->GetMyObject())->SetRight(right);
 	dynamic_cast<Player*>(sessions[id]->GetMyObject())->SetUp(up);
+	dynamic_cast<Player*>(sessions[id]->GetMyObject())->SetPitch(cs_login_packet->pitch);
+	dynamic_cast<Player*>(sessions[id]->GetMyObject())->SetYaw(cs_login_packet->yaw);
 	zone->AddObject(id, sessions[id]);
 	zone->SetInSector(id);
 	sessions[id]->SendLoginPakcet();
@@ -393,9 +406,31 @@ void GameServer::ProcessMovePacket(int id, char* pack)
 	//}
 }
 
+void GameServer::ProcessRotatePacket(int id, char* pack)
+{
+	cs_rotate_object_packet = reinterpret_cast<CS::PACKET::ROTATE_OBJECT*>(pack);
+
+	dynamic_cast<Player*>(sessions[id]->GetMyObject())->Rotate(cs_rotate_object_packet->cx, cs_rotate_object_packet->cy);
+
+	for (auto& session : sessions)
+	{
+		if (session->GetID() == id)
+		{
+			continue;
+		}
+
+		session->state_lock.lock_shared();
+
+		if (session->GetState() == SESSION_STATE::INGAME)
+		{
+			session->SendRotateObjectPacket(id, session->GetMyObject());
+		}
+	}
+}
+
 void GameServer::ProcessPlayerAttackPacket(int id, char* pack)
 {
-	cs_player_object_packet = reinterpret_cast<CS::PACKET::PLAYER_ATTACK*>(pack);
+	cs_attack_object_packet = reinterpret_cast<CS::PACKET::PLAYER_ATTACK*>(pack);
 
 
 }

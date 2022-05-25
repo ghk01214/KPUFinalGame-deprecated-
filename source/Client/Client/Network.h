@@ -27,8 +27,8 @@ public:
 	void ProcessRemoveObjectPacket();
 
 	void SendLoginPacket();
-	void SendMoveObjectPacket(DWORD direction, float look_x, float look_z, float right_x, float right_z);
-	void SendRotateObjectPacket(float cy);
+	void SendMoveObjectPacket(DWORD direction);
+	void SendRotateObjectPacket(float cx, float cy);
 	void SendPlayerAttackPacket(int mode);
 
 	int GetClientID() { return sc_login_packet->id; }

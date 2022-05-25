@@ -35,7 +35,7 @@ CPlayer::~CPlayer()
 	}
 }
 
-void CPlayer::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+void CPlayer::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	if (m_pCamera)
 	{
@@ -43,7 +43,7 @@ void CPlayer::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsComm
 	}
 }
 
-void CPlayer::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
+void CPlayer::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 }
 
@@ -100,9 +100,9 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 	}
 }
 
-void CPlayer::Move(short x, short y, short z)
+void CPlayer::Move(float x, float y, float z)
 {
-	XMFLOAT3 temp = XMFLOAT3{ static_cast<float>(x), static_cast<float>(y), static_cast<float>(z) };
+	XMFLOAT3 temp = XMFLOAT3{ x, y, z };
 
 	//if (m_pCamera->GetMode() == FIRST_PERSON_CAMERA)
 	//{
@@ -114,8 +114,9 @@ void CPlayer::Move(short x, short y, short z)
 	//}
 
 	//m_xmf3Position = Vector3::Add(m_xmf3Position, temp);
+
 	m_xmf3Position = temp;
-	m_pCamera->Move(temp);
+	m_pCamera->Move(m_xmf3Position);
 
 	//XMFLOAT3 temp = XMFLOAT3{ static_cast<float>(x), static_cast<float>(y), static_cast<float>(z) };
 	//m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, temp);
@@ -129,8 +130,8 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 	}
 	else
 	{
-		m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
-		m_pCamera->Move(xmf3Shift);
+		//m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
+		//m_pCamera->Move(xmf3Shift);
 	}
 }
 
@@ -220,7 +221,7 @@ void CPlayer::Update(float fTimeElapsed)
 	}
 }
 
-CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
+CCamera* CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 {
 	CCamera* pNewCamera{ nullptr };
 	switch (nNewCameraMode)
@@ -369,7 +370,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	for (int i = 0; i < CPlayer::GetBulletNum(); ++i) {
 		m_bullet[i] = new CBulletObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pBulletModel, 2);
 		m_bullet[i]->SetScale(50.0f, 50.0f, 50.0f);
-		m_bullet[i]->SetPosition((i * 10.0f), 300.0f, 0.0f);
+		m_bullet[i]->SetPosition((i * 10.0f), 0.0f, 0.0f);
 	}
 }
 

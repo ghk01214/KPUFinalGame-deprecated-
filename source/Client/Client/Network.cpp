@@ -293,10 +293,13 @@ void CNetwork::SendLoginPacket()
 	cs_login_packet->up_y = 1.0f;
 	cs_login_packet->up_z = 0.0f;
 
+	cs_login_packet->pitch = 0.0f;
+	cs_login_packet->yaw = 0.0f;
+
 	SendData(cs_login_packet);
 }
 
-void CNetwork::SendMoveObjectPacket(DWORD direction, float look_x, float look_z, float right_x, float right_z)
+void CNetwork::SendMoveObjectPacket(DWORD direction)
 {
 	cs_move_object_packet->size = sizeof(CS::PACKET::MOVE_OBJECT);
 	cs_move_object_packet->type = CS::MOVE_OBJECT;
@@ -305,10 +308,11 @@ void CNetwork::SendMoveObjectPacket(DWORD direction, float look_x, float look_z,
 	SendData(cs_move_object_packet);
 }
 
-void CNetwork::SendRotateObjectPacket(float cy)
+void CNetwork::SendRotateObjectPacket(float cx, float cy)
 {
 	cs_rotate_object_packet->size = sizeof(CS::PACKET::ROTATE_OBJECT);
 	cs_rotate_object_packet->type = CS::ROTATE_OBJECT;
+	cs_rotate_object_packet->cx = cx;
 	cs_rotate_object_packet->cy = cy;
 
 	SendData(cs_rotate_object_packet);

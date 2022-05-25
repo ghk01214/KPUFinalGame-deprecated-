@@ -6,7 +6,7 @@ Object::Object() :
 	x{ 0 },
 	y{ 0 },
 	z{ 0 },
-	max_speed{ 5.0f }
+	max_speed{ 2.25f }
 {
 }
 

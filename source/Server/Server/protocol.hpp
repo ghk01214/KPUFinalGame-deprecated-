@@ -4,7 +4,7 @@
 using SIZE_ = unsigned char;
 using TYPE_ = char;
 using ID_ = unsigned int;
-using POS_ = short;
+using POS_ = float;
 using VECTOR_ = float;
 
 namespace KEYINPUT
@@ -85,6 +85,16 @@ namespace SC
 			unsigned int client_time;
 		};
 
+		struct ROTATE_OBJECT
+		{
+			SIZE_ size;
+			TYPE_ type;
+			ID_ id;
+			VECTOR_ look_x, look_y, look_z;			// Look Vector
+			VECTOR_ right_x, right_y, right_z;		// Right Vector
+			VECTOR_ up_x, up_y, up_z;				// Up Vector
+		};
+
 		struct PLAYER_ATTACK
 		{
 			SIZE_ size;
@@ -121,6 +131,7 @@ namespace CS
 			VECTOR_ look_x, look_y, look_z;			// Look Vector
 			VECTOR_ right_x, right_y, right_z;		// Right Vector
 			VECTOR_ up_x, up_y, up_z;				// Up Vector
+			float pitch, yaw;
 		};
 
 		struct MOVE_OBJECT
@@ -135,7 +146,7 @@ namespace CS
 		{
 			SIZE_ size;
 			TYPE_ type;
-			float cy;
+			float cx, cy;
 		};
 
 		struct PLAYER_ATTACK

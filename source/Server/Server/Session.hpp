@@ -23,8 +23,9 @@ public:
 	void SendData(void* packet);
 
 	void SendLoginPakcet();
-	void SendMoveObjectPacket(int id, Object* pl);
 	void SendAddObjectPacket(int id, Object* pl);
+	void SendMoveObjectPacket(int id, Object* pl);
+	void SendRotateObjectPacket(int id, Object*pl);
 	void SendRemoveObjectPacket(int id);
 
 	void AddToViewList(int id);
@@ -51,8 +52,9 @@ private:
 	OVERLAPPEDEX send_ex;
 
 	SC::PACKET::LOGIN sc_login_packet;
-	SC::PACKET::MOVE_OBJECT sc_move_object_packet;
 	SC::PACKET::ADD_OBJECT sc_add_object_packet;
+	SC::PACKET::MOVE_OBJECT sc_move_object_packet;
+	SC::PACKET::ROTATE_OBJECT sc_rotate_object_packet;
 	SC::PACKET::REMOVE_OBJECT sc_remove_object_packet;
 
 	SESSION_STATE state;

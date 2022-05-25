@@ -92,6 +92,28 @@ void Session::SendMoveObjectPacket(int id, Object* obj)
 	SendData(&sc_move_object_packet);
 }
 
+void Session::SendRotateObjectPacket(int id, Object* obj)
+{
+	auto new_obj{ dynamic_cast<NPC*>(obj) };
+
+	sc_rotate_object_packet.size = sizeof(SC::PACKET::ROTATE_OBJECT);
+	sc_rotate_object_packet.type = SC::ROTATE_OBJECT;
+	sc_rotate_object_packet.id = id;
+	sc_rotate_object_packet.look_x = new_obj->GetLook().x;
+	sc_rotate_object_packet.look_y = new_obj->GetLook().y;
+	sc_rotate_object_packet.look_z = new_obj->GetLook().z;
+
+	sc_rotate_object_packet.right_x = new_obj->GetRight().x;
+	sc_rotate_object_packet.right_y = new_obj->GetRight().y;
+	sc_rotate_object_packet.right_z = new_obj->GetRight().z;
+
+	sc_rotate_object_packet.up_x = new_obj->GetUp().x;
+	sc_rotate_object_packet.up_y = new_obj->GetUp().y;
+	sc_rotate_object_packet.up_z = new_obj->GetUp().z;
+
+	SendData(&sc_rotate_object_packet);
+}
+
 void Session::SendAddObjectPacket(int id, Object* obj)
 {
 	sc_add_object_packet.size = sizeof(SC::PACKET::ADD_OBJECT);
