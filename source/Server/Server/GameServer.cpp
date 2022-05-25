@@ -186,7 +186,8 @@ void GameServer::ProcessThread()
 		{
 			if (ret == 0 or bytes == 0)
 			{
-				std::cout << "GetQueuedCompletionStatus error on client[" << key << "]" << std::endl;
+				//std::cout << "GetQueuedCompletionStatus error on client[" << key << "]" << std::endl;
+				DisplayError(std::wstring{ L"GetQueuedCompletionStatus error on client[" + std::to_wstring(key) + L"]" });
 
 				if (server_key != key)
 					Disconnect(key);

@@ -87,10 +87,6 @@ namespace DXMATH
 	inline void AddVector(XMFLOAT3* vector1, XMFLOAT3* vector2, float scalar)
 	{
 		XMStoreFloat3(vector1, XMLoadFloat3(vector1) + (XMLoadFloat3(vector2) * scalar));
-
-		XMFLOAT3 temp{ 0.0f, 0.0f, 0.0f };
-		XMStoreFloat3(&temp, XMLoadFloat3(vector2) * scalar);
-		std::cout << temp.x << ", " << temp.z << std::endl;
 	}
 
 	inline void TransformNormal(XMFLOAT3* vector, XMMATRIX& matrix)

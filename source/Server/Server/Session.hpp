@@ -38,7 +38,6 @@ public:
 	int GetRemainSize() { return remain_size; }
 	int* GetSectorIndexX() { return &sector_index_x; }
 	int* GetSectorIndexZ() { return &sector_index_z; }
-	concurrency::concurrent_unordered_set<int>* GetViewList() { return &view_list; }
 
 	void SetState(SESSION_STATE session) { state = session; }
 	void SetID(int ID) { id = ID; }
@@ -62,14 +61,15 @@ private:
 	int id;
 
 	Object* object;
-	concurrency::concurrent_unordered_set<int> view_list;
-	std::shared_mutex view_lock;
 	int sector_index_x, sector_index_z;
 
 	int remain_size;
 	DWORD flag;
 public:
+	concurrency::concurrent_unordered_set<int> view_list;
+
 	std::shared_mutex state_lock;
+	std::shared_mutex view_lock;
 };
 
 #endif // !_CLIENT_HPP_

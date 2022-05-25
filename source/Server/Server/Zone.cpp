@@ -59,28 +59,26 @@ void Zone::UpdateSector(Session* session)
 	// +x축 방향
 	if (player->GetX() > sector[*index_z][*index_x].GetLTX() + SECTOR_RANGE)
 	{
-		sector[*index_z][*index_x].LeaveSector(id);
-
 		if (*index_x < sector_num_x)
 		{
+			sector[*index_z][*index_x].LeaveSector(id);
 			sector[*index_z][++(*index_x)].EnterSector(id);
 
 #ifdef DEBUG_GAME
-			std::cout << "sector : " << *index_x << ", " << *index_z << std::endl;
+			std::cout << id << "; " << "sector : " << *index_x << ", " << *index_z << std::endl;
 #endif
 		}
 	}
 	// -x축 방향
 	else if (player->GetX() < sector[*index_z][*index_x].GetLTX())
 	{
-		sector[*index_z][*index_x].LeaveSector(id);
-
 		if (*index_x > 0)
 		{
+			sector[*index_z][*index_x].LeaveSector(id);
 			sector[*index_z][--(*index_x)].EnterSector(id);
 
 #ifdef DEBUG_GAME
-			std::cout << "sector : " << *index_x << ", " << *index_z << std::endl;
+			std::cout << id << "; " << "sector : " << *index_x << ", " << *index_z << std::endl;
 #endif
 		}
 	}
@@ -88,28 +86,26 @@ void Zone::UpdateSector(Session* session)
 	// +z축 방향
 	if (player->GetZ() > sector[*index_z][*index_x].GetLTZ() + SECTOR_RANGE)
 	{
-		sector[*index_z][*index_x].LeaveSector(id);
-
 		if (*index_z < sector_num_z)
 		{
+			sector[*index_z][*index_x].LeaveSector(id);
 			sector[++(*index_z)][*index_x].EnterSector(id);
 
 #ifdef DEBUG_GAME
-			std::cout << "sector : " << *index_x << ", " << *index_z << std::endl;
+			std::cout << id << "; " << "sector : " << *index_x << ", " << *index_z << std::endl;
 #endif
 		}
 	}
 	// -z축 방향
 	else if (player->GetZ() < sector[*index_z][*index_x].GetLTZ())
 	{
-		sector[*index_z][*index_x].LeaveSector(id);
-
 		if (*index_z > 0)
 		{
+			sector[*index_z][*index_x].LeaveSector(id);
 			sector[--(*index_z)][*index_x].EnterSector(id);
 
 #ifdef DEBUG_GAME
-			std::cout << "sector : " << *index_x << ", " << *index_z << std::endl;
+			std::cout << id << "; " << "sector : " << *index_x << ", " << *index_z << std::endl;
 #endif
 		}
 	}
@@ -142,7 +138,7 @@ void Zone::MoveObject(int id, int direction)
 		auto& index_y{ *objects[id]->GetSectorIndexZ() };
 
 		// TODO: view list를 이용한 플레이어 추가 패킷 전송 여부 결정
-		auto old_list{ objects[id]->GetViewList() };
+		auto old_list{ objects[id]->view_list };
 		// 해당 zone 내의 모든 object에 대해 새로운 view list 생성
 		auto new_list{ sector[index_y][index_x].MakeViewList(objects[id], &objects) };
 
@@ -154,10 +150,10 @@ void Zone::MoveObject(int id, int direction)
 			if (objects[opponent_id]->GetState() == SESSION_STATE::INGAME)
 			{
 				// 상대의 view_list
-				auto opponent_list{ objects[opponent_id]->GetViewList() };
+				auto opponent_list{ objects[opponent_id]->view_list };
 
 				// 나의 view list에 상대 id가 없으면
-				if (old_list->find(opponent_id) == old_list->end())
+				if (old_list.find(opponent_id) == old_list.end())
 				{
 					// view list에 추가
 					objects[id]->AddToViewList(opponent_id);
@@ -166,7 +162,7 @@ void Zone::MoveObject(int id, int direction)
 					objects[id]->SendAddObjectPacket(opponent_id, objects[opponent_id]->GetMyObject());
 
 					// 상대 view list에 나의 id가 있으면
-					if (opponent_list->find(id) != opponent_list->end())
+					if (opponent_list.find(id) != opponent_list.end())
 					{
 						// 상대 클라이언트에서 나를 이동
 						objects[opponent_id]->SendMoveObjectPacket(id, obj);
@@ -175,7 +171,7 @@ void Zone::MoveObject(int id, int direction)
 					else
 					{
 						// 상대 view list에 나를 추가
-						opponent_list->insert(id);
+						opponent_list.insert(id);
 
 						// 상대 클라이언트에 나의 정보 전송
 						objects[opponent_id]->SendAddObjectPacket(id, obj);
@@ -185,7 +181,7 @@ void Zone::MoveObject(int id, int direction)
 				else
 				{
 					// 상대 view list에 있으면
-					if (opponent_list->find(id) != opponent_list->end())
+					if (opponent_list.find(id) != opponent_list.end())
 					{
 						objects[opponent_id]->SendMoveObjectPacket(id, obj);
 					}
@@ -203,7 +199,7 @@ void Zone::MoveObject(int id, int direction)
 		}
 
 		// 기존의 view list에 있는 모든 객체에 대하여
-		for (auto& obj_id : *old_list)
+		for (auto& obj_id : old_list)
 		{
 			objects[obj_id]->state_lock.lock();
 
@@ -219,7 +215,7 @@ void Zone::MoveObject(int id, int direction)
 					objects[id]->SendRemoveObjectPacket(obj_id);
 
 					// 상대 view list에 나의 id가 있으면
-					if (objects[obj_id]->GetViewList()->find(id) != objects[obj_id]->GetViewList()->end())
+					if (objects[obj_id]->view_list.find(id) != objects[obj_id]->view_list.end())
 					{
 						// 상대 view list에서 제거
 						objects[obj_id]->RemoveFromViewList(id);

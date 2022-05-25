@@ -651,22 +651,39 @@ void CGameFramework::FrameAdvance()
 
 	///////////////////////////////////////////////////////////////////////////////////
 
+	if (!players.empty())
+	{
+		for (auto& player : players)
+		{
+			if (player.first >= 0 && player.second != m_pPlayer)
+			{
+				player.second->Render(m_pd3dCommandList, player.second->GetCamera());
+			}
 
-	if (m_pPlayer)
-	{
-		for (int i = 0; i < m_pPlayer->GetBulletNum(); i++)
-		{
-			m_pPlayer->MoveBullet();
+			for (int i = 0; i < player.second->GetBulletNum(); ++i)
+			{
+				player.second->MoveBullet();
+				player.second->GetBullet()[i]->UpdateTransform(nullptr);
+				player.second->GetBullet()[i]->Render(m_pd3dCommandList, player.second->GetCamera());
+			}
 		}
 	}
-	if (m_pPlayer)
-	{
-		for (int i = 0; i < m_pPlayer->GetBulletNum(); i++)
-		{
-			m_pPlayer->GetBullet()[i]->UpdateTransform(NULL);
-			m_pPlayer->GetBullet()[i]->Render(m_pd3dCommandList, m_pCamera);
-		}
-	}
+
+	//if (m_pPlayer)
+	//{
+	//	for (int i = 0; i < m_pPlayer->GetBulletNum(); ++i)
+	//	{
+	//		m_pPlayer->MoveBullet();
+	//	}
+	//}
+	//if (m_pPlayer)
+	//{
+	//	for (int i = 0; i < m_pPlayer->GetBulletNum(); ++i)
+	//	{
+	//		m_pPlayer->GetBullet()[i]->UpdateTransform(nullptr);
+	//		m_pPlayer->GetBullet()[i]->Render(m_pd3dCommandList, m_pCamera);
+	//	}
+	//}
 
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
