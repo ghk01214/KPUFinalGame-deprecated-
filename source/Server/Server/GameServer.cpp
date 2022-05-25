@@ -268,10 +268,6 @@ void GameServer::RecvData(DWORD bytes, ULONG_PTR id)
 	}
 
 	sessions[id]->RecvData();
-
-	// 임시 패킷 초기화
-	packet[0] = '\0';
-	packet = nullptr;
 }
 
 void GameServer::SendData(DWORD bytes, ULONG_PTR key)
