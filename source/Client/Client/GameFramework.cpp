@@ -336,6 +336,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_RETURN:
 			break;
 		case VK_F1:
+			break;
 		case VK_F2:
 			::ReleaseCapture();
 			break;

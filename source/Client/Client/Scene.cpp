@@ -95,33 +95,33 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	//m_ppGameObjects[0]->SetPosition(240.0f, m_pTerrain->GetHeight(240.0f, 640.0f), 640.0f);
 	//if (pLionModel) delete pLionModel;
 
-	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL);
+	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Ghoul.bin", NULL);
 	for (int i = 0; i < 6; i++)
 	{
 		m_vGameObjects.push_back(new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2));
 		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);
+		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
 		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
 		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
 		(*(m_vGameObjects.end() - 1))->SetPosition(100.0f * i, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
 	}
 	m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
 	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);
+	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
 	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
 	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
 	m_ppGameObjects[0]->SetPosition(380.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
 
 	m_ppGameObjects[1] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
 	m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);
+	m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
 	m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
 	m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
 	m_ppGameObjects[1]->SetPosition(480.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
 
 	m_ppGameObjects[2] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
 	m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);
+	m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
 	m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
 	m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
 	m_ppGameObjects[2]->SetPosition(580.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
@@ -142,7 +142,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	m_ppGameObjects[5] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
 	m_ppGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_ppGameObjects[5]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);
+	m_ppGameObjects[5]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
 	m_ppGameObjects[5]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
 	m_ppGameObjects[5]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
 	m_ppGameObjects[5]->SetPosition(880.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
@@ -237,7 +237,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dDescriptorRanges[2].BaseShaderRegister = 8; //t8: gtxtNormalTexture
 	pd3dDescriptorRanges[2].RegisterSpace = 0;
 	pd3dDescriptorRanges[2].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
+	
 	pd3dDescriptorRanges[3].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[3].NumDescriptors = 1;
 	pd3dDescriptorRanges[3].BaseShaderRegister = 9; //t9: gtxtMetallicTexture
@@ -551,6 +551,18 @@ bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 			//case 'D': m_ppGameObjects[0]->MoveStrafe(+3.0f); break;
 			//case 'Q': m_ppGameObjects[0]->MoveUp(+3.0f); break;
 			//case 'R': m_ppGameObjects[0]->MoveUp(-3.0f); break;
+		case VK_F1:
+			if (diecheck)
+			{
+			die(diecheck);
+			diecheck = false;
+			}
+			else
+			{
+				die(diecheck);
+				diecheck = true;
+			}
+			break;
 		default:
 			break;
 		}
@@ -564,6 +576,26 @@ bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 bool CScene::ProcessInput(UCHAR* pKeysBuffer)
 {
 	return(false);
+}
+
+void CScene::die(bool diecheck)
+{
+	if (diecheck)
+	{
+		for (int i = 0; i < m_vGameObjects.size(); ++i)
+		{
+			m_vGameObjects[i]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 9.5f, 11.0f);
+			m_ppGameObjects[i]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 9.5f, 11.0f);
+		}
+	}
+	else
+	{
+		for (int i = 0; i < m_vGameObjects.size(); ++i)
+		{
+			m_vGameObjects[i]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
+			m_ppGameObjects[i]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 9.5f, 11.0f);
+		}
+	}
 }
 
 void CScene::AnimateObjects(float fTimeElapsed)
@@ -638,7 +670,6 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 }
 
-
 bool CScene::Collider()
 {
 	XMFLOAT3 k;
@@ -655,6 +686,7 @@ bool CScene::Collider()
 			if (result <= 10)
 			{
 				m_vGameObjects[i]->Release();
+				std::cout << "충돌" << std::endl;
 			}
 		}
 		return false;
