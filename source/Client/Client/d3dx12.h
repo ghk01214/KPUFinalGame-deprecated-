@@ -1,4 +1,4 @@
-//*********************************************************
+﻿//*********************************************************
 //
 // Copyright (c) Microsoft. All rights reserved.
 // This code is licensed under the MIT License (MIT).
@@ -2035,6 +2035,3 @@ inline HRESULT D3DX12SerializeVersionedRootSignature(
 #endif // defined( __cplusplus )
 
 #endif //__D3DX12_H__
-
-
-

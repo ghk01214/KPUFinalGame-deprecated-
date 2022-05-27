@@ -295,6 +295,7 @@ void CPlayer::Attack()
 			m_bullet[i]->SetUp(m_xmf3Up);
 			m_bullet[i]->SetRight(m_xmf3Right);
 			m_bullet[i]->SetFire(true);
+			m_bullet[i]->SetScale(0.3f, 0.3f, 0.3f);
 			break;
 		}
 	}
@@ -369,7 +370,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_bullet = new CBulletObject * [m_bulletNum];
 	for (int i = 0; i < CPlayer::GetBulletNum(); ++i) {
 		m_bullet[i] = new CBulletObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pBulletModel, 2);
-		m_bullet[i]->SetScale(50.0f, 50.0f, 50.0f);
+		m_bullet[i]->SetScale(1.0f, 1.0f, 1.0f);
 		m_bullet[i]->SetPosition((i * 10.0f), 0.0f, 0.0f);
 	}
 }

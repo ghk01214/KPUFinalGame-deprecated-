@@ -126,6 +126,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
 	m_ppGameObjects[2]->SetPosition(580.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
 
+
 	m_ppGameObjects[3] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
 	m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);
