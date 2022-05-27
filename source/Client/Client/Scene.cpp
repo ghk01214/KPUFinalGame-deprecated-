@@ -95,14 +95,14 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	//m_ppGameObjects[0]->SetPosition(240.0f, m_pTerrain->GetHeight(240.0f, 640.0f), 640.0f);
 	//if (pLionModel) delete pLionModel;
 
-	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Ghoul.bin", NULL);
+	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Ghoul@Animations.bin", NULL);
 	for (int i = 0; i < 6; i++)
 	{
-		m_vGameObjects.push_back(new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2));
+		m_vGameObjects.push_back(new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 1));
 		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
+		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 0.0f, 2.5f); 
 		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
-		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
+		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.2f);
 		(*(m_vGameObjects.end() - 1))->SetPosition(100.0f * i, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
 	}
 	m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
@@ -584,17 +584,23 @@ void CScene::die(bool diecheck)
 	{
 		for (int i = 0; i < m_vGameObjects.size(); ++i)
 		{
-			m_vGameObjects[i]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 9.5f, 11.0f);
-			m_ppGameObjects[i]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 9.5f, 11.0f);
+			m_vGameObjects[i]->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 10.0f, 11.0f);
 		}
 	}
 	else
 	{
 		for (int i = 0; i < m_vGameObjects.size(); ++i)
 		{
-			m_vGameObjects[i]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
-			m_ppGameObjects[i]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 9.5f, 11.0f);
+			m_vGameObjects[i]->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 2.5f, 5.5f);
 		}
+	}
+}
+
+void CScene::die()
+{
+	for (int i = 0; i < m_vGameObjects.size(); ++i)
+	{
+		m_vGameObjects[i]->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 10.0f, 11.0f);
 	}
 }
 
@@ -656,17 +662,17 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 
 	if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
 	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
-
-	for (int i = 0; i < m_vGameObjects.size(); i++)
+	// m_vGameObjects.size()
+	for (int i = 0; i < 6; i++)
 	{
 		if (m_vGameObjects[i])
 		{
 			m_vGameObjects[i]->Animate(m_fElapsedTime);
 			if (!m_vGameObjects[i]->m_pSkinnedAnimationController) m_vGameObjects[i]->UpdateTransform(NULL);
 			m_vGameObjects[i]->Render(pd3dCommandList, pCamera);
+			
 		}
 	}
-
 	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 }
 
@@ -677,7 +683,6 @@ bool CScene::Collider()
 	for (int i = 0; i < m_nGameObjects; i++)
 	{
 		center = m_vGameObjects[i]->GetPosition();
-		std::cout << center.x << std::endl;
 
 		for (int j = 0; j < m_pPlayer->GetBulletNum(); j++)
 		{
@@ -685,11 +690,10 @@ bool CScene::Collider()
 			float result = sqrt(m_pPlayer->GetBullet()[j]->GetPosition().x) + center.y - (m_pPlayer->GetBullet()[j]->GetPosition().y) + center.z - (m_pPlayer->GetBullet()[j]->GetPosition().z);
 			if (result <= 10)
 			{
+				
 				m_vGameObjects[i]->Release();
-				std::cout << "충돌" << std::endl;
 			}
 		}
 		return false;
-
 	}
 }
