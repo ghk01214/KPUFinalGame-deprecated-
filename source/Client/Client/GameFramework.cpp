@@ -547,17 +547,8 @@ void CGameFramework::ProcessInput()
 			{
 				if (cxDelta || cyDelta)
 				{
-					if (pKeysBuffer[VK_RBUTTON] & 0xF0)
-					{
-						m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
-						network_manager->SendRotateObjectPacket(cyDelta, 0.0f);
-
-					}
-					else
-					{
 						m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 						network_manager->SendRotateObjectPacket(cyDelta, cxDelta);
-					}
 				}
 				if (dwDirection)
 				{
