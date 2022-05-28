@@ -591,7 +591,7 @@ void CScene::die(bool diecheck)
 	{
 		for (int i = 0; i < m_vGameObjects.size(); ++i)
 		{
-			m_vGameObjects[i]->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 2.5f, 5.5f);
+			m_vGameObjects[i]->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 0.0f, 2.5f);
 		}
 	}
 }

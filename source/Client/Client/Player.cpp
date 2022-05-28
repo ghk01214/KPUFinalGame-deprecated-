@@ -295,6 +295,7 @@ void CPlayer::Attack()
 			m_bullet[i]->SetUp(m_xmf3Up);
 			m_bullet[i]->SetRight(m_xmf3Right);
 			m_bullet[i]->SetFire(true);
+			m_bullet[i]->SetScale(0.3f, 0.3f, 0.3f);
 			break;
 		}
 	}
