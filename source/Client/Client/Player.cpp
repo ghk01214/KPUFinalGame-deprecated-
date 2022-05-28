@@ -370,7 +370,6 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_bullet = new CBulletObject * [m_bulletNum];
 	for (int i = 0; i < CPlayer::GetBulletNum(); ++i) {
 		m_bullet[i] = new CBulletObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pBulletModel, 2);
-		m_bullet[i]->SetScale(1.0f, 1.0f, 1.0f);
 		m_bullet[i]->SetPosition((i * 10.0f), 0.0f, 0.0f);
 	}
 }

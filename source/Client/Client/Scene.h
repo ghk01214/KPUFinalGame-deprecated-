@@ -117,4 +117,5 @@ public:
 	bool diecheck=true;
 	void die(bool diecheck);
 	void die();
+	bool hit = false;
 };

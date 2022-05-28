@@ -100,7 +100,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	{
 		m_vGameObjects.push_back(new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 1));
 		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 0.0f, 2.5f); 
+		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 0.0f, 2.5f);
 		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
 		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.2f);
 		(*(m_vGameObjects.end() - 1))->SetPosition(100.0f * i, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
@@ -238,7 +238,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dDescriptorRanges[2].BaseShaderRegister = 8; //t8: gtxtNormalTexture
 	pd3dDescriptorRanges[2].RegisterSpace = 0;
 	pd3dDescriptorRanges[2].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-	
+
 	pd3dDescriptorRanges[3].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[3].NumDescriptors = 1;
 	pd3dDescriptorRanges[3].BaseShaderRegister = 9; //t9: gtxtMetallicTexture
@@ -555,8 +555,8 @@ bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 		case VK_F1:
 			if (diecheck)
 			{
-			die(diecheck);
-			diecheck = false;
+				die(diecheck);
+				diecheck = false;
 			}
 			else
 			{
@@ -599,9 +599,13 @@ void CScene::die(bool diecheck)
 
 void CScene::die()
 {
-	for (int i = 0; i < m_vGameObjects.size(); ++i)
+	if (hit == true)
 	{
-		m_vGameObjects[i]->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 10.0f, 11.0f);
+
+		for (int i = 0; i < m_vGameObjects.size(); ++i)
+		{
+			m_vGameObjects[i]->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 10.0f, 11.0f);
+		}
 	}
 }
 
@@ -671,9 +675,12 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 			m_vGameObjects[i]->Animate(m_fElapsedTime);
 			if (!m_vGameObjects[i]->m_pSkinnedAnimationController) m_vGameObjects[i]->UpdateTransform(NULL);
 			m_vGameObjects[i]->Render(pd3dCommandList, pCamera);
-			
+
 		}
 	}
+
+    hit = Collider();
+	die();
 	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 }
 
@@ -689,10 +696,9 @@ bool CScene::Collider()
 		{
 			k = XMFLOAT3(center.x - (m_pPlayer->GetBullet()[j]->GetPosition().x), center.y - (m_pPlayer->GetBullet()[j]->GetPosition().y), center.z - (m_pPlayer->GetBullet()[j]->GetPosition().z));
 			float result = sqrt(m_pPlayer->GetBullet()[j]->GetPosition().x) + center.y - (m_pPlayer->GetBullet()[j]->GetPosition().y) + center.z - (m_pPlayer->GetBullet()[j]->GetPosition().z);
-			if (result <= 10)
+			if (result <= 3)
 			{
-				
-				m_vGameObjects[i]->Release();
+				return true;
 			}
 		}
 		return false;
