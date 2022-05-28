@@ -66,32 +66,58 @@ void Sector::LeaveSector(int id)
 	sector_lock.unlock();
 }
 
-concurrency::concurrent_unordered_set<int> Sector::MakeViewList(Session* session, concurrency::concurrent_unordered_map<int, Session*>* others)
+c_set Sector::MakeViewList(Session* session, c_map* others)
 {
-	concurrency::concurrent_unordered_set<int> new_list;
+	c_set new_list;
 
 	if (!objects.empty())
 	{
-		sector_lock.lock_shared();
-
 		for (auto& other : *others)
 		{
-			if (other.second->GetID() != -1)
+			if (not session->IsMyID(other.first))
 			{
-				if (session->GetID() == other.second->GetID())
-				{
-					continue;
-				}
+				POS disX{ session->GetMyObject()->GetX() - other.second->GetMyObject()->GetX() };
+				POS disZ{ session->GetMyObject()->GetZ() - other.second->GetMyObject()->GetZ() };
 
-				if (IsInSight(session, other.second))
+				if (IsInSight(disX, disZ))
 				{
-					new_list.insert(other.second->GetID());
+					new_list.insert(other.first);
 				}
 			}
 		}
-
-		sector_lock.unlock_shared();
 	}
 
 	return new_list;
+}
+
+bool Sector::OutOfSectorXL(float x)
+{
+	if (x >= lt_x)
+		return false;
+
+	return true;
+}
+
+bool Sector::OutOfSectorZD(float z)
+{
+	if (z >= lt_z)
+		return false;
+
+	return true;
+}
+
+bool Sector::OutOfSectorXR(float x)
+{
+	if (x < lt_x + SECTOR_RANGE)
+		return false;
+
+	return true;
+}
+
+bool Sector::OutOfSectorZU(float z)
+{
+	if (z < lt_z + SECTOR_RANGE)
+		return false;
+
+	return true;
 }

@@ -5,24 +5,23 @@ class Object
 {
 public:
 	Object();
-	Object(POS new_x, POS new_y, POS new_z);
+	Object(POS x, POS y, POS z);
 	virtual ~Object() = default;
 
 	void CreateNewObject(POS new_x, POS new_y, POS new_z);
+	virtual void Reset();
 
 	virtual void Move(int direction) {}
-
-	bool IsInWorld();
 
 	constexpr POS GetX() const noexcept { return x; }
 	constexpr POS GetY() const noexcept { return y; }
 	constexpr POS GetZ() const noexcept { return z; }
-	constexpr std::string GetName() const noexcept { return name; }
+	constexpr std::string_view GetName() const noexcept { return name; }
 
 	void SetX(POS new_x) { x = new_x; }
 	void SetY(POS new_y) { y = new_y; }
 	void SetZ(POS new_z) { z = new_z; }
-	void SetName(char* new_name) { name = new_name; }
+	void SetName(std::string_view new_name) { name = new_name; }
 
 protected:
 	POS x, y, z;

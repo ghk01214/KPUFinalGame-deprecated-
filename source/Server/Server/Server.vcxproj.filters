@@ -40,9 +40,6 @@
     <Filter Include="Lua">
       <UniqueIdentifier>{6520d089-014c-4f72-9ea5-d8d6e6064e95}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Lua\include">
-      <UniqueIdentifier>{ff673c73-ed38-4512-b614-56854338a939}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -98,21 +95,6 @@
     <ClInclude Include="Session.hpp">
       <Filter>GameServer\Session</Filter>
     </ClInclude>
-    <ClInclude Include="include\lauxlib.h">
-      <Filter>Lua\include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\lua.h">
-      <Filter>Lua\include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\lua.hpp">
-      <Filter>Lua\include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\luaconf.h">
-      <Filter>Lua\include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\lualib.h">
-      <Filter>Lua\include</Filter>
-    </ClInclude>
     <ClInclude Include="LuaScript.hpp">
       <Filter>Lua</Filter>
     </ClInclude>
@@ -128,10 +110,30 @@
     <ClInclude Include="Zone.hpp">
       <Filter>GameServer\Zone</Filter>
     </ClInclude>
+    <ClInclude Include="include\lauxlib.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\lua.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\lua.hpp">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\luaconf.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\lualib.h">
+      <Filter>리소스 파일</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="NPC.lua">
+      <Filter>Object\NPC</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Library Include="include\lua54.lib">
-      <Filter>Lua\include</Filter>
+      <Filter>리소스 파일</Filter>
     </Library>
   </ItemGroup>
 </Project>

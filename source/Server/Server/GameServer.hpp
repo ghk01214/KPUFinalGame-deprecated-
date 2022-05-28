@@ -13,38 +13,44 @@ class GameServer
 public:
 	GameServer();
 	~GameServer();
-
-	void BootServer();
-	void CreateThread();
+	
 	void Run();
+private:
+	// 서버 복사 방지
+	GameServer(const GameServer& other) = delete;
+	GameServer& operator=(const GameServer& other) = delete;
 
-	void ProcessThread();
+	void Initialize();
+	void InitializeNPC();
+	void Accept();
+	void CreateThread();
+
+	// Main Thread
+	void ProcessWorkerThread();
 	void AcceptClient();
-	void RecvData(DWORD bytes, ULONG_PTR id);
-	void SendData(DWORD bytes, ULONG_PTR key);
+	void RecvData(ULONG_PTR id, DWORD bytes);
+	void SendData(ULONG_PTR id, DWORD bytes);
+
+	// AI Thread
+	void ProcessAIThread();
 
 	void ProcessPacket(int id);
-	void ProcessLoginPacket(int id, char* pack);
-	void ProcessMovePacket(int id, char* pack);
-	void ProcessRotatePacket(int id, char* pack);
-	void ProcessPlayerAttackPacket(int id, char* pack);
+	void ProcessLoginPacket(int id);
+	void ProcessMovePacket(int id);
+	void ProcessRotatePacket(int id);
+	void ProcessPlayerAttackPacket(int id);
 
-	int GetNewClientID();
-	int GetNewNPCID();
-	int GetNewRandomID();
-	void Disconnect(ULONG_PTR id);	
-
-	inline bool IsInSight(int id1, int id2);
+	int NewPlayerID();
+	int NewRandomID();
+	void Disconnect(ULONG_PTR id);
 
 private:
+	HANDLE iocp;
 	SOCKET server;
 	int server_key;
-	HANDLE iocp;
 
-	std::vector<std::thread> worker_threads;
-	std::array<Session*, MAX_USER/* + NPC_NUM*/> sessions;
-	int active_users;
-	int active_npcs;
+	SOCKET client_socket;
+	std::array<Session*, MAX_USER + NPC_NUM> sessions;
 
 	OVERLAPPEDEX* over_ex;
 	char* packet;
@@ -54,19 +60,11 @@ private:
 	CS::PACKET::ROTATE_OBJECT* cs_rotate_object_packet;
 	CS::PACKET::PLAYER_ATTACK* cs_attack_object_packet;
 
+	std::vector<std::thread> worker_threads;
+	std::thread ai_thread;
+
 	Zone* zone;
+
+	int active_users;
 };
-
-inline bool GameServer::IsInSight(int id1, int id2)
-{
-	if (SIGHT_RANGE <= std::abs(sessions[id1]->GetMyObject()->GetX() - sessions[id2]->GetMyObject()->GetX()))
-		return false;
-	if (SIGHT_RANGE <= std::abs(sessions[id1]->GetMyObject()->GetY() - sessions[id2]->GetMyObject()->GetY()))
-		return false;
-	if (SIGHT_RANGE <= std::abs(sessions[id1]->GetMyObject()->GetZ() - sessions[id2]->GetMyObject()->GetZ()))
-		return false;
-
-	return true;
-}
-
 #endif // !_GAME_SERVER_HPP_

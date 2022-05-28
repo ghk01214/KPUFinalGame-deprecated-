@@ -2,6 +2,7 @@
 
 std::default_random_engine dre(std::random_device{}());
 
+#pragma region ERROR
 void ErrorQuit(std::wstring_view msg)
 {
 	LPVOID lpMsgBuf;
@@ -22,7 +23,8 @@ void DisplayError(std::wstring_view msg)
 	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, nullptr, WSAGetLastError(),
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPTSTR>(&lpMsgBuf), 0, nullptr);
 
-	std::wcout << "[" << msg << "] " << lpMsgBuf << std::endl;
+	std::wcout << "[" << msg << "] " << static_cast<LPCTSTR>(lpMsgBuf) << std::endl;
 
 	LocalFree(lpMsgBuf);
 }
+#pragma endregion

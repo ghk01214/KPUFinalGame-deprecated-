@@ -14,17 +14,19 @@ public:
 	void UpdateSector(Session* session);
 
 	void AddObject(int id, Session* session);
-	void MoveObject(int id, int direction);
+	void MovePlayer(int id, int direction);
+
+	Session* GetSession(int id) { return objects[id]; }
 
 private:
-	float zone_width;
-	float zone_height;
+	float width;
+	float height;
 
 	int sector_num_x;
 	int sector_num_z;
 
-	concurrency::concurrent_unordered_map<int, Session*> objects;
-	std::array<std::array<Sector, static_cast<int>(VAR_SIZE::WORLD_Z) / SECTOR_RANGE + 1>, static_cast<int>(VAR_SIZE::WORLD_X) / SECTOR_RANGE + 1> sector;
+	c_map objects;
+	std::vector<std::vector<Sector>> sector;
 };
 
 #endif // !_ZONE_HPP_

@@ -3,19 +3,23 @@
 #include "OVERLAPPEDEX.hpp"
 #include "Session.hpp"
 #include "Zone.hpp"
+#include "LuaScript.hpp"
+#include "NPC.hpp"
 #include "Player.hpp"
 #include "GameServer.hpp"
 
 std::uniform_int_distribution<int> random_id(0, MAX_USER - 1);
-//std::uniform_real_distribution<float> random_x(0.0f, VAR_SIZE::WORLD_X);
-//std::uniform_real_distribution<float> random_z(0.0f, VAR_SIZE::WORLD_Z);
-std::uniform_real_distribution<float> random_x(0.0f, VAR_SIZE::WORLD_X);
-std::uniform_real_distribution<float> random_z(0.0f, VAR_SIZE::WORLD_Z);
+//std::uniform_real_distribution<float> random_x(0.0f, VAR::WORLD_X);
+//std::uniform_real_distribution<float> random_z(0.0f, VAR::WORLD_Z);
+std::uniform_real_distribution<float> random_x(0.0f, VAR::WORLD_X);
+std::uniform_real_distribution<float> random_z(0.0f, VAR::WORLD_Z);
 
 GameServer::GameServer() :
+#pragma region
+	iocp{ INVALID_HANDLE_VALUE },
 	server{ INVALID_SOCKET },
 	server_key{ 99999 },
-	iocp{ INVALID_HANDLE_VALUE },
+	client_socket{ INVALID_SOCKET },
 	over_ex{ nullptr },
 	packet{ nullptr },
 	cs_login_packet{ new CS::PACKET::LOGIN },
@@ -30,11 +34,12 @@ GameServer::GameServer() :
 		sessions[i] = new Session{ new Player{} };
 	}
 
-	//for (int i = MAX_USER; i < NPC_NUM; ++i)
-	//{
-	//	sessions[i] = new Session{ new NPC{} };
-	//}
+	for (int i = NPC_START; i < sessions.size(); ++i)
+	{
+		sessions[i] = new Session{ new NPC{} };
+	}
 }
+#pragma endregion
 
 GameServer::~GameServer()
 {
@@ -86,15 +91,17 @@ GameServer::~GameServer()
 	WSACleanup();
 }
 
-void GameServer::BootServer()
+void GameServer::Initialize()
 {
+	std::cout << "Network Initialization Start" << std::endl;
+
 	if (WSADATA wsa; WSAStartup(MAKEWORD(2, 2), &wsa) != NOERROR)
 	{
 		ErrorQuit(L"WSAStartup fuction error");
 	}
 
 	if (iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, NULL, NULL);
-		iocp == nullptr)
+		iocp == INVALID_HANDLE_VALUE)
 	{
 		ErrorQuit(L"IOCP Handle Creation Failed");
 	}
@@ -119,23 +126,56 @@ void GameServer::BootServer()
 	{
 		ErrorQuit(L"listen function error");
 	}
+
+	std::cout << "Done" << std::endl;
+}
+
+void GameServer::InitializeNPC()
+{
+	std::cout << "NPC Initialization Start" << std::endl;
+
+	LuaScript::MakeNewInstance(zone);
+
+	for (int id = NPC_START; id < sessions.size(); ++id)
+	{
+		sessions[id]->SetState(STATE::INGAME);
+		sessions[id]->GetMyObject()->CreateNewObject(random_x(dre), 270.0f, random_z(dre));
+		sessions[id]->GetMyObject()->SetName("NPC-" + std::to_string(id));
+		sessions[id]->SetID(id);
+
+		zone->AddObject(id, sessions[id]);
+
+		//dynamic_cast<NPC*>(sessions[id]->GetMyObject())->InitializeScript(id);
+	}
+
+	std::cout << "Done" << std::endl;
+}
+
+void GameServer::Accept()
+{
+	std::cout << "Client Acception Start" << std::endl;
+
+	client_socket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);
+
+	OVERLAPPEDEX accept_ex;
+	accept_ex.type = COMPLETION::ACCEPT;
+	accept_ex.wsa.buf = reinterpret_cast<char*>(client_socket);
+
+	AcceptEx(server, client_socket, accept_ex.data, 0, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, 0, &accept_ex.over);
 }
 
 void GameServer::CreateThread()
 {
-	SOCKET client{ WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED) };
-	OVERLAPPEDEX accept_ex;
-	ZeroMemory(&accept_ex, sizeof(accept_ex));
-
-	accept_ex.type = static_cast<char>(COMPLETION_TYPE::ACCEPT);
-	accept_ex.wsa_buf.buf = reinterpret_cast<char*>(client);
-
-	AcceptEx(server, client, accept_ex.data, 0, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, 0, &accept_ex.over);
+	std::cout << "Create Worker Thread and AI Thread" << std::endl;
 
 	for (int i = 0; i < MAX_USER; ++i)
 	{
-		worker_threads.emplace_back(&GameServer::ProcessThread, this);
+		worker_threads.emplace_back(&GameServer::ProcessWorkerThread, this);
 	}
+
+	ai_thread = std::thread{ &GameServer::ProcessAIThread, this };
+
+	ai_thread.join();
 
 	for (auto& thread : worker_threads)
 	{
@@ -143,63 +183,31 @@ void GameServer::CreateThread()
 	}
 }
 
-void GameServer::ProcessThread()
+void GameServer::ProcessWorkerThread()
 {
 	DWORD bytes;
-	ULONG_PTR key;
+	ULONG_PTR id;
 	BOOL ret;
 
 	while (true)
 	{
-		ret = GetQueuedCompletionStatus(iocp, &bytes, &key, reinterpret_cast<LPOVERLAPPED*>(&over_ex), INFINITE);
-
-		//if (!ret)
-		//{
-		//	if (over_ex && over_ex->type == static_cast<int>(COMPLETION_TYPE::ACCEPT))
-		//	{
-		//		std::cout << "Accept error" << std::endl;
-		//	}
-		//	else
-		//	{
-		//		std::cout << "GetQueuedCompletionStatus error on client[" << key << "]" << std::endl;
-		//
-		//		Disconnect(key);
-		//
-		//		if (over_ex && over_ex->type == static_cast<int>(COMPLETION_TYPE::SEND))
-		//		{
-		//			ZeroMemory(over_ex, sizeof(over_ex));
-		//			over_ex = nullptr;
-		//		}
-		//
-		//		continue;
-		//	}
-		//}
+		ret = GetQueuedCompletionStatus(iocp, &bytes, &id, reinterpret_cast<LPOVERLAPPED*>(&over_ex), INFINITE);
 
 		switch (over_ex->type)
 		{
-		case static_cast<int>(COMPLETION_TYPE::ACCEPT):
+		case COMPLETION::ACCEPT:
 		{
 			AcceptClient();
 		}
 		break;
-		case static_cast<int>(COMPLETION_TYPE::RECV):
+		case COMPLETION::RECV:
 		{
-			if (ret == 0 or bytes == 0)
-			{
-				//std::cout << "GetQueuedCompletionStatus error on client[" << key << "]" << std::endl;
-				DisplayError(std::wstring{ L"GetQueuedCompletionStatus error on client[" + std::to_wstring(key) + L"]" });
-
-				if (server_key != key)
-					Disconnect(key);
-
-				continue;
-			}
-			RecvData(bytes, key);
+			RecvData(id, bytes);
 		}
 		break;
-		case static_cast<int>(COMPLETION_TYPE::SEND):
+		case COMPLETION::SEND:
 		{
-			SendData(bytes, key);
+			SendData(id, bytes);
 		}
 		break;
 		default:
@@ -210,40 +218,38 @@ void GameServer::ProcessThread()
 
 void GameServer::AcceptClient()
 {
-	int id{ GetNewClientID() };
-	SOCKET client{ reinterpret_cast<SOCKET>(over_ex->wsa_buf.buf) };
+	client_socket = reinterpret_cast<SOCKET>(over_ex->wsa.buf);
 
-	if (id != -1)
+	if (int id{ NewPlayerID() }; id != -1)
 	{
 		sessions[id]->GetMyObject()->CreateNewObject(random_x(dre), 270, random_x(dre));
 		//sessions[id]->GetMyObject()->CreateNewObject(random_x(dre), 270, random_x(dre));
 		sessions[id]->SetID(id);
-		sessions[id]->SetSocket(client);
 		sessions[id]->SetRemainSize(0);
+		sessions[id]->SetSocket(client_socket);
 
-		CreateIoCompletionPort(reinterpret_cast<HANDLE>(client), iocp, id, 0);
+		CreateIoCompletionPort(reinterpret_cast<HANDLE>(client_socket), iocp, id, 0);
 
 		sessions[id]->RecvData();
 
-		client = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);
+		client_socket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);
 	}
 	else
 	{
-		std::cout << "Max user exceeded\n";
+		std::cout << "Max user exceeded" << std::endl;
 	}
 
 	ZeroMemory(&over_ex->over, sizeof(over_ex->over));
-	over_ex->wsa_buf.buf = reinterpret_cast<char*>(client);
+	over_ex->wsa.buf = reinterpret_cast<char*>(client_socket);
 
-	AcceptEx(server, client, over_ex->data, 0, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, 0, &over_ex->over);
+	AcceptEx(server, client_socket, over_ex->data, 0, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, 0, &over_ex->over);
 }
 
-void GameServer::RecvData(DWORD bytes, ULONG_PTR id)
+void GameServer::RecvData(ULONG_PTR id, DWORD bytes)
 {
-	if (!bytes)
+	if (bytes == 0)
 	{
-		//Disconnect(key);
-		return;
+		Disconnect(id);
 	}
 
 	int remain_size{ static_cast<int>(bytes) + sessions[id]->GetRemainSize() };
@@ -264,22 +270,24 @@ void GameServer::RecvData(DWORD bytes, ULONG_PTR id)
 
 	if (remain_size > 0)
 	{
-		memcpy(over_ex->data, packet, remain_size);
+		std::memcpy(over_ex->data, packet, remain_size);
 	}
 
 	sessions[id]->RecvData();
 }
 
-void GameServer::SendData(DWORD bytes, ULONG_PTR key)
+void GameServer::SendData(ULONG_PTR id, DWORD bytes)
 {
 	if (!bytes)
 	{
-		//Disconnect(key);
-		return;
+		Disconnect(id);
 	}
 
-	ZeroMemory(&over_ex, sizeof(over_ex));
-	over_ex = nullptr;
+	over_ex->Reset();
+}
+
+void GameServer::ProcessAIThread()
+{
 }
 
 void GameServer::ProcessPacket(int id)
@@ -290,122 +298,116 @@ void GameServer::ProcessPacket(int id)
 	{
 	case CS::LOGIN:
 	{
-		ProcessLoginPacket(id, packet);
+		ProcessLoginPacket(id);
 	}
 	break;
 	case CS::MOVE_OBJECT:
 	{
-		ProcessMovePacket(id, packet);
+		ProcessMovePacket(id);
 	}
 	break;
 	case CS::PLAYER_ATTACK:
 	{
-		ProcessPlayerAttackPacket(id, packet);
+		ProcessPlayerAttackPacket(id);
 	}
 	break;
 	case CS::ROTATE_OBJECT:
 	{
-		ProcessRotatePacket(id, packet);
+		ProcessRotatePacket(id);
 	}
 	break;
 	}
 }
 
-void GameServer::ProcessLoginPacket(int id, char* pack)
+void GameServer::ProcessLoginPacket(int id)
 {
-	cs_login_packet = reinterpret_cast<CS::PACKET::LOGIN*>(pack);
+	auto& player{ sessions[id] };
 
-	DirectX::XMFLOAT3 look{ cs_login_packet->look_x, cs_login_packet->look_y, cs_login_packet->look_z };
-	DirectX::XMFLOAT3 right{ cs_login_packet->right_x, cs_login_packet->right_y, cs_login_packet->right_z };
-	DirectX::XMFLOAT3 up{ cs_login_packet->up_x, cs_login_packet->up_y, cs_login_packet->up_z };
+	cs_login_packet = reinterpret_cast<CS::PACKET::LOGIN*>(packet);
 
-	sessions[id]->state_lock.lock();
+	XMFLOAT3 look{ cs_login_packet->look_x, cs_login_packet->look_y, cs_login_packet->look_z };
+	XMFLOAT3 right{ cs_login_packet->right_x, cs_login_packet->right_y, cs_login_packet->right_z };
+	XMFLOAT3 up{ cs_login_packet->up_x, cs_login_packet->up_y, cs_login_packet->up_z };
 
-	if (sessions[id]->GetState() == SESSION_STATE::FREE)
+	if (player->GetState() == STATE::FREE)
 	{
-		sessions[id]->state_lock.unlock();
 		return;
 	}
 
-	if (sessions[id]->GetState() == SESSION_STATE::INGAME)
+	if (player->GetState() == STATE::INGAME)
 	{
-		sessions[id]->state_lock.unlock();
 		Disconnect(id);
-
 		return;
 	}
 
-	sessions[id]->GetMyObject()->SetName(cs_login_packet->name);
-	dynamic_cast<Player*>(sessions[id]->GetMyObject())->SetLook(look);
-	dynamic_cast<Player*>(sessions[id]->GetMyObject())->SetRight(right);
-	dynamic_cast<Player*>(sessions[id]->GetMyObject())->SetUp(up);
-	dynamic_cast<Player*>(sessions[id]->GetMyObject())->SetPitch(cs_login_packet->pitch);
-	dynamic_cast<Player*>(sessions[id]->GetMyObject())->SetYaw(cs_login_packet->yaw);
-	zone->AddObject(id, sessions[id]);
-	zone->SetInSector(id);
-	sessions[id]->SendLoginPakcet();
-	sessions[id]->SetState(SESSION_STATE::INGAME);
-	sessions[id]->state_lock.unlock();
+	player->GetMyObject()->SetName(cs_login_packet->name);
+	dynamic_cast<Player*>(player->GetMyObject())->SetLook(look);
+	dynamic_cast<Player*>(player->GetMyObject())->SetRight(right);
+	dynamic_cast<Player*>(player->GetMyObject())->SetUp(up);
+	dynamic_cast<Player*>(player->GetMyObject())->SetPitch(cs_login_packet->pitch);
+	dynamic_cast<Player*>(player->GetMyObject())->SetYaw(cs_login_packet->yaw);
+	player->SendLoginPakcet();
+	player->SetState(STATE::INGAME);
 
-	for (auto& client : sessions)
+	zone->AddObject(id, player);
+
+	for (int i = 0; i < MAX_USER; ++i)
 	{
-		if (client->GetID() == id)
+		auto& other{ sessions[i] };
+
+		if (not other->IsMyID(id))
 		{
-			continue;
+			if (other->GetState() == STATE::INGAME)
+			{
+				POS disX{ player->GetMyObject()->GetX() - other->GetMyObject()->GetX() };
+				POS disZ{ player->GetMyObject()->GetZ() - other->GetMyObject()->GetZ() };
+
+				// 내가 다른 플레이어의 시야에 들어가면
+				if (IsInSight(disX, disZ))
+				{
+					// 상대방 view list에 내 id 추가
+					other->AddToViewList(id);
+					// 상대방 클라이언트에 내 정보 전송
+					other->SendAddObjectPacket(id, player->GetMyObject());
+				}
+			}
 		}
-
-		client->state_lock.lock();
-
-		if (client->GetState() != SESSION_STATE::INGAME)
-		{
-			client->state_lock.unlock();
-			continue;
-		}
-
-		// 두 객체 간의 거리가 플레이어의 가시거리보다 짧을 때 서로의 정보를 전송
-		if (IsInSight(id, client->GetID()))
-		{
-			// view list에 플레이어 id 추가
-			client->AddToViewList(id);
-			// view list에 객체 id 추가
-			sessions[id]->AddToViewList(client->GetID());
-
-			// 모든 플레이어에게 새로 접속한 플레이어 정보 전송
-			client->SendAddObjectPacket(id, sessions[id]->GetMyObject());
-
-			// 나에게 접속해 있는 모든 플레이어의 정보 전송
-			sessions[id]->SendAddObjectPacket(client->GetID(), client->GetMyObject());
-		}
-		client->state_lock.unlock();
 	}
 
-	std::cout << "player" << id << " login" << std::endl;
+	for (auto& other : sessions)
+	{
+		if (not other->IsMyID(id))
+		{
+			if (other->GetState() == STATE::INGAME)
+			{
+				POS disX{ player->GetMyObject()->GetX() - other->GetMyObject()->GetX() };
+				POS disZ{ player->GetMyObject()->GetZ() - other->GetMyObject()->GetZ() };
+
+				// 상대가 내 시야에 들어오면
+				if (IsInSight(disX, disZ))
+				{
+					// 내 view list에 상대방 id 추가
+					player->AddToViewList(other->GetID());
+					// 내 클라이언트에 상대방의 정보 전송
+					player->SendAddObjectPacket(other->GetID(), other->GetMyObject());
+				}
+			}
+		}
+	}
+
+	std::cout << "player[" << id << "] login" << std::endl;
 }
 
-void GameServer::ProcessMovePacket(int id, char* pack)
+void GameServer::ProcessMovePacket(int id)
 {
-	cs_move_object_packet = reinterpret_cast<CS::PACKET::MOVE_OBJECT*>(pack);
+	cs_move_object_packet = reinterpret_cast<CS::PACKET::MOVE_OBJECT*>(packet);
 
-	zone->MoveObject(id, cs_move_object_packet->direction);
-
-	//sessions[id]->GetMyObject()->Move(cs_move_object_packet->direction, look_x, look_z, right_x, right_z);
-
-	//for (auto& client : sessions)
-	//{
-	//	client->state_lock.lock_shared();
-
-	//	if (client->GetState() == SESSION_STATE::INGAME)
-	//	{
-	//		client->SendMoveObjectPacket(id, sessions[id]->GetMyObject());
-	//	}
-
-	//	client->state_lock.unlock_shared();
-	//}
+	zone->MovePlayer(id, cs_move_object_packet->direction);
 }
 
-void GameServer::ProcessRotatePacket(int id, char* pack)
+void GameServer::ProcessRotatePacket(int id)
 {
-	cs_rotate_object_packet = reinterpret_cast<CS::PACKET::ROTATE_OBJECT*>(pack);
+	cs_rotate_object_packet = reinterpret_cast<CS::PACKET::ROTATE_OBJECT*>(packet);
 
 	dynamic_cast<Player*>(sessions[id]->GetMyObject())->Rotate(cs_rotate_object_packet->cx, cs_rotate_object_packet->cy);
 
@@ -416,79 +418,42 @@ void GameServer::ProcessRotatePacket(int id, char* pack)
 			continue;
 		}
 
-		session->state_lock.lock_shared();
-
-		if (session->GetState() == SESSION_STATE::INGAME)
+		if (session->GetState() == STATE::INGAME)
 		{
 			session->SendRotateObjectPacket(id, session->GetMyObject());
 		}
 	}
 }
 
-void GameServer::ProcessPlayerAttackPacket(int id, char* pack)
+void GameServer::ProcessPlayerAttackPacket(int id)
 {
-	cs_attack_object_packet = reinterpret_cast<CS::PACKET::PLAYER_ATTACK*>(pack);
+	cs_attack_object_packet = reinterpret_cast<CS::PACKET::PLAYER_ATTACK*>(packet);
 
 
 }
 
-int GameServer::GetNewClientID()
+int GameServer::NewPlayerID()
 {
-	if (active_users == MAX_USER)
+	if (active_users != MAX_USER)
 	{
-		return -1;
+		int id{ active_users };
+
+		// id가 사용 중이지 않으면 새로 할당
+		if (sessions[id]->GetState() == STATE::FREE)
+		{
+			sessions[id]->SetState(STATE::ACCEPTED);
+
+			// 액티브 유저 수 증가
+			++active_users;
+
+			return id;
+		}
 	}
-
-	int id{ active_users };
-
-	sessions[id]->state_lock.lock();
-
-	// id가 사용 중이지 않으면 새로 할당
-	if (sessions[id]->GetState() == SESSION_STATE::FREE)
-	{
-		sessions[id]->SetState(SESSION_STATE::ACCEPTED);
-		sessions[id]->state_lock.unlock();
-
-		// 액티브 유저 수 증가
-		++active_users;
-
-		return id;
-	}
-
-	sessions[id]->state_lock.unlock();
 
 	return -1;
 }
 
-int GameServer::GetNewNPCID()
-{
-	if (active_npcs == NPC_NUM)
-	{
-		return -1;
-	}
-
-	int id{ active_npcs + MAX_USER };
-
-	sessions[id]->state_lock.lock();
-
-	// id가 사용 중이지 않으면 새로 할당
-	if (sessions[id]->GetState() == SESSION_STATE::FREE)
-	{
-		sessions[id]->SetState(SESSION_STATE::ACCEPTED);
-		sessions[id]->state_lock.unlock();
-
-		// 액티브 NPC 수 증가
-		++active_npcs;
-
-		return id;
-	}
-
-	sessions[id]->state_lock.unlock();
-
-	return -1;
-}
-
-int GameServer::GetNewRandomID()
+int GameServer::NewRandomID()
 {
 	//if (active_users == MAX_USER)
 	//{
@@ -506,10 +471,10 @@ int GameServer::GetNewRandomID()
 	//std::lock_guard<std::mutex> temp{ sessions[id]->state_lock };
 
 	//// id가 사용 중인지 확인
-	//if (sessions[id]->GetState() == SESSION_STATE::FREE)
+	//if (sessions[id]->GetState() == STATE::FREE)
 	//{
 	//	// id가 사용 중이지 않으면 새로 할당
-	//	sessions[id]->SetState(SESSION_STATE::ACCEPTED);
+	//	sessions[id]->SetState(STATE::ACCEPTED);
 	//	id_in_use[id] = true;
 
 	//	// 액티브 유저 수 증가
@@ -524,46 +489,34 @@ int GameServer::GetNewRandomID()
 
 void GameServer::Disconnect(ULONG_PTR id)
 {
-	sessions[id]->state_lock.lock();
-
-	if (sessions[id]->GetState() == SESSION_STATE::FREE)
+	if (sessions[id]->GetState() == STATE::FREE)
 	{
-		sessions[id]->state_lock.unlock();
-
 		return;
 	}
 
-	//closesocket(sessions[id]->GetSocket());
-	//sessions[id]->SetState(SESSION_STATE::FREE);
 	sessions[id]->Reset();
 	--active_users;
 
-	sessions[id]->state_lock.unlock();
-
-	SC::PACKET::REMOVE_OBJECT packet;
-
 	for (auto& object : sessions)
 	{
-		if (object->GetID() == id)
+		if (not object->IsMyID(id))
 		{
-			continue;
+			if (object->GetState() == STATE::INGAME)
+			{
+				object->SendRemoveObjectPacket(id);
+			}
 		}
-
-		object->state_lock.lock_shared();
-
-		if (object->GetState() != SESSION_STATE::INGAME)
-		{
-			object->state_lock.unlock_shared();
-			continue;
-		}
-
-		object->state_lock.unlock_shared();
-		object->SendRemoveObjectPacket(id);
 	}
+
+	std::cout << "session[" << id << "]" << "disconnected" << std::endl;
 }
 
 void GameServer::Run()
 {
-	BootServer();
+	std::cout << "Server Online" << std::endl;
+
+	Initialize();
+	InitializeNPC();
+	Accept();
 	CreateThread();
 }

@@ -2,7 +2,9 @@
 #include "protocol.hpp"
 #include "Player.hpp"
 
-Player::Player(POS x, POS y, POS z) : NPC{ x, y, z }, pitch{0.0f}, yaw{0.0f}
+Player::Player(POS x, POS y, POS z) :
+	pitch{ 0.0f },
+	yaw{ 0.0f }
 {
 }
 
@@ -30,7 +32,7 @@ void Player::Move(int direction)
 
 	XMFLOAT3 position{ x, y, z };
 	DXMATH::AddVector(&position, &shift);
-	
+
 	x = position.x;
 	y = position.y;
 	z = position.z;

@@ -17,6 +17,6 @@ public:
 public:
 	OVERLAPPED over;
 	WSABUF wsa_buf;
-	char data[VAR_SIZE::DATA];
+	char data[VAR::DATA];
 	char type;
 };

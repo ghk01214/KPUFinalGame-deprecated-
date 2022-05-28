@@ -6,6 +6,8 @@
 // Object.hpp
 #include "Session.hpp"
 
+using c_map = concurrency::concurrent_unordered_map<int, Session*>;
+
 class Sector
 {
 public:
@@ -24,9 +26,12 @@ public:
 	void EnterSector(int id);
 	void LeaveSector(int id);
 
-	concurrency::concurrent_unordered_set<int> MakeViewList(Session* client, concurrency::concurrent_unordered_map<int, Session*>* others);
+	c_set MakeViewList(Session* client, c_map* others);
 
-	inline bool IsInSight(Session* cli1, Session* cli2);
+	bool OutOfSectorXR(float x);
+	bool OutOfSectorXL(float x);
+	bool OutOfSectorZU(float z);
+	bool OutOfSectorZD(float z);
 
 	int GetLTX() { return lt_x; }
 	int GetLTZ() { return lt_z; }
@@ -37,17 +42,4 @@ private:
 	concurrency::concurrent_unordered_set<int> objects;
 	std::shared_mutex sector_lock;
 };
-
-inline bool Sector::IsInSight(Session* cli1, Session* cli2)
-{
-	if (SIGHT_RANGE <= std::abs(cli1->GetMyObject()->GetX() - cli2->GetMyObject()->GetX()))
-		return false;
-	if (SIGHT_RANGE <= std::abs(cli1->GetMyObject()->GetY() - cli2->GetMyObject()->GetY()))
-		return false;
-	if (SIGHT_RANGE <= std::abs(cli1->GetMyObject()->GetZ() - cli2->GetMyObject()->GetZ()))
-		return false;
-
-	return true;
-}
-
 #endif // !_SECTOR_HPP_

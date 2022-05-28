@@ -3,9 +3,9 @@
 
 #include "protocol.hpp"
 
-enum class COMPLETION_TYPE
+enum class COMPLETION
 {
-	ACCEPT, RECV, SEND
+	ACCEPT, RECV, SEND, PLAYER_MOVE
 };
 
 class OVERLAPPEDEX
@@ -14,12 +14,14 @@ public:
 	OVERLAPPEDEX();
 
 	void Set(char* packet);
+	void Reset();
 
 public:
 	OVERLAPPED over;
-	WSABUF wsa_buf;
-	char data[VAR_SIZE::DATA];
-	char type;
+	WSABUF wsa;
+	COMPLETION type;
+	int target_id;
+	char data[VAR::DATA];
 };
 
 #endif // !_OVERLAPPEDEX_HPP_

@@ -1,14 +1,18 @@
 ﻿#include "pch.hpp"
+#include "NPC.hpp"
 #include "Player.hpp"
 #include "Session.hpp"
 
+using namespace std::chrono;
+
 Session::Session() :
-	id{ -1 },
-	object{ new Object{} },
 	sock{ INVALID_SOCKET },
-	state{ SESSION_STATE::FREE },
-	remain_size{ 0 },
-	flag{ 0 }
+	id{ -1 },
+	state{ STATE::FREE },
+	object{ new Object{} },
+	move_time{ steady_clock::now() + seconds(1) },
+	flag{ 0 },
+	remain_size{ 0 }
 {
 }
 
@@ -16,7 +20,7 @@ Session::Session(Object* obj) :
 	id{ -1 },
 	object{ obj },
 	sock{ INVALID_SOCKET },
-	state{ SESSION_STATE::FREE },
+	state{ STATE::FREE },
 	remain_size{ 0 },
 	flag{ 0 }
 {
@@ -24,30 +28,29 @@ Session::Session(Object* obj) :
 
 Session::~Session()
 {
+	closesocket(sock);
+
 	if (object)
 	{
 		delete object;
 		object = nullptr;
 	}
-
-	closesocket(sock);
 }
 
 void Session::Reset()
 {
 	closesocket(sock);
-
 	id = -1;
-	//object->Reset();
-	sock = INVALID_SOCKET;
-	state = SESSION_STATE::FREE;
-	remain_size = 0;
-	flag = 0;
-}
+	state.store(STATE::FREE, std::memory_order_seq_cst);
 
-void Session::OnDestroy()
-{
-	closesocket(sock);
+	recv_ex.Reset();
+	send_ex.Reset();
+
+	object->Reset();
+	view_list.clear();
+
+	flag = 0;
+	remain_size = 0;
 }
 
 void Session::RecvData()
@@ -55,17 +58,17 @@ void Session::RecvData()
 	flag = 0;
 	ZeroMemory(&recv_ex.over, sizeof(recv_ex.over));
 
-	recv_ex.wsa_buf.buf = recv_ex.data + remain_size;
-	recv_ex.wsa_buf.len = VAR_SIZE::DATA - remain_size;
+	recv_ex.wsa.len = VAR::DATA - remain_size;
+	recv_ex.wsa.buf = recv_ex.data + remain_size;
 
-	WSARecv(sock, &recv_ex.wsa_buf, 1, 0, &flag, &recv_ex.over, nullptr);
+	WSARecv(sock, &recv_ex.wsa, 1, 0, &flag, &recv_ex.over, nullptr);
 }
 
 void Session::SendData(void* packet)
 {
 	send_ex.Set(reinterpret_cast<char*>(packet));
 
-	WSASend(sock, &send_ex.wsa_buf, 1, 0, 0, &send_ex.over, nullptr);
+	WSASend(sock, &send_ex.wsa, 1, 0, 0, &send_ex.over, nullptr);
 }
 
 void Session::SendLoginPakcet()
@@ -176,6 +179,7 @@ void Session::AddToViewList(int id)
 
 void Session::RemoveFromViewList(int id)
 {
-	std::lock_guard<std::shared_mutex> lock{ view_lock };
+	view_lock.lock();
 	view_list.unsafe_erase(id);
+	view_lock.unlock();
 }

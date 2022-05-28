@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "OVERLAPPEDEX.h"
 
-OVERLAPPEDEX::OVERLAPPEDEX() : type(static_cast<char>(COMPLETION_TYPE::RECV)), wsa_buf({ VAR_SIZE::DATA, data })
+OVERLAPPEDEX::OVERLAPPEDEX() : type(static_cast<char>(COMPLETION_TYPE::RECV)), wsa_buf({ VAR::DATA, data })
 {
 	ZeroMemory(&over, sizeof(over));
 }

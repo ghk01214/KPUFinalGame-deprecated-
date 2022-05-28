@@ -27,7 +27,7 @@ namespace ATTACK_MODE
 
 inline constexpr int SERVER_PORT{ 5000 };
 
-namespace VAR_SIZE
+namespace VAR
 {
 	inline constexpr int DATA{ 256 };
 	inline constexpr int NAME{ 10 };
@@ -63,7 +63,7 @@ namespace SC
 			TYPE_ type{ SC::ADD_OBJECT };
 			ID_ id;
 			POS_ x, y, z;
-			char name[VAR_SIZE::NAME];
+			char name[VAR::NAME];
 			VECTOR_ look_x, look_y, look_z;			// Look Vector
 			VECTOR_ right_x, right_y, right_z;		// Right Vector
 			VECTOR_ up_x, up_y, up_z;				// Up Vector
@@ -127,7 +127,7 @@ namespace CS
 		{
 			SIZE_ size;
 			TYPE_ type;
-			char name[VAR_SIZE::NAME];
+			char name[VAR::NAME];
 			VECTOR_ look_x, look_y, look_z;			// Look Vector
 			VECTOR_ right_x, right_y, right_z;		// Right Vector
 			VECTOR_ up_x, up_y, up_z;				// Up Vector

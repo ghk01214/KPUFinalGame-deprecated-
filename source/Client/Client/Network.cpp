@@ -152,7 +152,7 @@ void CNetwork::RecvData()
 	ZeroMemory(&recv_ex.over, sizeof(recv_ex.over));
 
 	recv_ex.wsa_buf.buf = recv_ex.data + remain_size;
-	recv_ex.wsa_buf.len = VAR_SIZE::DATA - remain_size;
+	recv_ex.wsa_buf.len = VAR::DATA - remain_size;
 
 	WSARecv(server, &recv_ex.wsa_buf, 1, 0, &flag, &recv_ex.over, nullptr);
 }
