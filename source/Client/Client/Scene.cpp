@@ -668,7 +668,7 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
 	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
 	// m_vGameObjects.size()
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		if (m_vGameObjects[i])
 		{
@@ -688,16 +688,18 @@ bool CScene::Collider()
 {
 	XMFLOAT3 k;
 	XMFLOAT3 center;
-	for (int i = 0; i < m_nGameObjects; i++)
+//	m_nGameObjects 
+	for (int i = 0; i < 1; i++)
 	{
 		center = m_vGameObjects[i]->GetPosition();
-
+		//m_pPlayer->GetBulletNum()
 		for (int j = 0; j < m_pPlayer->GetBulletNum(); j++)
 		{
 			k = XMFLOAT3(center.x - (m_pPlayer->GetBullet()[j]->GetPosition().x), center.y - (m_pPlayer->GetBullet()[j]->GetPosition().y), center.z - (m_pPlayer->GetBullet()[j]->GetPosition().z));
 			float result = sqrt(m_pPlayer->GetBullet()[j]->GetPosition().x) + center.y - (m_pPlayer->GetBullet()[j]->GetPosition().y) + center.z - (m_pPlayer->GetBullet()[j]->GetPosition().z);
-			if (result <= 3)
+			if (result >= -0.2 && result <= 0.2)
 			{
+				std::cout << result << std::endl;
 				return true;
 			}
 		}
