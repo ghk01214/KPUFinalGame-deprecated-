@@ -115,5 +115,7 @@ public:
 	LIGHTS* m_pcbMappedLights = NULL;
 
 	void die(int hit);
+	void stopmove(int hit);
 	int hit = 0;
+	XMFLOAT3 temp;
 };
