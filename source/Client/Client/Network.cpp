@@ -132,12 +132,12 @@ void CNetwork::ProcessThread()
 
 		switch (over_ex->type)
 		{
-		case static_cast<int>(COMPLETION_TYPE::RECV):
+		case COMPLETION::RECV:
 		{
 			RecvData(bytes);
 		}
 		break;
-		case static_cast<int>(COMPLETION_TYPE::SEND):
+		case COMPLETION::SEND:
 		{
 			SendData(bytes);
 		}
@@ -151,39 +151,64 @@ void CNetwork::RecvData()
 	DWORD flag{ 0 };
 	ZeroMemory(&recv_ex.over, sizeof(recv_ex.over));
 
-	recv_ex.wsa_buf.buf = recv_ex.data + remain_size;
-	recv_ex.wsa_buf.len = VAR::DATA - remain_size;
+	recv_ex.wsa.buf = recv_ex.data + remain_size;
+	recv_ex.wsa.len = VAR::DATA - remain_size;
 
-	WSARecv(server, &recv_ex.wsa_buf, 1, 0, &flag, &recv_ex.over, nullptr);
+	WSARecv(server, &recv_ex.wsa, 1, 0, &flag, &recv_ex.over, nullptr);
 }
 
 void CNetwork::SendData(void* pack)
 {
-	send_ex.SetPacket(reinterpret_cast<char*>(pack));
+	send_ex.Set(reinterpret_cast<char*>(pack));
 
-	WSASend(server, &send_ex.wsa_buf, 1, 0, 0, &send_ex.over, nullptr);
+	WSASend(server, &send_ex.wsa, 1, 0, 0, &send_ex.over, nullptr);
 }
 
 void CNetwork::RecvData(DWORD bytes)
 {
-	if (!bytes)
-	{
-		return;
-	}
-
 	int remain{ static_cast<int>(bytes) + remain_size };
 	int packet_size{ over_ex->data[0] };
 
 	packet = over_ex->data;
 
-	for (; remain > 0 || packet_size <= remain; remain -= packet_size)
+	//while (remain > 0)
+	//{
+	//	packet_size = packet[0];
+
+	//	if (packet_size <= remain)
+	//	{
+	//		ProcessPacket();
+
+	//		packet += packet_size;
+	//		remain -= packet_size;
+	//	}
+	//	else
+	//		break;
+	//}
+
+	while (true)
 	{
 		packet_size = packet[0];
 
-		ProcessPacket();
+		if (remain > 0 && packet_size <= remain)
+		{
+			ProcessPacket();
 
-		packet += packet_size;
+			packet += packet_size;
+			remain -= packet_size;
+		}
+		else
+			break;
 	}
+
+	//for (; remain > 0 && packet_size <= remain; remain -= packet_size)
+	//{
+	//	packet_size = packet[0];
+	//
+	//	ProcessPacket();
+	//
+	//	packet += packet_size;
+	//}
 
 	remain_size = remain;
 
@@ -197,13 +222,7 @@ void CNetwork::RecvData(DWORD bytes)
 
 void CNetwork::SendData(DWORD bytes)
 {
-	if (!bytes)
-	{
-		return;
-	}
-
-	ZeroMemory(&over_ex, sizeof(over_ex));
-	over_ex = nullptr;
+	over_ex->Reset();
 }
 
 void CNetwork::ProcessPacket()

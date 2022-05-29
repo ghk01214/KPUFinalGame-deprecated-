@@ -2,7 +2,7 @@
 
 #include "../../Server/Server/protocol.hpp"
 
-enum class COMPLETION_TYPE
+enum class COMPLETION
 {
 	RECV, SEND
 };
@@ -12,11 +12,12 @@ class OVERLAPPEDEX
 public:
 	OVERLAPPEDEX();
 
-	void SetPacket(char* packet);
+	void Set(char* packet);
+	void Reset();
 
 public:
 	OVERLAPPED over;
-	WSABUF wsa_buf;
+	WSABUF wsa;
+	COMPLETION type;
 	char data[VAR::DATA];
-	char type;
 };

@@ -253,19 +253,49 @@ void GameServer::RecvData(ULONG_PTR id, DWORD bytes)
 		Disconnect(id);
 	}
 
-	int remain_size{ static_cast<int>(bytes) + sessions[id]->GetRemainSize() };
-	int packet_size{ over_ex->data[0] };
-
 	packet = over_ex->data;
 
-	for (; remain_size > 0 or packet_size <= remain_size; remain_size -= packet_size)
+	int remain_size{ static_cast<int>(bytes) + sessions[id]->GetRemainSize() };
+	int packet_size{ packet[0] };
+
+	//while (remain_size > 0)
+	//{
+	//	packet_size = packet[0];
+
+	//	if (packet_size <= remain_size)
+	//	{
+	//		ProcessPacket(id);
+
+	//		packet += packet_size;
+	//		remain_size -= packet_size;
+	//	}
+	//	else
+	//		break;
+	//}
+
+	while (true)
 	{
 		packet_size = packet[0];
 
-		ProcessPacket(id);
+		if (remain_size > 0 and packet_size <= remain_size)
+		{
+			ProcessPacket(id);
 
-		packet += packet_size;
+			packet += packet_size;
+			remain_size -= packet_size;
+		}
+		else
+			break;
 	}
+
+	//for (; remain_size > 0 and packet_size <= remain_size; remain_size -= packet_size)
+	//{
+	//	packet_size = packet[0];
+	//
+	//	ProcessPacket(id);
+	//
+	//	packet += packet_size;
+	//}
 
 	sessions[id]->SetRemainSize(remain_size);
 
