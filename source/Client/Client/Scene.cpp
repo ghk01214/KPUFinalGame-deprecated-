@@ -93,12 +93,14 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	for (int i = 0; i < 6; i++)
 	{
 		m_vGameObjects.push_back(new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 1));
-		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 0.0f, 2.5f);
-		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
-		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.2f);
 		(*(m_vGameObjects.end() - 1))->SetPosition(100.0f * i, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
 	}
+
+	//(*(m_vGameObjects.begin()))->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	//(*(m_vGameObjects.begin()))->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
+	(*(m_vGameObjects.begin()))->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.2f);
+
 	m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
 	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
@@ -523,16 +525,6 @@ bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 			//case 'Q': m_ppGameObjects[0]->MoveUp(+3.0f); break;
 			//case 'R': m_ppGameObjects[0]->MoveUp(-3.0f); break;
 		case VK_F1:
-			if (diecheck)
-			{
-				die(diecheck);
-				diecheck = false;
-			}
-			else
-			{
-				die(diecheck);
-				diecheck = true;
-			}
 			break;
 		default:
 			break;
@@ -549,34 +541,9 @@ bool CScene::ProcessInput(UCHAR* pKeysBuffer)
 	return(false);
 }
 
-void CScene::die(bool diecheck)
+void CScene::die(int hit)
 {
-	if (diecheck)
-	{
-		for (int i = 0; i < m_vGameObjects.size(); ++i)
-		{
-			m_vGameObjects[i]->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 10.0f, 11.0f);
-		}
-	}
-	else
-	{
-		for (int i = 0; i < m_vGameObjects.size(); ++i)
-		{
-			m_vGameObjects[i]->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 0.0f, 2.5f);
-		}
-	}
-}
-
-void CScene::die()
-{
-	if (hit == true)
-	{
-
-		for (int i = 0; i < m_vGameObjects.size(); ++i)
-		{
-			m_vGameObjects[i]->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 10.0f, 11.0f);
-		}
-	}
+	m_vGameObjects[hit]->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 10.0f, 11.0f);
 }
 
 void CScene::AnimateObjects(float fTimeElapsed)
@@ -648,29 +615,36 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 		}
 	}
 
-    hit = Collider();
-	die();
+	
+	hit = Collider();
+
+	if (hit < 7)
+	{
+		die(hit);
+	}
 	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 }
 
-bool CScene::Collider()
+int CScene::Collider()
 {
 	XMFLOAT3 k;
 	XMFLOAT3 center;
 	//m_nGameObjects 
-	for (int i = 0; i < m_nGameObjects; i++)
+	for (int i = 0; i < m_vGameObjects.size(); i++)
 	{
 		center = m_vGameObjects[i]->GetPosition();
+		
 		//m_pPlayer->GetBulletNum()
 		for (int j = 0; j < m_pPlayer->GetBulletNum(); j++)
 		{
 			k = XMFLOAT3(center.x - (m_pPlayer->GetBullet()[j]->GetPosition().x), center.y - (m_pPlayer->GetBullet()[j]->GetPosition().y), center.z - (m_pPlayer->GetBullet()[j]->GetPosition().z));
-			float result = sqrt(m_pPlayer->GetBullet()[j]->GetPosition().x) + center.y - (m_pPlayer->GetBullet()[j]->GetPosition().y) + center.z - (m_pPlayer->GetBullet()[j]->GetPosition().z);
-			if (result >= -0.5 && result <= 0.3)
+			float result = 1000.0f;
+			result = sqrt(pow(k.x, 2) + pow(k.y, 2) + pow(k.z, 2));
+			if ( result <= 5)
 			{
-				return true;
+				return i;
 			}
 		}
-		return false;
 	}
+	return 7;
 }
