@@ -92,8 +92,8 @@
     <ClInclude Include="WICTextureLoader12.h">
       <Filter>GameClient\Texture</Filter>
     </ClInclude>
-    <ClInclude Include="..\Server\protocol.hpp">
-      <Filter>GameClient\Network</Filter>
+    <ClInclude Include="..\..\Server\Server\protocol.hpp">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

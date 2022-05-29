@@ -105,7 +105,9 @@ void CPlayer::Move(float x, float y, float z)
 	m_xmf3Position = XMFLOAT3{ x, y, z };
 	m_pCamera->Move(m_xmf3Position);
 
-	std::cout << m_xmf3Position.x << ", " << m_xmf3Position.z << std::endl;
+#if _DEBUG
+	//std::cout << m_xmf3Position.x << ", " << m_xmf3Position.z << std::endl;
+#endif
 }
 
 void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)

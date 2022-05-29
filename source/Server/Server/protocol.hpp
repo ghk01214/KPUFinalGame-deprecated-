@@ -39,13 +39,13 @@ namespace VAR
 
 namespace SC
 {
-	inline constexpr TYPE_ LOGIN{ 0 };
-	inline constexpr TYPE_ ADD_OBJECT{ 1 };
-	inline constexpr TYPE_ REMOVE_OBJECT{ 2 };
-	inline constexpr TYPE_ MOVE_OBJECT{ 3 };
-	inline constexpr TYPE_ ROTATE_OBJECT{ 4 };
-	inline constexpr TYPE_ PLAYER_ATTACK{ 5 };
-	inline constexpr TYPE_ STRESS_MOVE{ 6 };
+	inline constexpr TYPE_ LOGIN{ 1 };
+	inline constexpr TYPE_ ADD_OBJECT{ 2 };
+	inline constexpr TYPE_ REMOVE_OBJECT{ 3 };
+	inline constexpr TYPE_ MOVE_OBJECT{ 4 };
+	inline constexpr TYPE_ ROTATE_OBJECT{ 5 };
+	inline constexpr TYPE_ PLAYER_ATTACK{ 6 };
+	inline constexpr TYPE_ STRESS_MOVE{ 7 };
 
 	namespace PACKET
 	{
@@ -114,12 +114,14 @@ namespace SC
 	}
 }
 
+#define CS_TYPE_START SC::STRESS_MOVE + 1
+
 namespace CS
 {
-	inline constexpr TYPE_ LOGIN{ 6 };
-	inline constexpr TYPE_ MOVE_OBJECT{ 7 };
-	inline constexpr TYPE_ ROTATE_OBJECT{ 8 };
-	inline constexpr TYPE_ PLAYER_ATTACK{ 9 };
+	inline constexpr TYPE_ LOGIN{ CS_TYPE_START };
+	inline constexpr TYPE_ MOVE_OBJECT{ CS_TYPE_START + 1 };
+	inline constexpr TYPE_ ROTATE_OBJECT{ CS_TYPE_START + 2 };
+	inline constexpr TYPE_ PLAYER_ATTACK{ CS_TYPE_START + 3 };
 
 	namespace PACKET
 	{

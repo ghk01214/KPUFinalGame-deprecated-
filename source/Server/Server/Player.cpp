@@ -33,11 +33,40 @@ void Player::Move(int direction)
 	XMFLOAT3 position{ x, y, z };
 	DXMATH::AddVector(&position, &shift);
 
-	x = position.x;
-	y = position.y;
-	z = position.z;
+	if (position.x < 0)
+	{
+		x = 0.0f;
+	}
+	else if (position.x > VAR::WORLD_X)
+	{
+		x = VAR::WORLD_X;
+	}
+	else
+	{
+		x = position.x;
+	}
 
+	if (position.z < 0)
+	{
+		z = 0.0f;
+	}
+	else if (position.z > VAR::WORLD_Z)
+	{
+		z = VAR::WORLD_Z;
+	}
+	else
+	{
+		z = position.z;
+	}
+	
+	y = position.y;
+	
+
+#if _DEBUG
+#ifdef DEBUG_GAME
 	std::cout << x << ", " << z << std::endl;
+#endif
+#endif
 }
 
 void Player::Rotate(float cx, float cy)
@@ -54,7 +83,7 @@ void Player::Rotate(float cx, float cy)
 		else if (pitch < -89.0f)
 		{
 			cx -= (pitch + 89.0f);
-			pitch -= 89.0f;
+			pitch = -89.0f;
 		}
 	}
 	if (cy != 0.0f)
@@ -74,17 +103,17 @@ void Player::Rotate(float cx, float cy)
 	if (cy != 0.0f)
 	{
 		XMMATRIX rotate{ XMMatrixRotationY(XMConvertToRadians(cy)) };
-		DXMATH::TransformNormal(&look, rotate);
-		DXMATH::TransformNormal(&up, rotate);
-		DXMATH::TransformNormal(&right, rotate);
+		DXMATH::TransformNormal(&look, &rotate);
+		DXMATH::TransformNormal(&up, &rotate);
+		DXMATH::TransformNormal(&right, &rotate);
 	}
 
 	if (cx != 0.0f)
 	{
 		XMMATRIX rotate{ XMMatrixRotationAxis(XMLoadFloat3(&right), XMConvertToRadians(cx)) };
-		DXMATH::TransformNormal(&look, rotate);
-		DXMATH::TransformNormal(&up, rotate);
-		DXMATH::TransformNormal(&right, rotate);
+		DXMATH::TransformNormal(&look, &rotate);
+		DXMATH::TransformNormal(&up, &rotate);
+		DXMATH::TransformNormal(&right, &rotate);
 	}
 
 	DXMATH::Normalize(&look);

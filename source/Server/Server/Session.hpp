@@ -38,8 +38,6 @@ public:
 	constexpr int GetID() const noexcept { return id; }
 	Object* GetMyObject() { return object; }
 	constexpr int GetRemainSize() const noexcept { return remain_size; }
-	int* GetSectorIndexX() { return &sector_index_x; }
-	int* GetSectorIndexZ() { return &sector_index_z; }
 
 	void SetSocket(SOCKET new_socket) { sock = new_socket; }
 	void SetID(int ID) { id = ID; }
@@ -64,14 +62,14 @@ private:
 	SC::PACKET::MOVE_OBJECT sc_move_object_packet;
 	SC::PACKET::ROTATE_OBJECT sc_rotate_object_packet;
 
-	int sector_index_x;
-	int sector_index_z;
-
 	DWORD flag;
 	int remain_size;
 public:
 	c_set view_list;
 	std::shared_mutex view_lock;
+
+	int sector_index_x;
+	int sector_index_z;
 
 	std::chrono::steady_clock::time_point move_time;
 };

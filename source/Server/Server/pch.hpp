@@ -60,7 +60,7 @@
 #pragma comment(lib, "lua54")
 #pragma endregion
 
-#define DEBUG_GAME
+//#define DEBUG_GAME
 
 #pragma region USING
 using namespace DirectX;
@@ -117,9 +117,9 @@ namespace DXMATH
 		XMStoreFloat3(vector1, XMLoadFloat3(vector1) + (XMLoadFloat3(vector2) * scalar));
 	}
 
-	inline void TransformNormal(XMFLOAT3* vector, XMMATRIX& matrix)
+	inline void TransformNormal(XMFLOAT3* vector, XMMATRIX* matrix)
 	{
-		XMStoreFloat3(vector, XMVector3TransformNormal(XMLoadFloat3(vector), matrix));
+		XMStoreFloat3(vector, XMVector3TransformNormal(XMLoadFloat3(vector), *matrix));
 	}
 
 	inline void Normalize(XMFLOAT3* vector)

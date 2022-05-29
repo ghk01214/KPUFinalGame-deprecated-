@@ -8,6 +8,8 @@ constexpr int VK_E{ 0x45 };
 constexpr int VK_Q{ 0x51 };
 constexpr int VK_S{ 0x53 };
 
+std::uniform_int_distribution<int> rand_pl{ -4, -1 };
+
 CGameFramework::CGameFramework() :
 	m_hWnd(nullptr),
 	m_hInstance(nullptr),
@@ -457,6 +459,20 @@ void CGameFramework::AddPlayer(SC::PACKET::ADD_OBJECT* packet)
 	}
 }
 
+void CGameFramework::RemovePlayer(int id)
+{
+	auto player{ players.extract(id) };
+	int new_id{ rand_pl(dre) };
+
+	while (players.find(new_id) != players.end())
+	{
+		new_id = rand_pl(dre);
+	}
+
+	player.key() = new_id;
+	players.insert(std::move(player));
+}
+
 void CGameFramework::BuildObjects()
 {
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
@@ -602,8 +618,8 @@ void CGameFramework::MoveToNextFrame()
 void CGameFramework::FrameAdvance()
 {
 	m_GameTimer.Tick(0.0f);
-	ProcessInput();
 
+	ProcessInput();
 	AnimateObjects();
 
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
@@ -630,18 +646,11 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
-
-
 	if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
 
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif
-	///////////////////////////////////////////////////////////////////////////////
-
-
-	///////////////////////////////////////////////////////////////////////////////////
-
 	if (!players.empty())
 	{
 		for (auto& player : players)
@@ -653,7 +662,6 @@ void CGameFramework::FrameAdvance()
 
 			for (int i = 0; i < player.second->GetBulletNum(); ++i)
 			{
-
 				player.second->MoveBullet();
 				player.second->GetBullet()[i]->UpdateTransform(nullptr);
 				player.second->GetBullet()[i]->Render(m_pd3dCommandList, player.second->GetCamera());
@@ -712,4 +720,3 @@ void CGameFramework::FrameAdvance()
 	_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 }
-

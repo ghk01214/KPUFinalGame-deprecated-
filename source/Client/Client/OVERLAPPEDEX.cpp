@@ -10,9 +10,9 @@ OVERLAPPEDEX::OVERLAPPEDEX() :
 
 void OVERLAPPEDEX::Set(char* packet)
 {
-	type = COMPLETION::SEND;
 	wsa.len = static_cast<ULONG>(packet[0]);
 	wsa.buf = data;
+	type = COMPLETION::SEND;
 
 	ZeroMemory(&over, sizeof(over));
 	std::memcpy(data, packet, packet[0]);

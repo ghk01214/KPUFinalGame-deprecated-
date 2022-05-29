@@ -33,6 +33,7 @@ public:
 	void Login() { network_manager->SendLoginPacket(); }
 	void RecvData() { network_manager->RecvData(); }
 	void AddPlayer(SC::PACKET::ADD_OBJECT* packet = nullptr);
+	void RemovePlayer(int id);
 
 	void BuildObjects();
 	void ReleaseObjects();

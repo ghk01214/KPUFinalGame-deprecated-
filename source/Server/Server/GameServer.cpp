@@ -93,8 +93,6 @@ GameServer::~GameServer()
 
 void GameServer::Initialize()
 {
-	std::cout << "Network Initialization Start" << std::endl;
-
 	if (WSADATA wsa; WSAStartup(MAKEWORD(2, 2), &wsa) != NOERROR)
 	{
 		ErrorQuit(L"WSAStartup fuction error");
@@ -126,8 +124,6 @@ void GameServer::Initialize()
 	{
 		ErrorQuit(L"listen function error");
 	}
-
-	std::cout << "Done" << std::endl;
 }
 
 void GameServer::InitializeNPC()
@@ -149,12 +145,11 @@ void GameServer::InitializeNPC()
 	}
 
 	std::cout << "Done" << std::endl;
+	std::system("cls");
 }
 
 void GameServer::Accept()
 {
-	std::cout << "Client Acception Start" << std::endl;
-
 	client_socket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);
 
 	OVERLAPPEDEX accept_ex;
@@ -166,9 +161,6 @@ void GameServer::Accept()
 
 void GameServer::CreateThread()
 {
-	std::cout << "Create Worker Thread and AI Thread" << std::endl;
-	std::system("cls");
-
 	for (int i = 0; i < MAX_USER; ++i)
 	{
 		worker_threads.emplace_back(&GameServer::ProcessWorkerThread, this);
@@ -192,7 +184,18 @@ void GameServer::ProcessWorkerThread()
 
 	while (true)
 	{
-		ret = GetQueuedCompletionStatus(iocp, &bytes, &id, reinterpret_cast<LPOVERLAPPED*>(&over_ex), INFINITE);
+		if (GetQueuedCompletionStatus(iocp, &bytes, &id, reinterpret_cast<LPOVERLAPPED*>(&over_ex), INFINITE) == FALSE)
+		{
+			DisplayError(L"GQCS Error on client[" + std::to_wstring(id) + L"]");
+			Disconnect(id);
+
+			if (over_ex->type == COMPLETION::SEND)
+			{
+				over_ex->Reset();
+			}
+
+			continue;
+		}
 
 		switch (over_ex->type)
 		{
@@ -258,26 +261,11 @@ void GameServer::RecvData(ULONG_PTR id, DWORD bytes)
 	int remain_size{ static_cast<int>(bytes) + sessions[id]->GetRemainSize() };
 	int packet_size{ packet[0] };
 
-	//while (remain_size > 0)
-	//{
-	//	packet_size = packet[0];
-
-	//	if (packet_size <= remain_size)
-	//	{
-	//		ProcessPacket(id);
-
-	//		packet += packet_size;
-	//		remain_size -= packet_size;
-	//	}
-	//	else
-	//		break;
-	//}
-
-	while (true)
+	while (remain_size > 0)
 	{
 		packet_size = packet[0];
 
-		if (remain_size > 0 and packet_size <= remain_size)
+		if (packet_size <= remain_size)
 		{
 			ProcessPacket(id);
 
@@ -443,16 +431,16 @@ void GameServer::ProcessRotatePacket(int id)
 
 	dynamic_cast<Player*>(sessions[id]->GetMyObject())->Rotate(cs_rotate_object_packet->cx, cs_rotate_object_packet->cy);
 
-	for (auto& session : sessions)
-	{
-		if (not session->IsMyID(id))
-		{
-			if (session->GetState() == STATE::INGAME)
-			{
-				session->SendRotateObjectPacket(id, session->GetMyObject());
-			}
-		}
-	}
+	//for (auto& session : sessions)
+	//{
+	//	if (not session->IsMyID(id))
+	//	{
+	//		if (session->GetState() == STATE::INGAME)
+	//		{
+	//			session->SendRotateObjectPacket(id, session->GetMyObject());
+	//		}
+	//	}
+	//}
 }
 
 void GameServer::ProcessPlayerAttackPacket(int id)
@@ -538,13 +526,11 @@ void GameServer::Disconnect(ULONG_PTR id)
 		}
 	}
 
-	std::cout << "session[" << id << "]" << "disconnected" << std::endl;
+	std::cout << "player[" << id << "]" << " disconnected" << std::endl;
 }
 
 void GameServer::Run()
 {
-	std::cout << "Server Online" << std::endl;
-
 	Initialize();
 	//InitializeNPC();
 	Accept();

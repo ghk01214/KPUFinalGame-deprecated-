@@ -35,7 +35,10 @@ Sector::Sector(Sector&& other) noexcept :
 
 	lt_x = 0;
 	lt_z = 0;
+
+	other.sector_lock.lock();
 	other.objects.clear();
+	other.sector_lock.unlock();
 }
 
 Sector& Sector::operator=(Sector&& other) noexcept
@@ -48,7 +51,10 @@ Sector& Sector::operator=(Sector&& other) noexcept
 
 		other.lt_x = 0;
 		other.lt_z = 0;
+
+		other.sector_lock.lock();
 		other.objects.clear();
+		other.sector_lock.unlock();
 	}
 
 	return *this;

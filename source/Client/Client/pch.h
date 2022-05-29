@@ -47,6 +47,7 @@ using namespace DirectX::PackedVector;
 using Microsoft::WRL::ComPtr;
 
 extern HINSTANCE ghAppInstance;
+extern std::default_random_engine dre;
 
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 

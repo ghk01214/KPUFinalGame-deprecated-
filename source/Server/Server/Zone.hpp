@@ -11,7 +11,7 @@ public:
 	~Zone();
 
 	void SetInSector(int id);
-	void UpdateSector(Session* session);
+	int UpdateSector(int id, Session* session);
 
 	void AddObject(int id, Session* session);
 	void MovePlayer(int id, int direction);

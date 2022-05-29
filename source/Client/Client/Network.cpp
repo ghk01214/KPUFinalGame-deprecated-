@@ -151,8 +151,8 @@ void CNetwork::RecvData()
 	DWORD flag{ 0 };
 	ZeroMemory(&recv_ex.over, sizeof(recv_ex.over));
 
-	recv_ex.wsa.buf = recv_ex.data + remain_size;
 	recv_ex.wsa.len = VAR::DATA - remain_size;
+	recv_ex.wsa.buf = recv_ex.data + remain_size;
 
 	WSARecv(server, &recv_ex.wsa, 1, 0, &flag, &recv_ex.over, nullptr);
 }
@@ -166,31 +166,16 @@ void CNetwork::SendData(void* pack)
 
 void CNetwork::RecvData(DWORD bytes)
 {
-	int remain{ static_cast<int>(bytes) + remain_size };
-	int packet_size{ over_ex->data[0] };
-
 	packet = over_ex->data;
 
-	//while (remain > 0)
-	//{
-	//	packet_size = packet[0];
+	int remain{ static_cast<int>(bytes) + remain_size };
+	int packet_size{ packet[0] };
 
-	//	if (packet_size <= remain)
-	//	{
-	//		ProcessPacket();
-
-	//		packet += packet_size;
-	//		remain -= packet_size;
-	//	}
-	//	else
-	//		break;
-	//}
-
-	while (true)
+	while (remain > 0)
 	{
 		packet_size = packet[0];
 
-		if (remain > 0 && packet_size <= remain)
+		if (packet_size <= remain)
 		{
 			ProcessPacket();
 
@@ -222,7 +207,13 @@ void CNetwork::RecvData(DWORD bytes)
 
 void CNetwork::SendData(DWORD bytes)
 {
-	over_ex->Reset();
+	//if (!bytes)
+	//{
+	//	return;
+	//}
+
+	ZeroMemory(&over_ex, sizeof(over_ex));
+	over_ex = nullptr;
 }
 
 void CNetwork::ProcessPacket()
@@ -270,7 +261,7 @@ void CNetwork::ProcessLoginPacket()
 
 	game_instance->GetPlayer(sc_login_packet->id)->SetPosition(temp);
 
-	std::cout << x << ", " << z << std::endl;
+	std::cout << "my uid is [" << sc_login_packet->id << "]" << std::endl;
 }
 
 void CNetwork::ProcessMovePacket()
@@ -288,13 +279,18 @@ void CNetwork::ProcessAddObjectPacket()
 	sc_add_object_packet = reinterpret_cast<SC::PACKET::ADD_OBJECT*>(packet);
 
 	game_instance->AddPlayer(sc_add_object_packet);
+
+	std::cout << "player[" << sc_add_object_packet->id << "] is in sight" << std::endl;
 }
 
 void CNetwork::ProcessRemoveObjectPacket()
 {
 	sc_remove_object_packet = reinterpret_cast<SC::PACKET::REMOVE_OBJECT*>(packet);
 
-	game_instance->GetPlayers()->erase(sc_remove_object_packet->id);
+	//game_instance->GetPlayers()->erase(sc_remove_object_packet->id);
+	game_instance->RemovePlayer(sc_remove_object_packet->id);
+
+	std::cout << "player[" << sc_remove_object_packet->id << "] is out of sight" << std::endl;
 }
 
 void CNetwork::SendLoginPacket()
