@@ -653,6 +653,7 @@ void CGameFramework::FrameAdvance()
 
 			for (int i = 0; i < player.second->GetBulletNum(); ++i)
 			{
+
 				player.second->MoveBullet();
 				player.second->GetBullet()[i]->UpdateTransform(nullptr);
 				player.second->GetBullet()[i]->Render(m_pd3dCommandList, player.second->GetCamera());

@@ -92,7 +92,7 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvDescriptorNextHandle() { return(m_d3dSrvCPUDescriptorNextHandle); }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorNextHandle() { return(m_d3dSrvGPUDescriptorNextHandle); }
 
-	bool Collider();
+	int Collider();
 
 	int									m_nGameObjects = 0;
 	std::vector<CGameObject*>					m_vGameObjects;
@@ -114,8 +114,6 @@ public:
 	ID3D12Resource* m_pd3dcbLights = NULL;
 	LIGHTS* m_pcbMappedLights = NULL;
 
-	bool diecheck=true;
-	void die(bool diecheck);
-	void die();
-	bool hit = false;
+	void die(int hit);
+	int hit = 0;
 };
