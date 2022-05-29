@@ -105,47 +105,51 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.2f);
 		(*(m_vGameObjects.end() - 1))->SetPosition(100.0f * i, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
 	}
-	m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
-	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
-	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
-	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
-	m_ppGameObjects[0]->SetPosition(380.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
 
-	m_ppGameObjects[1] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
-	m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
-	m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
-	m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
-	m_ppGameObjects[1]->SetPosition(480.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
+	{
+		//m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
+		//m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		//m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
+		//m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
+		//m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
+		//m_ppGameObjects[0]->SetPosition(380.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
 
-	m_ppGameObjects[2] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
-	m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
-	m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
-	m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
-	m_ppGameObjects[2]->SetPosition(580.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
+		//m_ppGameObjects[1] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
+		//m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		//m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
+		//m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
+		//m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
+		//m_ppGameObjects[1]->SetPosition(480.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
 
-	m_ppGameObjects[3] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
-	m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);
-	m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
-	m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
-	m_ppGameObjects[3]->SetPosition(680.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
+		//m_ppGameObjects[2] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
+		//m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		//m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
+		//m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
+		//m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
+		//m_ppGameObjects[2]->SetPosition(580.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
 
-	m_ppGameObjects[4] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
-	m_ppGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_ppGameObjects[4]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);
-	m_ppGameObjects[4]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
-	m_ppGameObjects[4]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
-	m_ppGameObjects[4]->SetPosition(780.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
+		//m_ppGameObjects[3] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
+		//m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		//m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);
+		//m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
+		//m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
+		//m_ppGameObjects[3]->SetPosition(680.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
 
-	m_ppGameObjects[5] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
-	m_ppGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_ppGameObjects[5]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
-	m_ppGameObjects[5]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
-	m_ppGameObjects[5]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
-	m_ppGameObjects[5]->SetPosition(880.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
+		//m_ppGameObjects[4] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
+		//m_ppGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		//m_ppGameObjects[4]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);
+		//m_ppGameObjects[4]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
+		//m_ppGameObjects[4]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
+		//m_ppGameObjects[4]->SetPosition(780.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
+
+		//m_ppGameObjects[5] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
+		//m_ppGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		//m_ppGameObjects[5]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
+		//m_ppGameObjects[5]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
+		//m_ppGameObjects[5]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
+		//m_ppGameObjects[5]->SetPosition(880.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
+	}
+
 	if (pAngrybotModel) delete pAngrybotModel;
 
 	//CLoadedModelInfo *pElvenWitchModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Elven_Witch.bin", NULL);
@@ -194,10 +198,10 @@ void CScene::ReleaseObjects()
 	if (m_pTerrain) delete m_pTerrain;
 	if (m_pSkyBox) delete m_pSkyBox;
 
-	if (m_ppGameObjects)
+	if (m_vGameObjects.size() != 0)
 	{
-		for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Release();
-		delete[] m_ppGameObjects;
+		for (int i = 0; i < m_nGameObjects; i++) if (m_vGameObjects[i]) m_vGameObjects[i]->Release();
+		m_vGameObjects.clear();
 	}
 
 	if (m_vGameObjects.begin() != m_vGameObjects.end())
@@ -435,7 +439,7 @@ void CScene::ReleaseUploadBuffers()
 	if (m_pTerrain) m_pTerrain->ReleaseUploadBuffers();
 
 	for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
-	for (int i = 0; i < m_nGameObjects; i++) m_ppGameObjects[i]->ReleaseUploadBuffers();
+	//for (int i = 0; i < m_nGameObjects; i++) m_ppGameObjects[i]->ReleaseUploadBuffers();
 	for (auto temp : m_vGameObjects) temp->ReleaseUploadBuffers();
 }
 
