@@ -89,12 +89,6 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_nGameObjects = 6;
 	m_ppGameObjects = new CGameObject * [m_nGameObjects];
 
-	//CLoadedModelInfo *pLionModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Lion.bin", NULL);
-	//m_ppGameObjects[0] = new CLionObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pLionModel, 1);
-	//m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
-	//m_ppGameObjects[0]->SetPosition(240.0f, m_pTerrain->GetHeight(240.0f, 640.0f), 640.0f);
-	//if (pLionModel) delete pLionModel;
-
 	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Ghoul@Animations.bin", NULL);
 	for (int i = 0; i < 6; i++)
 	{
@@ -148,30 +142,6 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppGameObjects[5]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
 	m_ppGameObjects[5]->SetPosition(880.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
 	if (pAngrybotModel) delete pAngrybotModel;
-
-	//CLoadedModelInfo *pElvenWitchModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Elven_Witch.bin", NULL);
-	//m_ppGameObjects[2] = new CElvenWitchObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pElvenWitchModel, 1);
-	//m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//m_ppGameObjects[2]->SetPosition(330.0f, m_pTerrain->GetHeight(330.0f, 700.0f) + 25.0f, 700.0f);
-	//if (pElvenWitchModel) delete pElvenWitchModel;
-
-	//CLoadedModelInfo *pMonsterModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/MonsterWeapon.bin", NULL);
-	//m_ppGameObjects[3] = new CMonsterWeaponObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pMonsterModel, 1);
-	//m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//m_ppGameObjects[3]->SetPosition(300.0f, m_pTerrain->GetHeight(300.0f, 650.0f), 650.0f);
-	//if (pMonsterModel) delete pMonsterModel;
-
-	//CLoadedModelInfo *pEagleModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Eagle.bin", NULL);
-	//m_ppGameObjects[4] = new CEagleObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pEagleModel, 1);
-	//m_ppGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//m_ppGameObjects[4]->SetPosition(230.0f, m_pTerrain->GetHeight(230.0f, 580.0f), 580.0f);
-
-	//m_ppGameObjects[5] = new CEagleObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pEagleModel, 1);
-	//m_ppGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
-	//m_ppGameObjects[5]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.5f);
-	//m_ppGameObjects[5]->SetPosition(200.0f, m_pTerrain->GetHeight(200.0f, 620.0f) + 20.0f, 620.0f);
-	//if (pEagleModel) 
-	//	delete pEagleModel;
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
@@ -592,7 +562,7 @@ void CScene::die(bool diecheck)
 	{
 		for (int i = 0; i < m_vGameObjects.size(); ++i)
 		{
-			m_vGameObjects[i]->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 2.5f, 5.5f);
+			m_vGameObjects[i]->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 0.0f, 2.5f);
 		}
 	}
 }
@@ -622,7 +592,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 		m_pLights[1].m_xmf3Position = m_pPlayer->GetPosition();
 		m_pLights[1].m_xmf3Direction = m_pPlayer->GetLookVector();
 	}
-
+	//////// 적들의 이동
 	for (int i = 0; i < m_nGameObjects; ++i)
 	{
 		//float xamount{ m_pPlayer->GetPosition().x - m_ppGameObjects[i]->GetPosition().x };
@@ -647,7 +617,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 			m_vGameObjects[i]->Rotate(0, 0, -1.0f);
 		}
 
-		m_vGameObjects[i]->MoveUp(-1);
+		m_vGameObjects[i]->MoveUp(-0.5f);
 
 	}
 }
@@ -668,14 +638,13 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
 	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
 	// m_vGameObjects.size()
-	for (int i = 0; i < 1; i++)
+	for (int i = 0; i < m_vGameObjects.size(); i++)
 	{
 		if (m_vGameObjects[i])
 		{
 			m_vGameObjects[i]->Animate(m_fElapsedTime);
 			if (!m_vGameObjects[i]->m_pSkinnedAnimationController) m_vGameObjects[i]->UpdateTransform(NULL);
 			m_vGameObjects[i]->Render(pd3dCommandList, pCamera);
-
 		}
 	}
 
@@ -688,8 +657,8 @@ bool CScene::Collider()
 {
 	XMFLOAT3 k;
 	XMFLOAT3 center;
-//	m_nGameObjects 
-	for (int i = 0; i < 1; i++)
+	//m_nGameObjects 
+	for (int i = 0; i < m_nGameObjects; i++)
 	{
 		center = m_vGameObjects[i]->GetPosition();
 		//m_pPlayer->GetBulletNum()
@@ -697,9 +666,8 @@ bool CScene::Collider()
 		{
 			k = XMFLOAT3(center.x - (m_pPlayer->GetBullet()[j]->GetPosition().x), center.y - (m_pPlayer->GetBullet()[j]->GetPosition().y), center.z - (m_pPlayer->GetBullet()[j]->GetPosition().z));
 			float result = sqrt(m_pPlayer->GetBullet()[j]->GetPosition().x) + center.y - (m_pPlayer->GetBullet()[j]->GetPosition().y) + center.z - (m_pPlayer->GetBullet()[j]->GetPosition().z);
-			if (result >= -0.2 && result <= 0.2)
+			if (result >= -0.5 && result <= 0.3)
 			{
-				std::cout << result << std::endl;
 				return true;
 			}
 		}
