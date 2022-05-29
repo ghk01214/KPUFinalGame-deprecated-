@@ -34,10 +34,10 @@ GameServer::GameServer() :
 		sessions[i] = new Session{ new Player{} };
 	}
 
-	for (int i = NPC_START; i < sessions.size(); ++i)
-	{
-		sessions[i] = new Session{ new NPC{} };
-	}
+	//for (int i = NPC_START; i < sessions.size(); ++i)
+	//{
+	//	sessions[i] = new Session{ new NPC{} };
+	//}
 }
 #pragma endregion
 
@@ -167,6 +167,7 @@ void GameServer::Accept()
 void GameServer::CreateThread()
 {
 	std::cout << "Create Worker Thread and AI Thread" << std::endl;
+	std::system("cls");
 
 	for (int i = 0; i < MAX_USER; ++i)
 	{
@@ -374,26 +375,27 @@ void GameServer::ProcessLoginPacket(int id)
 		}
 	}
 
-	for (auto& other : sessions)
-	{
-		if (not other->IsMyID(id))
-		{
-			if (other->GetState() == STATE::INGAME)
-			{
-				POS disX{ player->GetMyObject()->GetX() - other->GetMyObject()->GetX() };
-				POS disZ{ player->GetMyObject()->GetZ() - other->GetMyObject()->GetZ() };
-
-				// 상대가 내 시야에 들어오면
-				if (IsInSight(disX, disZ))
-				{
-					// 내 view list에 상대방 id 추가
-					player->AddToViewList(other->GetID());
-					// 내 클라이언트에 상대방의 정보 전송
-					player->SendAddObjectPacket(other->GetID(), other->GetMyObject());
-				}
-			}
-		}
-	}
+	// NPC
+	//for (auto& other : sessions)
+	//{
+	//	if (not other->IsMyID(id))
+	//	{
+	//		if (other->GetState() == STATE::INGAME)
+	//		{
+	//			POS disX{ player->GetMyObject()->GetX() - other->GetMyObject()->GetX() };
+	//			POS disZ{ player->GetMyObject()->GetZ() - other->GetMyObject()->GetZ() };
+	//
+	//			// 상대가 내 시야에 들어오면
+	//			if (IsInSight(disX, disZ))
+	//			{
+	//				// 내 view list에 상대방 id 추가
+	//				player->AddToViewList(other->GetID());
+	//				// 내 클라이언트에 상대방의 정보 전송
+	//				player->SendAddObjectPacket(other->GetID(), other->GetMyObject());
+	//			}
+	//		}
+	//	}
+	//}
 
 	std::cout << "player[" << id << "] login" << std::endl;
 }
@@ -413,14 +415,12 @@ void GameServer::ProcessRotatePacket(int id)
 
 	for (auto& session : sessions)
 	{
-		if (session->GetID() == id)
+		if (not session->IsMyID(id))
 		{
-			continue;
-		}
-
-		if (session->GetState() == STATE::INGAME)
-		{
-			session->SendRotateObjectPacket(id, session->GetMyObject());
+			if (session->GetState() == STATE::INGAME)
+			{
+				session->SendRotateObjectPacket(id, session->GetMyObject());
+			}
 		}
 	}
 }
@@ -516,7 +516,7 @@ void GameServer::Run()
 	std::cout << "Server Online" << std::endl;
 
 	Initialize();
-	InitializeNPC();
+	//InitializeNPC();
 	Accept();
 	CreateThread();
 }

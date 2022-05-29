@@ -91,7 +91,7 @@ void CNetwork::ConnectToServer()
 	}
 
 	if (iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, NULL, NULL);
-		iocp == nullptr)
+		iocp == INVALID_HANDLE_VALUE)
 	{
 		ErrorQuit(L"IOCP Handle Creation Failed");
 	}
@@ -250,6 +250,8 @@ void CNetwork::ProcessLoginPacket()
 	XMFLOAT3 temp{ x, y, z };
 
 	game_instance->GetPlayer(sc_login_packet->id)->SetPosition(temp);
+
+	std::cout << x << ", " << z << std::endl;
 }
 
 void CNetwork::ProcessMovePacket()
@@ -281,6 +283,7 @@ void CNetwork::SendLoginPacket()
 	cs_login_packet->size = sizeof(CS::PACKET::LOGIN);
 	cs_login_packet->type = CS::LOGIN;
 	strcpy_s(cs_login_packet->name, "player");
+
 	cs_login_packet->look_x = 0.0f;
 	cs_login_packet->look_y = 0.0f;
 	cs_login_packet->look_z = 1.0f;

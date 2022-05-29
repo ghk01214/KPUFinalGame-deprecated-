@@ -47,7 +47,10 @@ void Session::Reset()
 	send_ex.Reset();
 
 	object->Reset();
+
+	view_lock.lock();
 	view_list.clear();
+	view_lock.unlock();
 
 	flag = 0;
 	remain_size = 0;

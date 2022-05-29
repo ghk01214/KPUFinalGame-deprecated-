@@ -336,7 +336,6 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_RETURN:
 			break;
 		case VK_F1:
-			break;
 		case VK_F2:
 			::ReleaseCapture();
 			break;
@@ -448,13 +447,13 @@ void CGameFramework::AddPlayer(SC::PACKET::ADD_OBJECT* packet)
 		players[packet->id]->SetRightVector(XMFLOAT3{ packet->right_x, packet->right_y, packet->right_z });
 		players[packet->id]->SetUpVector(XMFLOAT3{ packet->up_x, packet->up_y, packet->up_z });
 
-		for (auto& iter : players)
-		{
-			if (iter.first >= 0)
-			{
-				std::cout << iter.first << " : " << iter.second->GetPosition().x << ", " << iter.second->GetPosition().z << std::endl;
-			}
-		}
+		//for (auto& iter : players)
+		//{
+		//	if (iter.first >= 0)
+		//	{
+		//		std::cout << iter.first << " : " << iter.second->GetPosition().x << ", " << iter.second->GetPosition().z << std::endl;
+		//	}
+		//}
 	}
 }
 

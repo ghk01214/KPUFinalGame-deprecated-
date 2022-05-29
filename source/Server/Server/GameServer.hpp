@@ -50,7 +50,7 @@ private:
 	int server_key;
 
 	SOCKET client_socket;
-	std::array<Session*, MAX_USER + NPC_NUM> sessions;
+	std::array<Session*, MAX_USER/*+ NPC_NUM*/> sessions;
 
 	OVERLAPPEDEX* over_ex;
 	char* packet;
