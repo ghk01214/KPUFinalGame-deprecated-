@@ -13,6 +13,11 @@ D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dCbvGPUDescriptorNextHandle;
 D3D12_CPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvCPUDescriptorNextHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvGPUDescriptorNextHandle;
 
+std::random_device rd;
+std::mt19937_64 gen(rd());
+std::uniform_real_distribution<float> dis(0.0f,2000.0f);
+
+
 CScene::CScene()
 {
 }
@@ -90,16 +95,15 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppGameObjects = new CGameObject * [m_nGameObjects];
 
 	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Ghoul@Animations.bin", NULL);
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i <25; i++)
 	{
 		m_vGameObjects.push_back(new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 1));
 		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 0.0f, 2.5f);
-		(*(m_vGameObjects.end() - 1))->SetPosition(100.0f * i, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
+		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
+		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.2f);
+		(*(m_vGameObjects.end() - 1))->SetPosition(dis(gen), m_pTerrain->GetHeight(380.0f, 725.0f), dis(gen));
 	}
 
-	//(*(m_vGameObjects.begin()))->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//(*(m_vGameObjects.begin()))->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
-	(*(m_vGameObjects.begin()))->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.2f);
 
 	m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
 	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
@@ -552,7 +556,17 @@ bool CScene::ProcessInput(UCHAR* pKeysBuffer)
 
 void CScene::die(int hit)
 {
-	m_vGameObjects[hit]->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 10.0f, 11.0f);
+	m_vGameObjects[hit]->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 11.0f, 11.0f);
+
+	m_vGameObjects[hit]->SetPosition(9999.9f, 9999.9f, 9999.9f);
+}
+
+void CScene::stopmove(int hit)
+{
+	for(int i=0 ;i< 6;++i)
+	{
+		m_vGameObjects[hit]->SetPosition(temp);
+	}
 }
 
 void CScene::AnimateObjects(float fTimeElapsed)
@@ -569,7 +583,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 		m_pLights[1].m_xmf3Direction = m_pPlayer->GetLookVector();
 	}
 	//////// 적들의 이동
-	for (int i = 0; i < m_nGameObjects; ++i)
+	for (int i = 0; i < m_vGameObjects.size(); ++i)
 	{
 		//float xamount{ m_pPlayer->GetPosition().x - m_ppGameObjects[i]->GetPosition().x };
 		//float zamount{ m_pPlayer->GetPosition().z - m_ppGameObjects[i]->GetPosition().z };
@@ -593,7 +607,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 			m_vGameObjects[i]->Rotate(0, 0, -1.0f);
 		}
 
-		m_vGameObjects[i]->MoveUp(-0.5f);
+		m_vGameObjects[i]->MoveUp(-0.8f);
 
 	}
 }
@@ -624,13 +638,15 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 		}
 	}
 
-	
+
 	hit = Collider();
 
-	if (hit < 7)
+	if (hit < 26)
 	{
 		die(hit);
 	}
+
+
 	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 }
 
@@ -642,18 +658,20 @@ int CScene::Collider()
 	for (int i = 0; i < m_vGameObjects.size(); i++)
 	{
 		center = m_vGameObjects[i]->GetPosition();
-		
+
 		//m_pPlayer->GetBulletNum()
 		for (int j = 0; j < m_pPlayer->GetBulletNum(); j++)
 		{
 			k = XMFLOAT3(center.x - (m_pPlayer->GetBullet()[j]->GetPosition().x), center.y - (m_pPlayer->GetBullet()[j]->GetPosition().y), center.z - (m_pPlayer->GetBullet()[j]->GetPosition().z));
 			float result = 1000.0f;
 			result = sqrt(pow(k.x, 2) + pow(k.y, 2) + pow(k.z, 2));
-			if ( result <= 5)
+			if (result <= 5)
 			{
+				temp = m_vGameObjects[i]->GetPosition();
+				m_pPlayer->GetBullet()[j]->SetPosition(9999.9f, 9999.9f, 9999.9f);
 				return i;
 			}
 		}
 	}
-	return 7;
+	return 26;
 }
