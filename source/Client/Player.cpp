@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "../../Server/Server/protocol.hpp"
+#include "../Server/protocol.hpp"
 #include "Player.h"
 #include "Shader.h"
 

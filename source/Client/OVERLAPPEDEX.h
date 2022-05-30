@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "../../Server/Server/protocol.hpp"
+#include "../Server/protocol.hpp"
 
 enum class COMPLETION
 {
