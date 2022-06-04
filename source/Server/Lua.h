@@ -1,14 +1,13 @@
-﻿#ifndef _LUA_SCRIPT_HPP_
-#define _LUA_SCRIPT_HPP_
+﻿#pragma once
 
-#include "Zone.hpp"
+#include "Zone.h"
 
-class LuaScript
+class Lua
 {
 public:
-	LuaScript() = default;
-	LuaScript(Zone* zone);
-	~LuaScript();
+	Lua() = default;
+	Lua(Zone* zone);
+	~Lua();
 
 	static void MakeNewInstance(Zone* zone);
 
@@ -21,9 +20,8 @@ public:
 private:
 	// static으로 선언된 메서드에서 멤버 변수를 불러오기 위해서는
 	// static으로 선언된 this
-	static LuaScript* instance;
+	static Lua* instance;
 private:
 	Zone* zone;
 };
 
-#endif // !_LUA_SCRIPT_HPP_

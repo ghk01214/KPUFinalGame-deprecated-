@@ -5,16 +5,17 @@
 CNetwork::CNetwork(CGameFramework* game_inst) :
 	server(INVALID_SOCKET),
 	iocp(INVALID_HANDLE_VALUE),
+	key(9999),
 	remain_size(0),
 	game_instance(game_inst),
-	sc_login_packet(new SC::PACKET::LOGIN),
-	sc_move_object_packet(new SC::PACKET::MOVE_OBJECT),
-	sc_add_object_packet(new SC::PACKET::ADD_OBJECT),
-	sc_remove_object_packet(new SC::PACKET::REMOVE_OBJECT),
-	cs_login_packet(new CS::PACKET::LOGIN),
-	cs_move_object_packet(new CS::PACKET::MOVE_OBJECT),
-	cs_rotate_object_packet(new CS::PACKET::ROTATE_OBJECT),
-	cs_player_attack_packet(new CS::PACKET::PLAYER_ATTACK),
+	sc_login(new SC::P::LOGIN),
+	sc_move_object(new SC::P::MOVE_OBJ),
+	sc_add_object(new SC::P::ADD_OBJ),
+	sc_remove_object(new SC::P::DELETE_OBJ),
+	cs_login(new CS::P::LOGIN),
+	cs_move_object(new CS::P::MOVE_OBJ),
+	cs_rotate_object(new CS::P::ROTATE_OBJ),
+	cs_player_attack(new CS::P::PLAYER_ATTACK),
 	over_ex(nullptr),
 	packet(nullptr)
 {
@@ -22,6 +23,11 @@ CNetwork::CNetwork(CGameFramework* game_inst) :
 
 CNetwork::~CNetwork()
 {
+	closesocket(server);
+	WSACleanup();
+
+	worker_thread.join();
+
 	if (packet)
 	{
 		delete packet;
@@ -32,53 +38,50 @@ CNetwork::~CNetwork()
 		delete over_ex;
 		over_ex = nullptr;
 	}
-	if (sc_login_packet)
+	if (sc_login)
 	{
-		delete sc_login_packet;
-		sc_login_packet = nullptr;
+		delete sc_login;
+		sc_login = nullptr;
 	}
-	if (sc_move_object_packet)
+	if (sc_move_object)
 	{
-		delete sc_move_object_packet;
-		sc_move_object_packet = nullptr;
+		delete sc_move_object;
+		sc_move_object = nullptr;
 	}
-	if (sc_add_object_packet)
+	if (sc_add_object)
 	{
-		delete sc_add_object_packet;
-		sc_add_object_packet = nullptr;
+		delete sc_add_object;
+		sc_add_object = nullptr;
 	}
-	if (sc_remove_object_packet)
+	if (sc_remove_object)
 	{
-		delete sc_remove_object_packet;
-		sc_remove_object_packet = nullptr;
+		delete sc_remove_object;
+		sc_remove_object = nullptr;
 	}
-	if (cs_login_packet)
+	if (cs_login)
 	{
-		delete cs_login_packet;
-		cs_login_packet = nullptr;
+		delete cs_login;
+		cs_login = nullptr;
 	}
-	if (cs_move_object_packet)
+	if (cs_move_object)
 	{
-		delete cs_move_object_packet;
-		cs_move_object_packet = nullptr;
+		delete cs_move_object;
+		cs_move_object = nullptr;
 	}
-	if (cs_rotate_object_packet)
+	if (cs_rotate_object)
 	{
-		delete cs_rotate_object_packet;
-		cs_rotate_object_packet = nullptr;
+		delete cs_rotate_object;
+		cs_rotate_object = nullptr;
 	}
-	if (cs_player_attack_packet)
+	if (cs_player_attack)
 	{
-		delete cs_player_attack_packet;
-		cs_player_attack_packet = nullptr;
+		delete cs_player_attack;
+		cs_player_attack = nullptr;
 	}
 	if (game_instance)
 	{
 		game_instance = nullptr;
 	}
-
-	closesocket(server);
-	WSACleanup();
 }
 
 void CNetwork::ConnectToServer()
@@ -105,7 +108,7 @@ void CNetwork::ConnectToServer()
 	server_addr.sin_port = htons(SERVER_PORT);
 	InetPton(AF_INET, SERVER_ADDR.c_str(), &server_addr.sin_addr);
 
-	CreateIoCompletionPort(reinterpret_cast<HANDLE>(server), iocp, server, 0);
+	CreateIoCompletionPort(reinterpret_cast<HANDLE>(server), iocp, key, 0);
 
 	if (WSAConnect(server, reinterpret_cast<sockaddr*>(&server_addr), sizeof(server_addr), 0, 0, 0, 0) == SOCKET_ERROR)
 	{
@@ -118,14 +121,12 @@ void CNetwork::ConnectToServer()
 void CNetwork::ProcessThread()
 {
 	DWORD bytes;
-	ULONG_PTR key;
+	ULONG_PTR id;
 	BOOL ret;
 
 	while (true)
 	{
-		ret = GetQueuedCompletionStatus(iocp, &bytes, &key, reinterpret_cast<LPOVERLAPPED*>(&over_ex), INFINITE);
-
-		if (ret == 0)
+		if (GetQueuedCompletionStatus(iocp, &bytes, &id, reinterpret_cast<LPOVERLAPPED*>(&over_ex), INFINITE) == 0)
 		{
 			ErrorQuit(L"GetQueuedCompletionStatus error");
 		}
@@ -142,8 +143,20 @@ void CNetwork::ProcessThread()
 			SendData(bytes);
 		}
 		break;
+		case COMPLETION::QUIT:
+		{
+			return;
+		}
+		break;
 		}
 	}
+}
+
+void CNetwork::EndThread()
+{
+	over_ex->type = COMPLETION::QUIT;
+
+	PostQueuedCompletionStatus(iocp, 1, key, &over_ex->over);
 }
 
 void CNetwork::RecvData()
@@ -227,17 +240,17 @@ void CNetwork::ProcessPacket()
 		ProcessLoginPacket();
 	}
 	break;
-	case SC::MOVE_OBJECT:
+	case SC::MOVE_OBJ:
 	{
 		ProcessMovePacket();
 	}
 	break;
-	case SC::ADD_OBJECT:
+	case SC::ADD_OBJ:
 	{
 		ProcessAddObjectPacket();
 	}
 	break;
-	case SC::REMOVE_OBJECT:
+	case SC::DELETE_OBJ:
 	{
 		ProcessRemoveObjectPacket();
 	}
@@ -247,100 +260,100 @@ void CNetwork::ProcessPacket()
 
 void CNetwork::ProcessLoginPacket()
 {
-	sc_login_packet = reinterpret_cast<SC::PACKET::LOGIN*>(packet);
+	sc_login = reinterpret_cast<SC::P::LOGIN*>(packet);
 
 	auto player{ game_instance->GetPlayers()->extract(game_instance->GetPlayers()->begin()) };
-	player.key() = sc_login_packet->id;
+	player.key() = sc_login->id;
 	game_instance->GetPlayers()->insert(std::move(player));
 
-	float x{ static_cast<float>(sc_login_packet->x) };
-	float y{ static_cast<float>(sc_login_packet->y) };
-	float z{ static_cast<float>(sc_login_packet->z) };
+	float x{ static_cast<float>(sc_login->x) };
+	float y{ static_cast<float>(sc_login->y) };
+	float z{ static_cast<float>(sc_login->z) };
 
 	XMFLOAT3 temp{ x, y, z };
 
-	game_instance->GetPlayer(sc_login_packet->id)->SetPosition(temp);
+	game_instance->GetPlayer(sc_login->id)->SetPosition(temp);
 
-	std::cout << "my uid is [" << sc_login_packet->id << "]" << std::endl;
+	std::cout << "my uid is [" << sc_login->id << "]" << std::endl;
 }
 
 void CNetwork::ProcessMovePacket()
 {
-	sc_move_object_packet = reinterpret_cast<SC::PACKET::MOVE_OBJECT*>(packet);
+	sc_move_object = reinterpret_cast<SC::P::MOVE_OBJ*>(packet);
 
-	auto player{ game_instance->GetPlayer(sc_move_object_packet->id) };
+	auto player{ game_instance->GetPlayer(sc_move_object->id) };
 
-	player->Move(sc_move_object_packet->x, sc_move_object_packet->y, sc_move_object_packet->z);
+	player->Move(sc_move_object->x, sc_move_object->y, sc_move_object->z);
 	player->Update(game_instance->GetTimer()->GetTimeElapsed());
 }
 
 void CNetwork::ProcessAddObjectPacket()
 {
-	sc_add_object_packet = reinterpret_cast<SC::PACKET::ADD_OBJECT*>(packet);
+	sc_add_object = reinterpret_cast<SC::P::ADD_OBJ*>(packet);
 
-	game_instance->AddPlayer(sc_add_object_packet);
+	game_instance->AddPlayer(sc_add_object);
 
-	std::cout << "player[" << sc_add_object_packet->id << "] is in sight" << std::endl;
+	std::cout << "player[" << sc_add_object->id << "] is in sight" << std::endl;
 }
 
 void CNetwork::ProcessRemoveObjectPacket()
 {
-	sc_remove_object_packet = reinterpret_cast<SC::PACKET::REMOVE_OBJECT*>(packet);
+	sc_remove_object = reinterpret_cast<SC::P::DELETE_OBJ*>(packet);
 
-	//game_instance->GetPlayers()->erase(sc_remove_object_packet->id);
-	game_instance->RemovePlayer(sc_remove_object_packet->id);
+	//game_instance->GetPlayers()->erase(sc_remove_object->id);
+	game_instance->RemovePlayer(sc_remove_object->id);
 
-	std::cout << "player[" << sc_remove_object_packet->id << "] is out of sight" << std::endl;
+	std::cout << "player[" << sc_remove_object->id << "] is out of sight" << std::endl;
 }
 
 void CNetwork::SendLoginPacket()
 {
-	cs_login_packet->size = sizeof(CS::PACKET::LOGIN);
-	cs_login_packet->type = CS::LOGIN;
-	strcpy_s(cs_login_packet->name, "player");
+	cs_login->size = sizeof(CS::P::LOGIN);
+	cs_login->type = CS::LOGIN;
+	strcpy_s(cs_login->name, "player");
 
-	cs_login_packet->look_x = 0.0f;
-	cs_login_packet->look_y = 0.0f;
-	cs_login_packet->look_z = 1.0f;
+	cs_login->look_x = 0.0f;
+	cs_login->look_y = 0.0f;
+	cs_login->look_z = 1.0f;
 
-	cs_login_packet->right_x = 1.0f;
-	cs_login_packet->right_y = 0.0f;
-	cs_login_packet->right_z = 0.0f;
+	cs_login->right_x = 1.0f;
+	cs_login->right_y = 0.0f;
+	cs_login->right_z = 0.0f;
 
-	cs_login_packet->up_x = 0.0f;
-	cs_login_packet->up_y = 1.0f;
-	cs_login_packet->up_z = 0.0f;
+	cs_login->up_x = 0.0f;
+	cs_login->up_y = 1.0f;
+	cs_login->up_z = 0.0f;
 
-	cs_login_packet->pitch = 0.0f;
-	cs_login_packet->yaw = 0.0f;
+	cs_login->pitch = 0.0f;
+	cs_login->yaw = 0.0f;
 
-	SendData(cs_login_packet);
+	SendData(cs_login);
 }
 
 void CNetwork::SendMoveObjectPacket(DWORD direction)
 {
-	cs_move_object_packet->size = sizeof(CS::PACKET::MOVE_OBJECT);
-	cs_move_object_packet->type = CS::MOVE_OBJECT;
-	cs_move_object_packet->direction = static_cast<char>(direction);
+	cs_move_object->size = sizeof(CS::P::MOVE_OBJ);
+	cs_move_object->type = CS::MOVE_OBJ;
+	cs_move_object->direction = static_cast<char>(direction);
 
-	SendData(cs_move_object_packet);
+	SendData(cs_move_object);
 }
 
 void CNetwork::SendRotateObjectPacket(float cx, float cy)
 {
-	cs_rotate_object_packet->size = sizeof(CS::PACKET::ROTATE_OBJECT);
-	cs_rotate_object_packet->type = CS::ROTATE_OBJECT;
-	cs_rotate_object_packet->cx = -cx;
-	cs_rotate_object_packet->cy = -cy;
+	cs_rotate_object->size = sizeof(CS::P::ROTATE_OBJ);
+	cs_rotate_object->type = CS::ROTATE_OBJ;
+	cs_rotate_object->cx = -cx;
+	cs_rotate_object->cy = -cy;
 
-	SendData(cs_rotate_object_packet);
+	SendData(cs_rotate_object);
 }
 
 void CNetwork::SendPlayerAttackPacket(int mode)
 {
-	cs_player_attack_packet->size = sizeof(CS::PACKET::PLAYER_ATTACK);
-	cs_player_attack_packet->type = CS::PLAYER_ATTACK;
-	cs_player_attack_packet->mode = static_cast<char>(mode);
+	cs_player_attack->size = sizeof(CS::P::PLAYER_ATTACK);
+	cs_player_attack->type = CS::PLAYER_ATTACK;
+	cs_player_attack->mode = static_cast<char>(mode);
 
-	SendData(cs_player_attack_packet);
+	SendData(cs_player_attack);
 }

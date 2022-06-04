@@ -1,18 +1,19 @@
-﻿#include "pch.hpp"
-#include "protocol.hpp"
-#include "Session.hpp"
-#include "Zone.hpp"
+﻿#include "pch.h"
+#include "Zone.h"
 
 Zone::Zone() :
-	width{ VAR::WORLD_X },
-	height{ VAR::WORLD_Z },
-	sector_num_x{ static_cast<int>(width / SECTOR_RANGE) },
-	sector_num_z{ static_cast<int>(height / SECTOR_RANGE) }
+#pragma region CONSTRUCTOR
+	width{ VAR::WORLD_XR - VAR::WORLD_XL },
+	height{ VAR::WORLD_ZF - VAR::WORLD_ZB }
 {
+	sector_num_x = static_cast<int>(width) / SECTOR_RANGE;
+	sector_num_z = static_cast<int>(height) / SECTOR_RANGE;
+
 	if (static_cast<int>(width) % SECTOR_RANGE != 0)
 	{
 		++sector_num_x;
 	}
+
 	if (static_cast<int>(height) % SECTOR_RANGE != 0)
 	{
 		++sector_num_z;
@@ -20,39 +21,48 @@ Zone::Zone() :
 
 	sector.reserve(sector_num_z);
 
-	for (int z = 0, lt_z = SECTOR_RANGE; z < sector.capacity(); ++z, lt_z += SECTOR_RANGE)
+	for (int z = 0, lb_z = VAR::WORLD_ZB; z < sector.capacity(); ++z, lb_z += SECTOR_RANGE)
 	{
 		std::vector<Sector> temp;
 		temp.reserve(sector_num_x);
 
-		for (int x = 0, lt_x = 0; x < temp.capacity(); ++x, lt_x += SECTOR_RANGE)
+		for (int x = 0, lb_x = VAR::WORLD_XL; x < temp.capacity(); ++x, lb_x += SECTOR_RANGE)
 		{
-			temp.emplace_back(lt_x, lt_z);
+			temp.emplace_back(lb_x, lb_z);
 		}
 
 		sector.emplace_back(temp);
 	}
 }
+#pragma endregion
 
 Zone::~Zone()
 {
+	for (auto& iter : objects)
+	{
+		iter.second = nullptr;
+	}
+
+	zone_lock.lock();
+	objects.clear();
+	zone_lock.unlock();
 }
 
 void Zone::SetInSector(int id)
 {
-	auto new_x{ objects[id]->GetMyObject()->GetX() };
-	auto new_z{ objects[id]->GetMyObject()->GetZ() };
+	auto obj_x{ objects[id]->GetX() };
+	auto obj_z{ objects[id]->GetZ() };
 
 	for (int z = 0; z < sector.size(); ++z)
 	{
 		for (int x = 0; x < sector[z].size(); ++x)
 		{
-			// 플레이어가 해당 sector 안에 있으면 sector의 인덱스 추출
-			if (new_x >= sector[z][x].GetLTX() &&
-				new_x < sector[z][x].GetLTX() + SECTOR_RANGE)
+			// 플레이어가 있는 sector의 index 추출
+			if (sector[z][x].GetLBX() <= obj_x &&
+				obj_x < sector[z][x].GetLBX() + SECTOR_RANGE)
 			{
-				if (new_z >= sector[z][x].GetLTZ() &&
-					new_z < sector[z][x].GetLTZ() + SECTOR_RANGE)
+				if (sector[z][x].GetLBZ() <= obj_z &&
+					obj_z < sector[z][x].GetLBZ() + SECTOR_RANGE)
 				{
 					objects[id]->SetSectorIndex(x, z);
 
@@ -63,177 +73,141 @@ void Zone::SetInSector(int id)
 	}
 }
 
-int Zone::UpdateSector(int id, Session* session)
+int Zone::UpdateSector(Session* client)
 {
 	int moved{ 0 };
 
-	auto player{ session->GetMyObject() };
+	int id{ client->GetId() };
 
-	auto& x{ session->sector_index_x };
-	auto& z{ session->sector_index_z };
+	auto& x{ client->sector_index_x };
+	auto& z{ client->sector_index_z };
 
-	// 플레이어가 기존 sector 밖으로 이동한 경우
-	// +x축 방향
-	if (sector[z][x].OutOfSectorXR(player->GetX()))
+	if (sector[z][x].OutOfSectorXR(client->GetX()))
 	{
 		if (x < sector_num_x - 1)
 		{
 			sector[z][x].LeaveSector(id);
 			sector[z][++x].EnterSector(id);
 			++moved;
-#if _DEBUG
-#ifdef DEBUG_GAME
-			std::cout << id << "; " << "sector : " << *x << ", " << *z << std::endl;
-#endif
-#endif
 		}
 	}
-	// -x축 방향
-	else if (sector[z][x].OutOfSectorXL(player->GetX()))
+
+	if (sector[z][x].OutOfSectorXL(client->GetX()))
 	{
 		if (x > 0)
 		{
 			sector[z][x].LeaveSector(id);
 			sector[z][--x].EnterSector(id);
 			++moved;
-#if _DEBUG
-#ifdef DEBUG_GAME
-			std::cout << id << "; " << "sector : " << x << ", " << z << std::endl;
-#endif
-#endif
 		}
 	}
 
-	// +z축 방향
-	if (sector[z][x].OutOfSectorZU(player->GetZ()))
+	if (sector[z][x].OutOfSectorZF(client->GetZ()))
 	{
 		if (z < sector_num_z - 1)
 		{
 			sector[z][x].LeaveSector(id);
 			sector[++z][x].EnterSector(id);
 			++moved;
-#if _DEBUG
-#ifdef DEBUG_GAME
-			std::cout << id << "; " << "sector : " << x << ", " << z << std::endl;
-#endif
-#endif
 		}
 	}
-	// -z축 방향
-	else if (sector[z][x].OutOfSectorZD(player->GetZ()))
+
+	if (sector[z][x].OutOfSectorZB(client->GetZ()))
 	{
 		if (z > 0)
 		{
 			sector[z][x].LeaveSector(id);
 			sector[--z][x].EnterSector(id);
 			++moved;
-#if _DEBUG
-#ifdef DEBUG_GAME
-			std::cout << id << "; " << "sector : " << x << ", " << z << std::endl;
-#endif
-#endif
 		}
 	}
 
 	return moved;
 }
 
-void Zone::AddObject(int id, Session* session)
+void Zone::AddObject(Session* client)
 {
-	objects[id] = session;
+	objects[client->GetId()] = client;
 
-	SetInSector(id);
+	SetInSector(client->GetId());
 }
 
-void Zone::MovePlayer(int id, int direction)
+void Zone::RemoveObject(int id)
 {
-	auto obj{ objects[id] };
+	zone_lock.lock();
+	objects.unsafe_erase(id);
+	zone_lock.unlock();
+}
 
-	obj->GetMyObject()->Move(direction);
+void Zone::MoveObject(int id, int direction)
+{
+	auto my_obj{ objects[id] };
 
-#if _DEBUG
-#ifdef DEBUG_GAME	// DEFINED IN PCH.HPP
-	std::cout << id << ": " << obj->GetX() << ", " << obj->GetZ() << std::endl;
-#endif
-#endif
+	my_obj->Move(direction);
+	my_obj->SendMove(my_obj);
 
-	// 움직인 플레이어에게 우선 이동 패킷 전송
-	objects[id]->SendMoveObjectPacket(id, obj->GetMyObject());
-
-	// 이동 후 sector 업데이트
-	// sector 이동이 실제로 일어난 경우 view list 수정
-	if (UpdateSector(id, obj))
+	if (UpdateSector(my_obj))
 	{
-		// 해당 object가 위치한 sector의 인덱스 좌표
-		auto& x{ obj->sector_index_x };
-		auto& z{ obj->sector_index_z };
+		auto& x{ my_obj->sector_index_x };
+		auto& z{ my_obj->sector_index_z };
 
-		// TODO: view list를 이용한 플레이어 추가 패킷 전송 여부 결정
-		auto old_list{ obj->view_list };
-		// 해당 sector 내의 모든 object에 대해 새로운 view list 생성
-		auto new_list{ sector[z][x].MakeViewList(obj, &objects) };
+		my_obj->view_lock.lock();
+		auto old_list{ my_obj->view_list };
+		my_obj->view_lock.unlock();
 
-		// 새로운 view list의 모든 객체에 대하여
-		for (auto& opponent_id : new_list)
+		c_set new_list;
+		sector[z][x].MakeNewViewList(&new_list, my_obj, &objects);
+
+		// 새로운 view list에
+		for (auto& opp_id : new_list)
 		{
-			// 상대 npc
-			auto opp_obj{ objects[opponent_id] };
+			auto opp_obj{ objects[opp_id] };
 
 			if (opp_obj->GetState() == STATE::INGAME)
 			{
-				// 상대의 view_list
-				auto opponent_list{ opp_obj->view_list };
-
-				// 나의 view list에 상대 id가 없으면
-				if (not opp_obj->IsInMyViewList(opponent_id))
+				// 내 view list에 상대 id가 없으면
+				if (not my_obj->IsInViewList(opp_id))
 				{
-					// view list에 추가
-					obj->AddToViewList(opponent_id);
-
-					// 나에게 해당 플레이어 정보 전송
-					obj->SendAddObjectPacket(opponent_id, opp_obj->GetMyObject());
+					// view list에 추가 후 상대 정보 전송
+					my_obj->AddToViewList(opp_id);
+					my_obj->SendAdd(opp_obj);
 				}
 
-				// 상대 view list에 나의 id가 있으면
-				if (opp_obj->IsInMyViewList(id))
+				// 상대 view list에 내 id가 없으면
+				if (opp_obj->IsInViewList(id))
 				{
-					// 상대 클라이언트에서 나를 이동
-					objects[opponent_id]->SendMoveObjectPacket(id, obj->GetMyObject());
+					opp_obj->SendMove(my_obj);
 				}
-				// 상대 view list에 나의 id가 없으면
+				// 상대 view list에 내 id가 있으면
 				else
 				{
-					// 상대 view list에 나를 추가
+					// view list에 추가 후 내 정보 전송
 					opp_obj->AddToViewList(id);
-					// 상대 클라이언트에 나의 정보 전송
-					opp_obj->SendAddObjectPacket(id, obj->GetMyObject());
+					opp_obj->SendAdd(my_obj);
 				}
 			}
 		}
 
-		// 기존의 view list에 있는 모든 객체에 대하여
-		for (auto& obj_id : old_list)
+		// 기존의 veiw list에
+		for (auto& opp_id : old_list)
 		{
-			auto opp_obj{ objects[obj_id] };
+			auto opp_obj{ objects[opp_id] };
 
-			if (objects[obj_id]->GetState() == STATE::INGAME)
+			if (opp_obj->GetState() == STATE::INGAME)
 			{
-				// 새로운 view list에 없으면
-				if (new_list.find(obj_id) == new_list.end())
+				// 새로운 view list에 opp_id의 객체가 없으면
+				if (new_list.find(opp_id) == new_list.end())
 				{
-					// 나의 view list에서 제거
-					obj->RemoveFromViewList(obj_id);
+					// view list에서 제거 후 제거 신호 전송
+					my_obj->DeleteFromViewList(opp_id);
+					my_obj->SendDelete(opp_id);
 
-					// 나에게 상대 정보 제거 신호 전송
-					obj->SendRemoveObjectPacket(obj_id);
-
-					// 상대 view list에 나의 id가 있으면
-					if (opp_obj->IsInMyViewList(id))
+					// 상대 view list에 내 id가 있으면
+					if (opp_obj->IsInViewList(id))
 					{
-						// 상대 view list에서 제거
-						opp_obj->RemoveFromViewList(id);
-						// 상대 클라이언트에 나의 정보 제거 신호 전송
-						opp_obj->SendRemoveObjectPacket(id);
+						// view list에서 내 id 제거 후 제거 신호 전송
+						opp_obj->DeleteFromViewList(id);
+						opp_obj->SendDelete(id);
 					}
 				}
 			}

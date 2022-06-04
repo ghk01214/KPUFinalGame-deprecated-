@@ -333,7 +333,8 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_SPACE:
 			break;
 		case VK_ESCAPE:
-			::PostQuitMessage(0);
+			network_manager->EndThread();
+			PostQuitMessage(0);
 			break;
 		case VK_RETURN:
 			break;
@@ -418,7 +419,7 @@ void CGameFramework::OnDestroy()
 
 #define _WITH_TERRAIN_PLAYER
 
-void CGameFramework::AddPlayer(SC::PACKET::ADD_OBJECT* packet)
+void CGameFramework::AddPlayer(SC::P::ADD_OBJ* packet)
 {
 	if (!packet)
 	{
@@ -530,17 +531,17 @@ void CGameFramework::ProcessInput()
 		DWORD left_click{ 0 };
 
 		if (pKeysBuffer[VK_W] & 0xF0)
-			dwDirection |= KEYINPUT::FORWARD;
+			dwDirection |= KEY::FORWARD;
 		if (pKeysBuffer[VK_S] & 0xF0)
-			dwDirection |= KEYINPUT::BACKWARD;
+			dwDirection |= KEY::BACKWARD;
 		if (pKeysBuffer[VK_A] & 0xF0)
-			dwDirection |= KEYINPUT::LEFT;
+			dwDirection |= KEY::LEFT;
 		if (pKeysBuffer[VK_D] & 0xF0)
-			dwDirection |= KEYINPUT::RIGHT;
+			dwDirection |= KEY::RIGHT;
 		if (pKeysBuffer[VK_Q] & 0xF0)
-			dwDirection |= KEYINPUT::UP;
+			dwDirection |= KEY::UP;
 		if (pKeysBuffer[VK_E] & 0xF0)
-			dwDirection |= KEYINPUT::DOWN;
+			dwDirection |= KEY::DOWN;
 		if (pKeysBuffer[VK_LBUTTON] & 0xF0)
 			left_click |= VK_LBUTTON;
 

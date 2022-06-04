@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-#include "../Server/protocol.hpp"
+#include "../Server/protocol.h"
 
 enum class COMPLETION
 {
-	RECV, SEND
+	RECV, SEND, QUIT
 };
 
 class OVERLAPPEDEX

@@ -1,5 +1,7 @@
-﻿#include "pch.hpp"
-#include "Timer.hpp"
+﻿#include "pch.h"
+#include "Timer.h"
+
+using namespace std::chrono;
 
 Timer::Timer()
 {

@@ -1,7 +1,4 @@
-﻿#ifndef _OVERLAPPEDEX_HPP_
-#define _OVERLAPPEDEX_HPP_
-
-#include "protocol.hpp"
+﻿#pragma once
 
 enum class COMPLETION
 {
@@ -20,8 +17,7 @@ public:
 	OVERLAPPED over;
 	WSABUF wsa;
 	COMPLETION type;
-	int target_id;
+	int target;
 	char data[VAR::DATA];
 };
 
-#endif // !_OVERLAPPEDEX_HPP_

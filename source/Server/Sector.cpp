@@ -1,60 +1,77 @@
-﻿#include "pch.hpp"
-#include "Sector.hpp"
+﻿#include "pch.h"
+#include "Sector.h"
 
-Sector::Sector(int x, int y) :
-	lt_x{ x },
-	lt_z{ y }
+Sector::Sector() :
+	lb_x{ VAR::WORLD_XL },
+	lb_z{ VAR::WORLD_ZB }
 {
 }
 
-Sector::Sector(const Sector& other) :
-	lt_x{ other.lt_x },
-	lt_z{ other.lt_z }
+Sector::Sector(POS x, POS z) :
+	lb_x{ x },
+	lb_z{ z }
 {
-	std::memcpy(&objects, &other.objects, other.objects.size());
 }
 
-Sector& Sector::operator=(const Sector& other)
+Sector::~Sector()
 {
-	if (this != &other)
+}
+
+Sector::Sector(const Sector& right) :
+	lb_x{ right.lb_x },
+	lb_z{ right.lb_z }
+{
+	std::memcpy(&objects, &right.objects, right.objects.size());
+}
+
+Sector& Sector::operator=(const Sector& right)
+{
+	if (this != &right)
 	{
-		lt_x = other.lt_x;
-		lt_z = other.lt_z;
+		lb_x = right.lb_x;
+		lb_z = right.lb_z;
 
-		std::memcpy(&objects, &other.objects, other.objects.size());
+		std::memcpy(&objects, &right.objects, right.objects.size());
 	}
 
 	return *this;
 }
 
-Sector::Sector(Sector&& other) noexcept :
-	lt_x{ other.lt_x },
-	lt_z{ other.lt_z }
+Sector::Sector(Sector&& right) noexcept :
+	lb_x{ right.lb_x },
+	lb_z{ right.lb_z }
 {
-	objects.swap(other.objects);
+	right.lb_x = VAR::WORLD_XL;
+	right.lb_z = VAR::WORLD_ZB;
 
-	lt_x = 0;
-	lt_z = 0;
+	sector_lock.lock();
+	right.sector_lock.lock();
 
-	other.sector_lock.lock();
-	other.objects.clear();
-	other.sector_lock.unlock();
+	objects.swap(right.objects);
+	right.objects.clear();
+
+	right.sector_lock.unlock();
+	sector_lock.unlock();
 }
 
-Sector& Sector::operator=(Sector&& other) noexcept
+Sector& Sector::operator=(Sector&& right) noexcept
 {
-	if (this != &other)
+	if (this != &right)
 	{
-		lt_x = other.lt_x;
-		lt_z = other.lt_z;
-		objects.swap(other.objects);
+		lb_x = right.lb_x;
+		lb_z = right.lb_z;
 
-		other.lt_x = 0;
-		other.lt_z = 0;
+		right.lb_x = VAR::WORLD_XL;
+		right.lb_z = VAR::WORLD_ZB;
 
-		other.sector_lock.lock();
-		other.objects.clear();
-		other.sector_lock.unlock();
+		sector_lock.lock();
+		right.sector_lock.lock();
+
+		objects.swap(right.objects);
+		right.objects.clear();
+
+		right.sector_lock.unlock();
+		sector_lock.unlock();
 	}
 
 	return *this;
@@ -72,57 +89,53 @@ void Sector::LeaveSector(int id)
 	sector_lock.unlock();
 }
 
-c_set Sector::MakeViewList(Session* session, c_map* others)
+void Sector::MakeNewViewList(c_set* new_list, Session* client, c_map* others)
 {
-	c_set new_list;
-
-	if (!objects.empty())
+	if (not objects.empty())
 	{
-		for (auto& other : *others)
+		for (auto& obj : objects)
 		{
-			if (not session->IsMyID(other.first))
+			if (not client->IsMyID(obj))
 			{
-				POS disX{ session->GetMyObject()->GetX() - other.second->GetMyObject()->GetX() };
-				POS disZ{ session->GetMyObject()->GetZ() - other.second->GetMyObject()->GetZ() };
+				auto dis1{ client->GetX() - (*others)[obj]->GetX() };
+				auto dis2{ client->GetZ() - (*others)[obj]->GetZ() };
 
-				if (IsInSight(disX, disZ))
+				if (::IsInSight(dis1, dis2))
 				{
-					new_list.insert(other.first);
+					new_list->insert(obj);
 				}
 			}
 		}
 	}
-
-	return new_list;
 }
 
-bool Sector::OutOfSectorXL(float x)
+bool Sector::OutOfSectorXL(POS x)
 {
-	if (x >= lt_x)
+	if (lb_x <= x)
 		return false;
 
 	return true;
 }
 
-bool Sector::OutOfSectorZD(float z)
+bool Sector::OutOfSectorZB(POS z)
 {
-	if (z >= lt_z)
+	if (lb_z <= z)
 		return false;
 
 	return true;
 }
 
-bool Sector::OutOfSectorXR(float x)
+bool Sector::OutOfSectorXR(POS x)
 {
-	if (x < lt_x + SECTOR_RANGE)
+	if (x < lb_x + SECTOR_RANGE)
 		return false;
 
 	return true;
 }
 
-bool Sector::OutOfSectorZU(float z)
+bool Sector::OutOfSectorZF(POS z)
 {
-	if (z < lt_z + SECTOR_RANGE)
+	if (z < lb_z + SECTOR_RANGE)
 		return false;
 
 	return true;

@@ -208,3 +208,15 @@ void ErrorQuit(std::wstring msg)
 	LocalFree(lpMsgBuf);
 	exit(true);
 }
+
+void DisplayError(std::wstring msg)
+{
+	LPVOID lpMsgBuf;
+
+	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, nullptr, WSAGetLastError(),
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPTSTR>(&lpMsgBuf), 0, nullptr);
+
+	std::wcout << "[" << msg << "] " << static_cast<LPCTSTR>(lpMsgBuf) << std::endl;
+
+	LocalFree(lpMsgBuf);
+}

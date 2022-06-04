@@ -4,7 +4,7 @@
 
 #define MAX_LOADSTRING 100
 
-#if _DEBUG
+#ifdef DEBUG
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 #endif
 

@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "../Server/protocol.hpp"
+#include "../Server/protocol.h"
 #include "Player.h"
 #include "Shader.h"
 
@@ -60,38 +60,38 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 	if (dwDirection)
 	{
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
-		if (dwDirection & KEYINPUT::FORWARD)
+		if (dwDirection & KEY::FORWARD)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, +fDistance);
 		}
-		if (dwDirection & KEYINPUT::BACKWARD)
+		if (dwDirection & KEY::BACKWARD)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
 		}
 #ifdef _WITH_LEFT_HAND_COORDINATES
-		if (dwDirection & KEYINPUT::RIGHT)
+		if (dwDirection & KEY::RIGHT)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, +fDistance);
 		}
-		if (dwDirection & KEYINPUT::LEFT)
+		if (dwDirection & KEY::LEFT)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
 		}
 #else
-		if (dwDirection & KEYINPUT::RIGHT)
+		if (dwDirection & KEY::RIGHT)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
 		}
-		if (dwDirection & KEYINPUT::LEFT)
+		if (dwDirection & KEY::LEFT)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, +fDistance);
 		}
 #endif
-		if (dwDirection & KEYINPUT::UP)
+		if (dwDirection & KEY::UP)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, +fDistance);
 		}
-		if (dwDirection & KEYINPUT::DOWN)
+		if (dwDirection & KEY::DOWN)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
 		}
@@ -105,7 +105,7 @@ void CPlayer::Move(float x, float y, float z)
 	m_xmf3Position = XMFLOAT3{ x, y, z };
 	m_pCamera->Move(m_xmf3Position);
 
-#if _DEBUG
+#ifdef DEBUG
 	//std::cout << m_xmf3Position.x << ", " << m_xmf3Position.z << std::endl;
 #endif
 }

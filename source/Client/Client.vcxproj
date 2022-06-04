@@ -151,7 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\Server\protocol.hpp" />
+    <ClInclude Include="..\Server\protocol.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="DDSTextureLoader12.h" />

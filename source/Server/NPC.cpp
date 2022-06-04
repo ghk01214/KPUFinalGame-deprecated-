@@ -1,12 +1,15 @@
-﻿#include "pch.hpp"
-#include "NPC.hpp"
+﻿#include "pch.h"
+#include "NPC.h"
+
+NPC::NPC()
+{
+}
 
 NPC::NPC(POS x, POS y, POS z) :
 	Object{ x, y, z },
-	look{ XMFLOAT3{ 0.f, 0.f, 1.f } },
-	right{ XMFLOAT3{ 1.f, 0.f, 0.f } },
-	up{ XMFLOAT3{ 0.f, 1.f, 0.f } },
-	L{ nullptr }
+	look{ 0.0f, 0.0f, 1.0f },
+	right{ 1.0f, 0.0f, 0.0f },
+	up{ 0.0f, 1.0f, 0.0f }
 {
 	L = luaL_newstate();
 
@@ -34,21 +37,4 @@ void NPC::InitializeScript(int id)
 	lua_getglobal(L, "SetObjID");
 	lua_pushnumber(L, id);
 	lua_pcall(L, 1, 0, 0);
-}
-
-void NPC::Reset()
-{
-	Object::Reset();
-
-	look.x = 0.f;
-	look.y = 0.f;
-	look.z = 0.f;
-
-	right.x = 0.f;
-	right.y = 0.f;
-	right.z = 0.f;
-
-	up.x = 0.f;
-	up.y = 0.f;
-	up.z = 0.f;
 }

@@ -1,10 +1,14 @@
-﻿#include "pch.hpp"
-#include "protocol.hpp"
-#include "Player.hpp"
+﻿#include "pch.h"
+#include "Player.h"
 
-Player::Player(POS x, POS y, POS z) :
+Player::Player() :
+	max_speed{ 5.0f },
 	pitch{ 0.0f },
 	yaw{ 0.0f }
+{
+}
+
+Player::~Player()
 {
 }
 
@@ -13,19 +17,19 @@ void Player::Move(int direction)
 	XMFLOAT3 shift{ 0.0f, 0.0f, 0.0f };
 	XMFLOAT3 temp_look{ look.x, 0.0f, look.z };
 
-	if (direction & KEYINPUT::FORWARD)
+	if (direction & KEY::FORWARD)
 	{
 		DXMATH::AddVector(&shift, &temp_look, -max_speed);
 	}
-	if (direction & KEYINPUT::BACKWARD)
+	if (direction & KEY::BACKWARD)
 	{
 		DXMATH::AddVector(&shift, &temp_look, +max_speed);
 	}
-	if (direction & KEYINPUT::LEFT)
+	if (direction & KEY::LEFT)
 	{
 		DXMATH::AddVector(&shift, &right, -max_speed);
 	}
-	if (direction & KEYINPUT::RIGHT)
+	if (direction & KEY::RIGHT)
 	{
 		DXMATH::AddVector(&shift, &right, max_speed);
 	}
@@ -33,39 +37,36 @@ void Player::Move(int direction)
 	XMFLOAT3 position{ x, y, z };
 	DXMATH::AddVector(&position, &shift);
 
-	if (position.x < 0)
+	if (position.x < VAR::WORLD_XL)
 	{
-		x = 0.0f;
+		x = VAR::WORLD_XL;
 	}
-	else if (position.x > VAR::WORLD_X)
+	else if (position.x > VAR::WORLD_XR)
 	{
-		x = VAR::WORLD_X;
+		x = VAR::WORLD_XR;
 	}
 	else
 	{
 		x = position.x;
 	}
 
-	if (position.z < 0)
+	if (position.z < VAR::WORLD_ZB)
 	{
-		z = 0.0f;
+		z = VAR::WORLD_ZB;
 	}
-	else if (position.z > VAR::WORLD_Z)
+	else if (position.z > VAR::WORLD_ZF)
 	{
-		z = VAR::WORLD_Z;
+		z = VAR::WORLD_ZF;
 	}
 	else
 	{
 		z = position.z;
 	}
-	
-	y = position.y;
-	
 
-#if _DEBUG
-#ifdef DEBUG_GAME
-	std::cout << x << ", " << z << std::endl;
-#endif
+	y = position.y;
+
+#ifdef DEBUG
+	//std::cout << x << ", " << z << std::endl;
 #endif
 }
 
@@ -119,8 +120,4 @@ void Player::Rotate(float cx, float cy)
 	DXMATH::Normalize(&look);
 	DXMATH::CrossNormalize(&right, &up, &look);
 	DXMATH::CrossNormalize(&up, &look, &right);
-}
-
-void Player::Attack(int interaction)
-{
 }

@@ -1,5 +1,5 @@
-﻿#include "pch.hpp"
-#include "GameServer.hpp"
+﻿#include "pch.h"
+#include "GameServer.h"
 
 int main()
 {
