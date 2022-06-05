@@ -125,7 +125,6 @@ public:
 
 #ifdef _WITH_SOUND_CALLBACK
 	virtual void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
-	void Move(float x, float y, float z) override;
 	virtual void Update(float fTimeElapsed);
 #endif
 };

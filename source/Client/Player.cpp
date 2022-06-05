@@ -469,13 +469,6 @@ void CTerrainPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVeloci
 	CPlayer::Move(dwDirection, fDistance, bUpdateVelocity);
 }
 
-void CTerrainPlayer::Move(float x, float y, float z)
-{
-	m_pSkinnedAnimationController->SetTrackEnable(0, true);
-
-	CPlayer::Move(x, y, z);
-}
-
 void CTerrainPlayer::Update(float fTimeElapsed)
 {
 	CPlayer::Update(fTimeElapsed);
