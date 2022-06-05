@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include "Player.h"
 #include "GameFramework.h"
 #include "Network.h"
 
@@ -266,6 +267,8 @@ void CNetwork::ProcessLoginPacket()
 	player.key() = sc_login->id;
 	game_instance->GetPlayers()->insert(std::move(player));
 
+	id = sc_login->id;
+
 	float x{ static_cast<float>(sc_login->x) };
 	float y{ static_cast<float>(sc_login->y) };
 	float z{ static_cast<float>(sc_login->z) };
@@ -293,7 +296,7 @@ void CNetwork::ProcessAddObjectPacket()
 
 	game_instance->AddPlayer(sc_add_object);
 
-	std::cout << "player[" << sc_add_object->id << "] is in sight" << std::endl;
+	std::cout << "player[" << sc_add_object->id << "] is online" << std::endl;
 }
 
 void CNetwork::ProcessRemoveObjectPacket()

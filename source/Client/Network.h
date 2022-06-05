@@ -32,8 +32,6 @@ public:
 	void SendRotateObjectPacket(float cx, float cy);
 	void SendPlayerAttackPacket(int mode);
 
-	int GetClientID() { return sc_login->id; }
-
 private:
 	SOCKET server;
 	HANDLE iocp;
@@ -62,4 +60,6 @@ private:
 	int remain_size;
 	
 	CGameFramework* game_instance;
+public:
+	int id;
 };

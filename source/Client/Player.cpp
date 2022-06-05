@@ -264,13 +264,12 @@ void CPlayer::OnPrepareRender()
 void CPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
+
 	CGameObject::Render(pd3dCommandList, pCamera);
-	//if (nCameraMode == THIRD_PERSON_CAMERA)
 
-
-	for (int i = 0; i < m_bulletNum; ++i) {
+	for (int i = 0; i < m_bulletNum; ++i)
+	{
 		m_bullet[i]->Render(pd3dCommandList, pCamera);
-		//std::cout << m_bullet[i]->GetPosition().x <<", " << m_bullet[i]->GetPosition().y << ", " << m_bullet[i]->GetPosition().z << ", " << std::endl;
 	}
 }
 
@@ -321,7 +320,6 @@ void CPlayer::MoveBullet()
 
 CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
 {
-
 	m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
 
 	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL);
@@ -469,6 +467,13 @@ void CTerrainPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVeloci
 	m_pSkinnedAnimationController->SetTrackEnable(0, (dwDirection) ? true : false);
 
 	CPlayer::Move(dwDirection, fDistance, bUpdateVelocity);
+}
+
+void CTerrainPlayer::Move(float x, float y, float z)
+{
+	m_pSkinnedAnimationController->SetTrackEnable(0, true);
+
+	CPlayer::Move(x, y, z);
 }
 
 void CTerrainPlayer::Update(float fTimeElapsed)

@@ -59,7 +59,7 @@ public:
 	void SetCamera(CCamera *pCamera) { m_pCamera = pCamera; }
 
 	void Move(DWORD dwDirection, float fDistance, bool bVelocity = false);
-	void Move(float x, float y, float z);
+	virtual void Move(float x, float y, float z);
 	void Move(const XMFLOAT3& xmf3Shift, bool bVelocity = false);
 	//void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
 	void Rotate(float x, float y, float z);
@@ -125,6 +125,7 @@ public:
 
 #ifdef _WITH_SOUND_CALLBACK
 	virtual void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
+	void Move(float x, float y, float z) override;
 	virtual void Update(float fTimeElapsed);
 #endif
 };

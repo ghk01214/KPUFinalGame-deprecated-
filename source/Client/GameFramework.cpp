@@ -427,7 +427,7 @@ void CGameFramework::AddPlayer(SC::P::ADD_OBJ* packet)
 		{
 			CTerrainPlayer* pPlayer{ new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->m_pTerrain) };
 
-			players.emplace(i, pPlayer);
+			players.emplace(i, std::move(pPlayer));
 		}
 
 		m_pScene->m_pPlayer = m_pPlayer = (*players.begin()).second;
@@ -563,13 +563,11 @@ void CGameFramework::ProcessInput()
 			{
 				if (cxDelta || cyDelta)
 				{
-						m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
-						network_manager->SendRotateObjectPacket(cyDelta, cxDelta);
+					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+					network_manager->SendRotateObjectPacket(cyDelta, cxDelta);
 				}
 				if (dwDirection)
 				{
-					//m_pPlayer->Move(dwDirection, 2.25f, true);
-
 					network_manager->SendMoveObjectPacket(dwDirection);
 				}
 			}
@@ -587,7 +585,14 @@ void CGameFramework::AnimateObjects()
 
 	if (m_pScene) m_pScene->AnimateObjects(fTimeElapsed);
 
-	m_pPlayer->Animate(fTimeElapsed);
+	//m_pPlayer->Animate(fTimeElapsed);
+	if (!players.empty())
+	{
+		for (auto& player : players)
+		{
+			player.second->Animate(fTimeElapsed);
+		}
+	}
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -647,7 +652,10 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
-	if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
+	if (m_pScene)
+		m_pScene->Render(m_pd3dCommandList, m_pCamera);
+
+	//std::cout << m_pPlayer->m_xmf4x4ToParent._41 << ", " << m_pPlayer->m_xmf4x4ToParent._42 << ", " << m_pPlayer->m_xmf4x4ToParent._43 << "\n";
 
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
@@ -658,6 +666,7 @@ void CGameFramework::FrameAdvance()
 		{
 			if (player.first >= 0 && player.second != m_pPlayer)
 			{
+				//player.second->OnPrepareRender();
 				player.second->Render(m_pd3dCommandList, player.second->GetCamera());
 			}
 
