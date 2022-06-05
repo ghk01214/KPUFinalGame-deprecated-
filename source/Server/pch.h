@@ -57,7 +57,7 @@
 
 #pragma region USING
 using namespace DirectX;
-using c_set = concurrency::concurrent_unordered_set<int>;
+using c_set = concurrency::concurrent_unordered_set<ID>;
 #pragma endregion
 
 extern std::default_random_engine dre;
@@ -76,12 +76,14 @@ void DisplayError(std::wstring_view msg);
 
 inline bool IsInSight(float dis1, float dis2)
 {
-	if (SIGHT_RANGE < std::abs(dis1))
-		return false;
-	if (SIGHT_RANGE < std::abs(dis2))
-		return false;
+	//if (SIGHT_RANGE < std::abs(dis1))
+	//	return false;
+	//if (SIGHT_RANGE < std::abs(dis2))
+	//	return false;
 
-	return true;
+	//return true;
+
+	return SIGHT_RANGE >= std::abs(dis1) + std::abs(dis2);
 }
 
 namespace LUA

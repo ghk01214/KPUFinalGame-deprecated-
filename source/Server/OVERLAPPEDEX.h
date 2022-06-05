@@ -17,7 +17,7 @@ public:
 	OVERLAPPED over;
 	WSABUF wsa;
 	COMPLETION type;
-	int target;
+	ID target;
 	char data[VAR::DATA];
 };
 

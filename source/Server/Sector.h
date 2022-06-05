@@ -6,7 +6,7 @@
 class Sector
 {
 private:
-	using c_map = concurrency::concurrent_unordered_map<int, Session*>;
+	using c_map = concurrency::concurrent_unordered_map<ID, Session*>;
 
 public:
 	Sector();
@@ -24,18 +24,18 @@ public:
 	
 	void MakeNewViewList(c_set* new_list, Session* client, c_map* others);
 
-	bool OutOfSectorXR(POS x);
-	bool OutOfSectorXL(POS x);
-	bool OutOfSectorZF(POS z);
-	bool OutOfSectorZB(POS z);
+	bool OutOfSectorXMin(POS x);
+	bool OutOfSectorXMax(POS x);
+	bool OutOfSectorZMin(POS z);
+	bool OutOfSectorZMax(POS z);
 
-	POS GetLBX() { return lb_x; }
-	POS GetLBZ() { return lb_z; }
+	POS GetLBX() { return lt_x; }
+	POS GetLBZ() { return lt_z; }
 	
 private:
 	c_set objects;
 	std::shared_mutex sector_lock;
 
-	POS lb_x, lb_z;
+	POS lt_x, lt_z;					// sector의 왼쪽 위 좌표
 };
 

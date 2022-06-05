@@ -38,3 +38,8 @@ void NPC::InitializeScript(int id)
 	lua_pushnumber(L, id);
 	lua_pcall(L, 1, 0, 0);
 }
+
+void NPC::Move()
+{
+	// A* 알고리즘
+}

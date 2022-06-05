@@ -11,6 +11,8 @@ public:
 
 	void InitializeScript(int id);
 
+	void Move();
+
 	// TODO: Lua 내부에서 호출할 메서드
 
 	constexpr XMFLOAT3 GetLook() const noexcept { return look; }

@@ -4,15 +4,14 @@
 #include "Player.h"
 #include "GameServer.h"
 
-std::uniform_real_distribution<POS> random_x{ VAR::WORLD_XL, VAR::WORLD_XR };
-std::uniform_real_distribution<POS> random_z{ VAR::WORLD_ZB, VAR::WORLD_ZF };
+std::uniform_real_distribution<POS> random_x{ VAR::WORLD_X_MIN, VAR::WORLD_X_MAX };
+std::uniform_real_distribution<POS> random_z{ VAR::WORLD_Z_MIN, VAR::WORLD_Z_MAX };
 
 GameServer::GameServer() :
 	iocp{ INVALID_HANDLE_VALUE },
 	server{ INVALID_SOCKET },
 	server_key{ 99999 },
 	packet{ nullptr },
-	over_ex{ nullptr },
 	cs_login{ nullptr },
 	cs_move{ nullptr },
 	cs_rotate{ nullptr },
@@ -44,11 +43,6 @@ GameServer::~GameServer()
 		}
 	}
 
-	if (over_ex)
-	{
-		delete over_ex;
-		over_ex = nullptr;
-	}
 	if (packet)
 	{
 		delete packet;
@@ -177,6 +171,7 @@ void GameServer::WorkerThread()
 	DWORD bytes;
 	ULONG_PTR id;
 	BOOL ret;
+	OVERLAPPEDEX* over_ex{ nullptr };
 
 	while (true)
 	{
@@ -204,24 +199,24 @@ void GameServer::WorkerThread()
 		{
 		case COMPLETION::ACCEPT:
 		{
-			AcceptClient();
+			AcceptClient(over_ex);
 		}
 		break;
 		case COMPLETION::RECV:
 		{
-			Recv(id, bytes);
+			Recv(id, bytes, over_ex);
 		}
 		break;
 		case COMPLETION::SEND:
 		{
-			Send(id, bytes);
+			Send(id, bytes, over_ex);
 		}
 		break;
 		}
 	}
 }
 
-void GameServer::AcceptClient()
+void GameServer::AcceptClient(OVERLAPPEDEX* over_ex)
 {
 	SOCKET client_socket{ reinterpret_cast<SOCKET>(over_ex->wsa.buf) };
 
@@ -243,12 +238,13 @@ void GameServer::AcceptClient()
 	}
 
 	ZeroMemory(&over_ex->over, sizeof(over_ex->over));
+	//over_ex->type == COMPLETION::ACCEPT;
 	over_ex->wsa.buf = reinterpret_cast<char*>(client_socket);
 
 	AcceptEx(server, client_socket, over_ex->data, 0, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, 0, &over_ex->over);
 }
 
-void GameServer::Recv(ULONG_PTR id, DWORD bytes)
+void GameServer::Recv(ULONG_PTR id, DWORD bytes, OVERLAPPEDEX* over_ex)
 {
 	if (bytes == 0)
 	{
@@ -286,7 +282,7 @@ void GameServer::Recv(ULONG_PTR id, DWORD bytes)
 	clients[id]->Recv();
 }
 
-void GameServer::Send(ULONG_PTR id, DWORD bytes)
+void GameServer::Send(ULONG_PTR id, DWORD bytes, OVERLAPPEDEX* over_ex)
 {
 	if (bytes == 0)
 	{
@@ -341,8 +337,8 @@ void GameServer::Disconnect(ULONG_PTR id)
 		if (client->IsInViewList(id))
 		{
 			// view list에서 지우고 클라이언트에 제거 패킷 전송
-			client->DeleteFromViewList(id);
-			client->SendDelete(id);
+			client->RemoveFromViewList(id);
+			client->SendRemove(id);
 		}
 	}
 }
@@ -458,7 +454,7 @@ void GameServer::Move(ULONG_PTR id)
 
 	zone->MoveObject(id, cs_move->direction);
 
-	// NPC
+#pragma region NPC
 	//for (int i = NPC_START; i < NPC_NUM; ++i)
 	//{
 	//	auto dis1{ clients[i]->GetX() - clients[id]->GetX() };
@@ -471,24 +467,14 @@ void GameServer::Move(ULONG_PTR id)
 	//		PostQueuedCompletionStatus(iocp, 1, i, &over_ex->over);
 	//	}
 	//}
+#pragma endregion
 }
 
 void GameServer::Rotate(ULONG_PTR id)
 {
 	cs_rotate = reinterpret_cast<CS::P::ROTATE_OBJ*>(packet);
 
-	clients[id]->Rotate(cs_rotate->cx, cs_rotate->cy);
-
-	for (int i = 0; i < MAX_USER; ++i)
-	{
-		if (not clients[i]->IsMyID(id))
-		{
-			if (clients[i]->GetState() == STATE::INGAME)
-			{
-				clients[i]->SendRotate(clients[id]);
-			}
-		}
-	}
+	zone->RotateObject(id, cs_rotate->cx, cs_rotate->cy);
 }
 
 void GameServer::PlayerAttack(ULONG_PTR id)
@@ -497,4 +483,11 @@ void GameServer::PlayerAttack(ULONG_PTR id)
 
 void GameServer::AIThread()
 {
+	while (true)
+	{
+		for (int i = NPC_START; i < NPC_NUM; ++i)
+		{
+			dynamic_cast<NPC*>(clients[i]->GetMyObject())->Move();
+		}
+	}
 }

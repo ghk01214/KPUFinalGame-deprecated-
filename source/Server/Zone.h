@@ -6,20 +6,21 @@
 class Zone
 {
 private:
-	using c_map = concurrency::concurrent_unordered_map<int, Session*>;
+	using c_map = concurrency::concurrent_unordered_map<ID, Session*>;
 
 public:
 	Zone();
 	~Zone();
 
-	void SetInSector(int id);
-	int UpdateSector(Session* client);
+	void SetInSector(ID id);
+	void UpdateSector(Session* client);
 
 	void AddObject(Session* client);
-	void RemoveObject(int id);
-	void MoveObject(int id, int direction);
+	void RemoveObject(ID id);
+	void MoveObject(ID id, int direction);
+	void RotateObject(ID id, float cx, float cy);
 
-	Session* GetSession(int id) { return objects[id]; }
+	Session* GetSession(ID id) { return objects[id]; }
 
 private:
 	float width;

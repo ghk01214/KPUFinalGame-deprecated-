@@ -15,17 +15,18 @@ public:
 	void ProcessThread();
 	void EndThread();
 
-	void RecvData();
-	void SendData(void* pack);
+	void Recv();
+	void Send(void* pack);
 
-	void RecvData(DWORD bytes);
-	void SendData(DWORD bytes);
+	void RecvData(DWORD bytes, OVERLAPPEDEX* over_ex);
+	void SendData(DWORD bytes, OVERLAPPEDEX* over_ex);
 
 	void ProcessPacket();
-	void ProcessLoginPacket();
-	void ProcessAddObjectPacket();
-	void ProcessMovePacket();
-	void ProcessRemoveObjectPacket();
+	void ProcessLogin();
+	void ProcessAddObject();
+	void ProcessRemoveObject();
+	void ProcessMove();
+	void ProcessRotate();
 
 	void SendLoginPacket();
 	void SendMoveObjectPacket(DWORD direction);
@@ -38,9 +39,7 @@ private:
 	int key;
 	
 	std::thread worker_thread;
-
-	OVERLAPPEDEX* over_ex;
-
+ 
 	OVERLAPPEDEX recv_ex;
 	OVERLAPPEDEX send_ex;
 
@@ -48,7 +47,7 @@ private:
 	SC::P::ADD_OBJ* sc_add_object;
 	SC::P::MOVE_OBJ* sc_move_object;
 	SC::P::ROTATE_OBJ* sc_rotate_object;
-	SC::P::DELETE_OBJ* sc_remove_object;
+	SC::P::REMOVE_OBJ* sc_remove_object;
 	
 	CS::P::LOGIN* cs_login;
 	CS::P::MOVE_OBJ* cs_move_object;

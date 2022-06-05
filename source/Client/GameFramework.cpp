@@ -449,14 +449,6 @@ void CGameFramework::AddPlayer(SC::P::ADD_OBJ* packet)
 		players[packet->id]->SetLookVector(XMFLOAT3{ packet->look_x, packet->look_y, packet->look_z });
 		players[packet->id]->SetRightVector(XMFLOAT3{ packet->right_x, packet->right_y, packet->right_z });
 		players[packet->id]->SetUpVector(XMFLOAT3{ packet->up_x, packet->up_y, packet->up_z });
-
-		//for (auto& iter : players)
-		//{
-		//	if (iter.first >= 0)
-		//	{
-		//		std::cout << iter.first << " : " << iter.second->GetPosition().x << ", " << iter.second->GetPosition().z << std::endl;
-		//	}
-		//}
 	}
 }
 
@@ -498,9 +490,9 @@ void CGameFramework::BuildObjects()
 
 	if (!players.empty())
 	{
-		for (auto& iter : players)
+		for (auto& player : players)
 		{
-			iter.second->ReleaseUploadBuffers();
+			player.second->ReleaseUploadBuffers();
 		}
 	}
 
@@ -583,9 +575,9 @@ void CGameFramework::AnimateObjects()
 {
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 
-	if (m_pScene) m_pScene->AnimateObjects(fTimeElapsed);
+	if (m_pScene)
+		m_pScene->AnimateObjects(fTimeElapsed);
 
-	//m_pPlayer->Animate(fTimeElapsed);
 	if (!players.empty())
 	{
 		for (auto& player : players)
@@ -678,22 +670,6 @@ void CGameFramework::FrameAdvance()
 			}
 		}
 	}
-
-	//if (m_pPlayer)
-	//{
-	//	for (int i = 0; i < m_pPlayer->GetBulletNum(); ++i)
-	//	{
-	//		m_pPlayer->MoveBullet();
-	//	}
-	//}
-	//if (m_pPlayer)
-	//{
-	//	for (int i = 0; i < m_pPlayer->GetBulletNum(); ++i)
-	//	{
-	//		m_pPlayer->GetBullet()[i]->UpdateTransform(nullptr);
-	//		m_pPlayer->GetBullet()[i]->Render(m_pd3dCommandList, m_pCamera);
-	//	}
-	//}
 
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;

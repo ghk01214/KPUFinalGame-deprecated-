@@ -2,14 +2,14 @@
 #include "Sector.h"
 
 Sector::Sector() :
-	lb_x{ VAR::WORLD_XL },
-	lb_z{ VAR::WORLD_ZB }
+	lt_x{ VAR::WORLD_X_MIN },
+	lt_z{ VAR::WORLD_Z_MAX }
 {
 }
 
 Sector::Sector(POS x, POS z) :
-	lb_x{ x },
-	lb_z{ z }
+	lt_x{ x },
+	lt_z{ z }
 {
 }
 
@@ -18,8 +18,8 @@ Sector::~Sector()
 }
 
 Sector::Sector(const Sector& right) :
-	lb_x{ right.lb_x },
-	lb_z{ right.lb_z }
+	lt_x{ right.lt_x },
+	lt_z{ right.lt_z }
 {
 	std::memcpy(&objects, &right.objects, right.objects.size());
 }
@@ -28,8 +28,8 @@ Sector& Sector::operator=(const Sector& right)
 {
 	if (this != &right)
 	{
-		lb_x = right.lb_x;
-		lb_z = right.lb_z;
+		lt_x = right.lt_x;
+		lt_z = right.lt_z;
 
 		std::memcpy(&objects, &right.objects, right.objects.size());
 	}
@@ -38,11 +38,11 @@ Sector& Sector::operator=(const Sector& right)
 }
 
 Sector::Sector(Sector&& right) noexcept :
-	lb_x{ right.lb_x },
-	lb_z{ right.lb_z }
+	lt_x{ right.lt_x },
+	lt_z{ right.lt_z }
 {
-	right.lb_x = VAR::WORLD_XL;
-	right.lb_z = VAR::WORLD_ZB;
+	right.lt_x = VAR::WORLD_X_MIN;
+	right.lt_z = VAR::WORLD_Z_MAX;
 
 	sector_lock.lock();
 	right.sector_lock.lock();
@@ -58,11 +58,11 @@ Sector& Sector::operator=(Sector&& right) noexcept
 {
 	if (this != &right)
 	{
-		lb_x = right.lb_x;
-		lb_z = right.lb_z;
+		lt_x = right.lt_x;
+		lt_z = right.lt_z;
 
-		right.lb_x = VAR::WORLD_XL;
-		right.lb_z = VAR::WORLD_ZB;
+		right.lt_x = VAR::WORLD_X_MIN;
+		right.lt_z = VAR::WORLD_Z_MAX;
 
 		sector_lock.lock();
 		right.sector_lock.lock();
@@ -109,33 +109,33 @@ void Sector::MakeNewViewList(c_set* new_list, Session* client, c_map* others)
 	}
 }
 
-bool Sector::OutOfSectorXL(POS x)
+bool Sector::OutOfSectorXMin(POS x)
 {
-	if (lb_x <= x)
+	if (lt_x <= x)
 		return false;
 
 	return true;
 }
 
-bool Sector::OutOfSectorZB(POS z)
+bool Sector::OutOfSectorXMax(POS x)
 {
-	if (lb_z <= z)
+	if (x < lt_x + SECTOR_RANGE)
 		return false;
 
 	return true;
 }
 
-bool Sector::OutOfSectorXR(POS x)
+bool Sector::OutOfSectorZMin(POS z)
 {
-	if (x < lb_x + SECTOR_RANGE)
+	if (lt_z <= z)
 		return false;
 
 	return true;
 }
 
-bool Sector::OutOfSectorZF(POS z)
+bool Sector::OutOfSectorZMax(POS z)
 {
-	if (z < lb_z + SECTOR_RANGE)
+	if (z < lt_z + SECTOR_RANGE)
 		return false;
 
 	return true;

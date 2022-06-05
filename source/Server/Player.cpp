@@ -2,7 +2,7 @@
 #include "Player.h"
 
 Player::Player() :
-	max_speed{ 5.0f },
+	max_speed{ 2.25f },
 	pitch{ 0.0f },
 	yaw{ 0.0f }
 {
@@ -37,26 +37,26 @@ void Player::Move(int direction)
 	XMFLOAT3 position{ x, y, z };
 	DXMATH::AddVector(&position, &shift);
 
-	if (position.x < VAR::WORLD_XL)
+	if (position.x < VAR::WORLD_X_MIN)
 	{
-		x = VAR::WORLD_XL;
+		x = VAR::WORLD_X_MIN;
 	}
-	else if (position.x > VAR::WORLD_XR)
+	else if (position.x > VAR::WORLD_X_MAX)
 	{
-		x = VAR::WORLD_XR;
+		x = VAR::WORLD_X_MAX;
 	}
 	else
 	{
 		x = position.x;
 	}
 
-	if (position.z < VAR::WORLD_ZB)
+	if (position.z < VAR::WORLD_Z_MIN)
 	{
-		z = VAR::WORLD_ZB;
+		z = VAR::WORLD_Z_MIN;
 	}
-	else if (position.z > VAR::WORLD_ZF)
+	else if (position.z > VAR::WORLD_Z_MAX)
 	{
-		z = VAR::WORLD_ZF;
+		z = VAR::WORLD_Z_MAX;
 	}
 	else
 	{

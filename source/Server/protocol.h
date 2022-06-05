@@ -24,12 +24,12 @@ namespace KEY
 
 namespace VAR
 {
-	inline constexpr int DATA{ 200 };			// 한 패킷에 들어갈 수 있는 최대 데이터 크기
-	inline constexpr int NAME{ 10 };			// 최대 이름 길이
-	inline constexpr float WORLD_XL{ 0 };		// 월드의 왼쪽 끝
-	inline constexpr float WORLD_XR{ 2000 };	// 월드의 오른쪽 끝
-	inline constexpr float WORLD_ZF{ 2000 };	// 월드의 앞쪽 끝
-	inline constexpr float WORLD_ZB{ 0 };		// 월드의 뒤쪽 끝
+	inline constexpr int DATA{ 200 };				// 한 패킷에 들어갈 수 있는 최대 데이터 크기
+	inline constexpr int NAME{ 10 };				// 최대 이름 길이
+	inline constexpr float WORLD_X_MIN{ 0 };		// 월드의 왼쪽 끝
+	inline constexpr float WORLD_X_MAX{ 2000 };		// 월드의 오른쪽 끝
+	inline constexpr float WORLD_Z_MIN{ 0 };		// 월드의 앞쪽 끝
+	inline constexpr float WORLD_Z_MAX{ 2000 };		// 월드의 뒤쪽 끝
 }
 
 #pragma pack(push, 1)
@@ -37,7 +37,7 @@ namespace SC
 {
 	inline constexpr TYPE LOGIN{ 1 };
 	inline constexpr TYPE ADD_OBJ{ 2 };
-	inline constexpr TYPE DELETE_OBJ{ 3 };
+	inline constexpr TYPE REMOVE_OBJ{ 3 };
 	inline constexpr TYPE MOVE_OBJ{ 4 };
 	inline constexpr TYPE ROTATE_OBJ{ 5 };
 	inline constexpr TYPE PLAYER_ATTACK{ 6 };
@@ -65,7 +65,7 @@ namespace SC
 			VECTOR up_x, up_y, up_z;				// Up Vector
 		};
 
-		struct DELETE_OBJ
+		struct REMOVE_OBJ
 		{
 			SIZE_ size;
 			TYPE type;
