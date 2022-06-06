@@ -1,18 +1,15 @@
-﻿#ifndef _PLAYER_HPP_
-#define _PLAYER_HPP_
+﻿#pragma once
 
-#include "Object.hpp"
+#include "Object.h"
 
 class Player : public Object
 {
 public:
-	Player() = default;
-	Player(POS x, POS y, POS z);
-	~Player() = default;
+	Player();
+	~Player();
 
 	void Move(int direction) override;
-	void Attack(int interaction);
-	void Rotate(float cx, float cy);
+	void Rotate(float cx, float cy) override;
 
 	constexpr XMFLOAT3 GetLook() const noexcept { return look; }
 	constexpr XMFLOAT3 GetRight() const noexcept { return right; }
@@ -25,12 +22,13 @@ public:
 	void SetYaw(float new_yaw) { yaw = new_yaw; }
 
 private:
-	XMFLOAT3 look;			// Look Vector
-	XMFLOAT3 right;			// Right Vector
-	XMFLOAT3 up;			// Up Vector
+	XMFLOAT3 look;
+	XMFLOAT3 right;
+	XMFLOAT3 up;
 
 	float pitch;
 	float yaw;
+
+	float max_speed;
 };
 
-#endif // !_PLAYER_HPP_

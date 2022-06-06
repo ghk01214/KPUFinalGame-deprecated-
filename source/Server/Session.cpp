@@ -1,27 +1,32 @@
-﻿#include "pch.hpp"
-#include "NPC.hpp"
-#include "Player.hpp"
-#include "Session.hpp"
+﻿#include "pch.h"
+#include "NPC.h"
+#include "Player.h"
+#include "Session.h"
 
 using namespace std::chrono;
 
 Session::Session() :
+	recv_ex{},
+	send_ex{},
+	state{ STATE::FREE },
 	sock{ INVALID_SOCKET },
 	id{ -1 },
-	state{ STATE::FREE },
 	object{ new Object{} },
-	move_time{ steady_clock::now() + seconds(1) },
-	flag{ 0 },
-	remain_size{ 0 }
+	next_move_time{ steady_clock::now() + seconds(1) },
+	remain{ 0 },
+	flag{ 0 }
 {
 }
 
 Session::Session(Object* obj) :
+	recv_ex{},
+	send_ex{},
+	state{ STATE::FREE },
+	sock{ INVALID_SOCKET },
 	id{ -1 },
 	object{ obj },
-	sock{ INVALID_SOCKET },
-	state{ STATE::FREE },
-	remain_size{ 0 },
+	next_move_time{ steady_clock::now() + seconds(1) },
+	remain{ 0 },
 	flag{ 0 }
 {
 }
@@ -29,7 +34,7 @@ Session::Session(Object* obj) :
 Session::~Session()
 {
 	closesocket(sock);
-
+	
 	if (object)
 	{
 		delete object;
@@ -40,147 +45,170 @@ Session::~Session()
 void Session::Reset()
 {
 	closesocket(sock);
-	id = -1;
 	state.store(STATE::FREE, std::memory_order_seq_cst);
-
-	recv_ex.Reset();
-	send_ex.Reset();
-
-	object->Reset();
-
-	view_lock.lock();
-	view_list.clear();
-	view_lock.unlock();
-
-	flag = 0;
-	remain_size = 0;
 }
 
-void Session::RecvData()
+void Session::Recv()
 {
 	flag = 0;
+	recv_ex.wsa.len = VAR::DATA - remain;
+	recv_ex.wsa.buf = recv_ex.data + remain;
+
 	ZeroMemory(&recv_ex.over, sizeof(recv_ex.over));
-
-	recv_ex.wsa.len = VAR::DATA - remain_size;
-	recv_ex.wsa.buf = recv_ex.data + remain_size;
-
 	WSARecv(sock, &recv_ex.wsa, 1, 0, &flag, &recv_ex.over, nullptr);
 }
 
-void Session::SendData(void* packet)
+void Session::Send(void* packet)
 {
 	send_ex.Set(reinterpret_cast<char*>(packet));
 
 	WSASend(sock, &send_ex.wsa, 1, 0, 0, &send_ex.over, nullptr);
 }
 
-void Session::SendLoginPakcet()
+void Session::SendLogin()
 {
-	sc_login_packet.size = sizeof(SC::PACKET::LOGIN);
-	sc_login_packet.type = SC::LOGIN;
-	sc_login_packet.id = id;
-	sc_login_packet.x = object->GetX();
-	sc_login_packet.y = object->GetY();
-	sc_login_packet.z = object->GetZ();
+	sc_login.size = sizeof(SC::P::LOGIN);
+	sc_login.type = SC::LOGIN;
+	sc_login.id = id;
+	sc_login.x = object->GetX();
+	sc_login.y = object->GetY();
+	sc_login.z = object->GetZ();
 
-	SendData(&sc_login_packet);
+	Send(&sc_login);
 }
 
-void Session::SendMoveObjectPacket(int id, Object* obj)
+void Session::SendAdd(Session* client)
 {
-	sc_move_object_packet.size = sizeof(SC::PACKET::MOVE_OBJECT);
-	sc_move_object_packet.type = SC::MOVE_OBJECT;
-	sc_move_object_packet.id = id;
-	sc_move_object_packet.x = obj->GetX();
-	sc_move_object_packet.y = obj->GetY();
-	sc_move_object_packet.z = obj->GetZ();
+	sc_add_obj.size = sizeof(SC::P::ADD_OBJ);
+	sc_add_obj.type = SC::ADD_OBJ;
+	sc_add_obj.id = client->id;
+	strcpy_s(sc_add_obj.name, VAR::NAME, client->object->GetName());
+	sc_add_obj.x = client->object->GetX();
+	sc_add_obj.y = client->object->GetY();
+	sc_add_obj.z = client->object->GetZ();
 
-	SendData(&sc_move_object_packet);
+	if (client->id < MAX_USER)
+	{
+		auto player{ dynamic_cast<Player*>(client->object) };
+		auto look{ player->GetLook() };
+		auto right{ player->GetRight() };
+		auto up{ player->GetUp() };
+
+		sc_add_obj.look_x = look.x;
+		sc_add_obj.look_y = look.y;
+		sc_add_obj.look_z = look.z;
+
+		sc_add_obj.right_x = right.x;
+		sc_add_obj.right_y = right.y;
+		sc_add_obj.right_z = right.z;
+
+		sc_add_obj.up_x = up.x;
+		sc_add_obj.up_y = up.y;
+		sc_add_obj.up_z = up.z;
+	}
+	else
+	{
+		auto npc{ dynamic_cast<NPC*>(client->object) };
+		auto look{ npc->GetLook() };
+		auto right{ npc->GetRight() };
+		auto up{ npc->GetUp() };
+
+		sc_add_obj.look_x = look.x;
+		sc_add_obj.look_y = look.y;
+		sc_add_obj.look_z = look.z;
+
+		sc_add_obj.right_x = right.x;
+		sc_add_obj.right_y = right.y;
+		sc_add_obj.right_z = right.z;
+
+		sc_add_obj.up_x = up.x;
+		sc_add_obj.up_y = up.y;
+		sc_add_obj.up_z = up.z;
+	}
+
+	Send(&sc_add_obj);
 }
 
-void Session::SendRotateObjectPacket(int id, Object* obj)
+void Session::SendRemove(ID target_id)
 {
-	auto new_obj{ dynamic_cast<NPC*>(obj) };
+	sc_delete_obj.size = sizeof(SC::P::REMOVE_OBJ);
+	sc_delete_obj.type = SC::REMOVE_OBJ;
+	sc_delete_obj.id = target_id;
 
-	sc_rotate_object_packet.size = sizeof(SC::PACKET::ROTATE_OBJECT);
-	sc_rotate_object_packet.type = SC::ROTATE_OBJECT;
-	sc_rotate_object_packet.id = id;
-	sc_rotate_object_packet.look_x = new_obj->GetLook().x;
-	sc_rotate_object_packet.look_y = new_obj->GetLook().y;
-	sc_rotate_object_packet.look_z = new_obj->GetLook().z;
-
-	sc_rotate_object_packet.right_x = new_obj->GetRight().x;
-	sc_rotate_object_packet.right_y = new_obj->GetRight().y;
-	sc_rotate_object_packet.right_z = new_obj->GetRight().z;
-
-	sc_rotate_object_packet.up_x = new_obj->GetUp().x;
-	sc_rotate_object_packet.up_y = new_obj->GetUp().y;
-	sc_rotate_object_packet.up_z = new_obj->GetUp().z;
-
-	SendData(&sc_rotate_object_packet);
+	Send(&sc_delete_obj);
 }
 
-void Session::SendAddObjectPacket(int id, Object* obj)
+void Session::SendMove(Session* client, int time)
 {
-	sc_add_object_packet.size = sizeof(SC::PACKET::ADD_OBJECT);
-	sc_add_object_packet.type = SC::ADD_OBJECT;
-	sc_add_object_packet.id = id;
-	obj->GetName().copy(sc_add_object_packet.name, sizeof(sc_add_object_packet.name));
-	sc_add_object_packet.x = obj->GetX();
-	sc_add_object_packet.y = obj->GetY();
-	sc_add_object_packet.z = obj->GetZ();
+	sc_move_obj.size = sizeof(SC::P::MOVE_OBJ);
+	sc_move_obj.type = SC::MOVE_OBJ;
+	sc_move_obj.id = client->id;
+	sc_move_obj.x = client->object->GetX();
+	sc_move_obj.y = client->object->GetY();
+	sc_move_obj.z = client->object->GetZ();
+	sc_move_obj.client_time = time;
 	
-	if (id < MAX_USER)
-	{
-		Player* player{ dynamic_cast<Player*>(obj) };
-
-		sc_add_object_packet.look_x = player->GetLook().x;
-		sc_add_object_packet.look_y = player->GetLook().y;
-		sc_add_object_packet.look_z = player->GetLook().z;
-
-		sc_add_object_packet.right_x = player->GetRight().x;
-		sc_add_object_packet.right_y = player->GetRight().y;
-		sc_add_object_packet.right_z = player->GetRight().z;
-
-		sc_add_object_packet.up_x = player->GetUp().x;
-		sc_add_object_packet.up_y = player->GetUp().y;
-		sc_add_object_packet.up_z = player->GetUp().z;
-	}
-	else if (MAX_USER <= id and id < NPC_NUM)
-	{
-		NPC* npc{ dynamic_cast<NPC*>(obj) };
-
-		sc_add_object_packet.look_x = npc->GetLook().x;
-		sc_add_object_packet.look_y = npc->GetLook().y;
-		sc_add_object_packet.look_z = npc->GetLook().z;
-
-		sc_add_object_packet.right_x = npc->GetRight().x;
-		sc_add_object_packet.right_y = npc->GetRight().y;
-		sc_add_object_packet.right_z = npc->GetRight().z;
-
-		sc_add_object_packet.up_x = npc->GetUp().x;
-		sc_add_object_packet.up_y = npc->GetUp().y;
-		sc_add_object_packet.up_z = npc->GetUp().z;
-	}
-
-	SendData(&sc_add_object_packet);
+	Send(&sc_move_obj);
 }
 
-void Session::SendRemoveObjectPacket(int id)
+void Session::SendRotate(Session* client)
 {
-	sc_remove_object_packet.size = sizeof(SC::PACKET::REMOVE_OBJECT);
-	sc_remove_object_packet.type = SC::REMOVE_OBJECT;
-	sc_remove_object_packet.id = id;
+	sc_rotate_obj.size = sizeof(SC::P::ROTATE_OBJ);
+	sc_rotate_obj.type = SC::ROTATE_OBJ;
+	sc_rotate_obj.id = client->id;
 
-	SendData(&sc_remove_object_packet);
+	if (client->id < MAX_USER)
+	{
+		auto player{ dynamic_cast<Player*>(client->object) };
+		auto look{ player->GetLook() };
+		auto right{ player->GetRight() };
+		auto up{ player->GetUp() };
+
+		sc_rotate_obj.look_x = look.x;
+		sc_rotate_obj.look_y = look.y;
+		sc_rotate_obj.look_z = look.z;
+
+		sc_rotate_obj.right_x = right.x;
+		sc_rotate_obj.right_y = right.y;
+		sc_rotate_obj.right_z = right.z;
+
+		sc_rotate_obj.up_x = up.x;
+		sc_rotate_obj.up_y = up.y;
+		sc_rotate_obj.up_z = up.z;
+	}
+	else
+	{
+		auto npc{ dynamic_cast<NPC*>(client->object) };
+		auto look{ npc->GetLook() };
+		auto right{ npc->GetRight() };
+		auto up{ npc->GetUp() };
+
+		sc_rotate_obj.look_x = look.x;
+		sc_rotate_obj.look_y = look.y;
+		sc_rotate_obj.look_z = look.z;
+
+		sc_rotate_obj.right_x = right.x;
+		sc_rotate_obj.right_y = right.y;
+		sc_rotate_obj.right_z = right.z;
+
+		sc_rotate_obj.up_x = up.x;
+		sc_rotate_obj.up_y = up.y;
+		sc_rotate_obj.up_z = up.z;
+	}
+
+	Send(&sc_rotate_obj);
 }
 
-void Session::AddToViewList(int id)
+void Session::SendPlayerAttack(Session* client)
+{
+}
+
+void Session::AddToViewList(ID id)
 {
 	view_list.insert(id);
 }
 
-void Session::RemoveFromViewList(int id)
+void Session::RemoveFromViewList(ID id)
 {
 	view_lock.lock();
 	view_list.unsafe_erase(id);

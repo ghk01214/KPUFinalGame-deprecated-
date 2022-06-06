@@ -333,7 +333,8 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_SPACE:
 			break;
 		case VK_ESCAPE:
-			::PostQuitMessage(0);
+			network_manager->EndThread();
+			PostQuitMessage(0);
 			break;
 		case VK_RETURN:
 			break;
@@ -418,7 +419,7 @@ void CGameFramework::OnDestroy()
 
 #define _WITH_TERRAIN_PLAYER
 
-void CGameFramework::AddPlayer(SC::PACKET::ADD_OBJECT* packet)
+void CGameFramework::AddPlayer(SC::P::ADD_OBJ* packet)
 {
 	if (!packet)
 	{
@@ -426,7 +427,7 @@ void CGameFramework::AddPlayer(SC::PACKET::ADD_OBJECT* packet)
 		{
 			CTerrainPlayer* pPlayer{ new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), m_pScene->m_pTerrain) };
 
-			players.emplace(i, pPlayer);
+			players.emplace(i, std::move(pPlayer));
 		}
 
 		m_pScene->m_pPlayer = m_pPlayer = (*players.begin()).second;
@@ -448,14 +449,6 @@ void CGameFramework::AddPlayer(SC::PACKET::ADD_OBJECT* packet)
 		players[packet->id]->SetLookVector(XMFLOAT3{ packet->look_x, packet->look_y, packet->look_z });
 		players[packet->id]->SetRightVector(XMFLOAT3{ packet->right_x, packet->right_y, packet->right_z });
 		players[packet->id]->SetUpVector(XMFLOAT3{ packet->up_x, packet->up_y, packet->up_z });
-
-		//for (auto& iter : players)
-		//{
-		//	if (iter.first >= 0)
-		//	{
-		//		std::cout << iter.first << " : " << iter.second->GetPosition().x << ", " << iter.second->GetPosition().z << std::endl;
-		//	}
-		//}
 	}
 }
 
@@ -497,9 +490,9 @@ void CGameFramework::BuildObjects()
 
 	if (!players.empty())
 	{
-		for (auto& iter : players)
+		for (auto& player : players)
 		{
-			iter.second->ReleaseUploadBuffers();
+			player.second->ReleaseUploadBuffers();
 		}
 	}
 
@@ -530,17 +523,17 @@ void CGameFramework::ProcessInput()
 		DWORD left_click{ 0 };
 
 		if (pKeysBuffer[VK_W] & 0xF0)
-			dwDirection |= KEYINPUT::FORWARD;
+			dwDirection |= KEY::FORWARD;
 		if (pKeysBuffer[VK_S] & 0xF0)
-			dwDirection |= KEYINPUT::BACKWARD;
+			dwDirection |= KEY::BACKWARD;
 		if (pKeysBuffer[VK_A] & 0xF0)
-			dwDirection |= KEYINPUT::LEFT;
+			dwDirection |= KEY::LEFT;
 		if (pKeysBuffer[VK_D] & 0xF0)
-			dwDirection |= KEYINPUT::RIGHT;
+			dwDirection |= KEY::RIGHT;
 		if (pKeysBuffer[VK_Q] & 0xF0)
-			dwDirection |= KEYINPUT::UP;
+			dwDirection |= KEY::UP;
 		if (pKeysBuffer[VK_E] & 0xF0)
-			dwDirection |= KEYINPUT::DOWN;
+			dwDirection |= KEY::DOWN;
 		if (pKeysBuffer[VK_LBUTTON] & 0xF0)
 			left_click |= VK_LBUTTON;
 
@@ -562,13 +555,11 @@ void CGameFramework::ProcessInput()
 			{
 				if (cxDelta || cyDelta)
 				{
-						m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
-						network_manager->SendRotateObjectPacket(cyDelta, cxDelta);
+					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+					network_manager->SendRotateObjectPacket(cyDelta, cxDelta);
 				}
 				if (dwDirection)
 				{
-					//m_pPlayer->Move(dwDirection, 2.25f, true);
-
 					network_manager->SendMoveObjectPacket(dwDirection);
 				}
 			}
@@ -584,9 +575,16 @@ void CGameFramework::AnimateObjects()
 {
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 
-	if (m_pScene) m_pScene->AnimateObjects(fTimeElapsed);
+	if (m_pScene)
+		m_pScene->AnimateObjects(fTimeElapsed);
 
-	m_pPlayer->Animate(fTimeElapsed);
+	if (!players.empty())
+	{
+		for (auto& player : players)
+		{
+			player.second->Animate(fTimeElapsed);
+		}
+	}
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -646,7 +644,10 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
-	if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
+	if (m_pScene)
+		m_pScene->Render(m_pd3dCommandList, m_pCamera);
+
+	//std::cout << m_pPlayer->m_xmf4x4ToParent._41 << ", " << m_pPlayer->m_xmf4x4ToParent._42 << ", " << m_pPlayer->m_xmf4x4ToParent._43 << "\n";
 
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
@@ -657,6 +658,7 @@ void CGameFramework::FrameAdvance()
 		{
 			if (player.first >= 0 && player.second != m_pPlayer)
 			{
+				//player.second->OnPrepareRender();
 				player.second->Render(m_pd3dCommandList, player.second->GetCamera());
 			}
 
@@ -668,22 +670,6 @@ void CGameFramework::FrameAdvance()
 			}
 		}
 	}
-
-	//if (m_pPlayer)
-	//{
-	//	for (int i = 0; i < m_pPlayer->GetBulletNum(); ++i)
-	//	{
-	//		m_pPlayer->MoveBullet();
-	//	}
-	//}
-	//if (m_pPlayer)
-	//{
-	//	for (int i = 0; i < m_pPlayer->GetBulletNum(); ++i)
-	//	{
-	//		m_pPlayer->GetBullet()[i]->UpdateTransform(nullptr);
-	//		m_pPlayer->GetBullet()[i]->Render(m_pd3dCommandList, m_pCamera);
-	//	}
-	//}
 
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;

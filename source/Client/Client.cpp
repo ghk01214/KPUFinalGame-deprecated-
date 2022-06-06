@@ -4,7 +4,7 @@
 
 #define MAX_LOADSTRING 100
 
-#if _DEBUG
+#ifdef DEBUG
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 #endif
 
@@ -114,7 +114,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		gGameFramework.ConnectToServer();
 		gGameFramework.Login();
 		gGameFramework.OnCreate(hInst, hWnd);
-		gGameFramework.RecvData();
+		gGameFramework.Recv();
 	}
 	break;
 	case WM_SIZE:

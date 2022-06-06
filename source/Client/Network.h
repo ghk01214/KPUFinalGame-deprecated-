@@ -13,50 +13,52 @@ public:
 
 	void ConnectToServer();
 	void ProcessThread();
+	void EndThread();
 
-	void RecvData();
-	void SendData(void* pack);
+	void Recv();
+	void Send(void* pack);
 
-	void RecvData(DWORD bytes);
-	void SendData(DWORD bytes);
+	void RecvData(DWORD bytes, OVERLAPPEDEX* over_ex);
+	void SendData(DWORD bytes, OVERLAPPEDEX* over_ex);
 
 	void ProcessPacket();
-	void ProcessLoginPacket();
-	void ProcessMovePacket();
-	void ProcessAddObjectPacket();
-	void ProcessRemoveObjectPacket();
+	void ProcessLogin();
+	void ProcessAddObject();
+	void ProcessRemoveObject();
+	void ProcessMove();
+	void ProcessRotate();
 
 	void SendLoginPacket();
 	void SendMoveObjectPacket(DWORD direction);
 	void SendRotateObjectPacket(float cx, float cy);
 	void SendPlayerAttackPacket(int mode);
 
-	int GetClientID() { return sc_login_packet->id; }
-
 private:
 	SOCKET server;
 	HANDLE iocp;
+	int key;
 	
 	std::thread worker_thread;
-
-	OVERLAPPEDEX* over_ex;
-
+ 
 	OVERLAPPEDEX recv_ex;
 	OVERLAPPEDEX send_ex;
 
-	SC::PACKET::LOGIN* sc_login_packet;
-	SC::PACKET::MOVE_OBJECT* sc_move_object_packet;
-	SC::PACKET::ADD_OBJECT* sc_add_object_packet;
-	SC::PACKET::REMOVE_OBJECT* sc_remove_object_packet;
+	SC::P::LOGIN* sc_login;
+	SC::P::ADD_OBJ* sc_add_object;
+	SC::P::MOVE_OBJ* sc_move_object;
+	SC::P::ROTATE_OBJ* sc_rotate_object;
+	SC::P::REMOVE_OBJ* sc_remove_object;
 	
-	CS::PACKET::LOGIN* cs_login_packet;
-	CS::PACKET::MOVE_OBJECT* cs_move_object_packet;
-	CS::PACKET::ROTATE_OBJECT* cs_rotate_object_packet;
-	CS::PACKET::PLAYER_ATTACK* cs_player_attack_packet;
+	CS::P::LOGIN* cs_login;
+	CS::P::MOVE_OBJ* cs_move_object;
+	CS::P::ROTATE_OBJ* cs_rotate_object;
+	CS::P::PLAYER_ATTACK* cs_player_attack;
 
 	char* packet;
 
 	int remain_size;
 	
 	CGameFramework* game_instance;
+public:
+	int id;
 };

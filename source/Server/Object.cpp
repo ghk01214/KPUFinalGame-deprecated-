@@ -1,39 +1,29 @@
-﻿#include "pch.hpp"
-#include "protocol.hpp"
-#include "Object.hpp"
+﻿#include "pch.h"
+#include "Object.h"
 
 Object::Object() :
-	x{ 0 },
-	y{ 0 },
-	z{ 0 },
-	max_speed{ 2.25f }
+	x{ 0.0f },
+	y{ 0.0f },
+	z{ 0.0f }
 {
-	name.reserve(VAR::NAME);
+	name.resize(20);
 }
 
-Object::Object(POS new_x, POS new_y, POS new_z) :
-	x{ new_x },
-	y{ new_y },
-	z{ new_z },
-	max_speed{ 5.0f }
+Object::Object(POS x, POS y, POS z) :
+	x{ x },
+	y{ y },
+	z{ z }
 {
-	name.reserve(VAR::NAME);
+	name.resize(20);
 }
 
-void Object::CreateNewObject(POS new_x, POS new_y, POS new_z)
+Object::~Object()
+{
+}
+
+void Object::SetPos(POS new_x, POS new_y, POS new_z)
 {
 	x = new_x;
 	y = new_y;
 	z = new_z;
-}
-
-void Object::Reset()
-{
-	x = 0;
-	y = 0;
-
-	if (!name.empty())
-	{
-		name.clear();
-	}
 }

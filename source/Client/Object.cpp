@@ -681,7 +681,8 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 {
 	if (m_bActive)
 	{
-		if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
+		if (m_pSkinnedAnimationController)
+			m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
 		if (m_pMesh)
 		{
@@ -703,8 +704,10 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 		}
 	}
 
-	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
-	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
+	if (m_pSibling)
+		m_pSibling->Render(pd3dCommandList, pCamera);
+	if (m_pChild)
+		m_pChild->Render(pd3dCommandList, pCamera);
 }
 
 void CGameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)

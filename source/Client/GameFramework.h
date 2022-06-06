@@ -31,8 +31,8 @@ public:
 
 	void ConnectToServer() { network_manager->ConnectToServer(); }
 	void Login() { network_manager->SendLoginPacket(); }
-	void RecvData() { network_manager->RecvData(); }
-	void AddPlayer(SC::PACKET::ADD_OBJECT* packet = nullptr);
+	void Recv() { network_manager->Recv(); }
+	void AddPlayer(SC::P::ADD_OBJ* packet = nullptr);
 	void RemovePlayer(int id);
 
 	void BuildObjects();

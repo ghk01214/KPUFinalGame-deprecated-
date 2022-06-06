@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "../Server/protocol.hpp"
+#include "../Server/protocol.h"
 #include "Player.h"
 #include "Shader.h"
 
@@ -60,38 +60,38 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 	if (dwDirection)
 	{
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
-		if (dwDirection & KEYINPUT::FORWARD)
+		if (dwDirection & KEY::FORWARD)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, +fDistance);
 		}
-		if (dwDirection & KEYINPUT::BACKWARD)
+		if (dwDirection & KEY::BACKWARD)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
 		}
 #ifdef _WITH_LEFT_HAND_COORDINATES
-		if (dwDirection & KEYINPUT::RIGHT)
+		if (dwDirection & KEY::RIGHT)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, +fDistance);
 		}
-		if (dwDirection & KEYINPUT::LEFT)
+		if (dwDirection & KEY::LEFT)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
 		}
 #else
-		if (dwDirection & KEYINPUT::RIGHT)
+		if (dwDirection & KEY::RIGHT)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
 		}
-		if (dwDirection & KEYINPUT::LEFT)
+		if (dwDirection & KEY::LEFT)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, +fDistance);
 		}
 #endif
-		if (dwDirection & KEYINPUT::UP)
+		if (dwDirection & KEY::UP)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, +fDistance);
 		}
-		if (dwDirection & KEYINPUT::DOWN)
+		if (dwDirection & KEY::DOWN)
 		{
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
 		}
@@ -105,7 +105,7 @@ void CPlayer::Move(float x, float y, float z)
 	m_xmf3Position = XMFLOAT3{ x, y, z };
 	m_pCamera->Move(m_xmf3Position);
 
-#if _DEBUG
+#ifdef DEBUG
 	//std::cout << m_xmf3Position.x << ", " << m_xmf3Position.z << std::endl;
 #endif
 }
@@ -264,13 +264,12 @@ void CPlayer::OnPrepareRender()
 void CPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
+
 	CGameObject::Render(pd3dCommandList, pCamera);
-	//if (nCameraMode == THIRD_PERSON_CAMERA)
 
-
-	for (int i = 0; i < m_bulletNum; ++i) {
+	for (int i = 0; i < m_bulletNum; ++i)
+	{
 		m_bullet[i]->Render(pd3dCommandList, pCamera);
-		//std::cout << m_bullet[i]->GetPosition().x <<", " << m_bullet[i]->GetPosition().y << ", " << m_bullet[i]->GetPosition().z << ", " << std::endl;
 	}
 }
 
@@ -321,7 +320,6 @@ void CPlayer::MoveBullet()
 
 CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
 {
-
 	m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
 
 	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL);

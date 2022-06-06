@@ -13,10 +13,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dCbvGPUDescriptorNextHandle;
 D3D12_CPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvCPUDescriptorNextHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CScene::m_d3dSrvGPUDescriptorNextHandle;
 
-std::random_device rd;
-std::mt19937_64 gen(rd());
-std::uniform_real_distribution<float> dis(0.0f,2000.0f);
-
+std::uniform_real_distribution<float> dis(0.0f, 2000.0f);
 
 CScene::CScene()
 {
@@ -101,7 +98,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 0.0f, 2.5f);
 		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
 		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.2f);
-		(*(m_vGameObjects.end() - 1))->SetPosition(dis(gen), m_pTerrain->GetHeight(380.0f, 725.0f), dis(gen));
+		(*(m_vGameObjects.end() - 1))->SetPosition(dis(dre), m_pTerrain->GetHeight(380.0f, 725.0f), dis(dre));
 	}
 
 
