@@ -1,0 +1,3 @@
+ammu,wood_box 30배
+street_lamp 20배
+old_barrel 2배
