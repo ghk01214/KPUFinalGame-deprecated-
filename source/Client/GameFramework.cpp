@@ -441,7 +441,12 @@ void CGameFramework::AddPlayer(SC::P::ADD_OBJ* packet)
 
 		XMFLOAT3 temp{ x, y, z };
 
-		auto player{ players.extract(players.begin()) };
+		auto iter{ std::find_if(players.begin(), players.end(), [](std::pair<int, CPlayer*> other)
+			{
+				return other.first < 0;
+			}) };
+
+		auto player{ players.extract(iter) };
 		player.key() = packet->id;
 		players.insert(std::move(player));
 
@@ -454,7 +459,6 @@ void CGameFramework::AddPlayer(SC::P::ADD_OBJ* packet)
 
 void CGameFramework::RemovePlayer(int id)
 {
-	auto player{ players.extract(id) };
 	int new_id{ rand_pl(dre) };
 
 	while (players.find(new_id) != players.end())
@@ -462,6 +466,7 @@ void CGameFramework::RemovePlayer(int id)
 		new_id = rand_pl(dre);
 	}
 
+	auto player{ players.extract(id) };
 	player.key() = new_id;
 	players.insert(std::move(player));
 }
@@ -501,7 +506,16 @@ void CGameFramework::BuildObjects()
 
 void CGameFramework::ReleaseObjects()
 {
-	if (m_pPlayer) m_pPlayer->Release();
+	if (!players.empty())
+	{
+		for (auto& player : players)
+		{
+			player.second->Release();
+		}
+	}
+
+	if (m_pPlayer)
+		m_pPlayer->Release();
 
 	if (m_pScene) m_pScene->ReleaseObjects();
 	if (m_pScene) delete m_pScene;

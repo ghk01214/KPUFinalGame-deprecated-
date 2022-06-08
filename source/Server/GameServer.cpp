@@ -12,7 +12,6 @@ GameServer::GameServer() :
 	server{ INVALID_SOCKET },
 	server_key{ 99999 },
 	packet{ nullptr },
-	over_ex{ nullptr },
 	cs_login{ nullptr },
 	cs_move{ nullptr },
 	cs_rotate{ nullptr },
@@ -44,11 +43,6 @@ GameServer::~GameServer()
 		}
 	}
 
-	if (over_ex)
-	{
-		delete over_ex;
-		over_ex = nullptr;
-	}
 	if (packet)
 	{
 		delete packet;
@@ -176,6 +170,7 @@ void GameServer::WorkerThread()
 {
 	DWORD bytes;
 	ULONG_PTR id;
+	OVERLAPPEDEX* over_ex{ nullptr };
 
 	while (true)
 	{
@@ -203,24 +198,24 @@ void GameServer::WorkerThread()
 		{
 		case COMPLETION::ACCEPT:
 		{
-			AcceptClient();
+			AcceptClient(over_ex);
 		}
 		break;
 		case COMPLETION::RECV:
 		{
-			Recv(id, bytes);
+			Recv(id, bytes, over_ex);
 		}
 		break;
 		case COMPLETION::SEND:
 		{
-			Send(id, bytes);
+			Send(id, bytes, over_ex);
 		}
 		break;
 		}
 	}
 }
 
-void GameServer::AcceptClient()
+void GameServer::AcceptClient(OVERLAPPEDEX* over_ex)
 {
 	SOCKET client_socket{ reinterpret_cast<SOCKET>(over_ex->wsa.buf) };
 
@@ -247,7 +242,7 @@ void GameServer::AcceptClient()
 	AcceptEx(server, client_socket, over_ex->data, 0, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, 0, &over_ex->over);
 }
 
-void GameServer::Recv(ULONG_PTR id, DWORD bytes)
+void GameServer::Recv(ULONG_PTR id, DWORD bytes, OVERLAPPEDEX* over_ex)
 {
 	if (bytes == 0)
 	{
@@ -285,7 +280,7 @@ void GameServer::Recv(ULONG_PTR id, DWORD bytes)
 	clients[id]->Recv();
 }
 
-void GameServer::Send(ULONG_PTR id, DWORD bytes)
+void GameServer::Send(ULONG_PTR id, DWORD bytes, OVERLAPPEDEX* over_ex)
 {
 	if (bytes == 0)
 	{

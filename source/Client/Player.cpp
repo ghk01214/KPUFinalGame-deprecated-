@@ -55,7 +55,7 @@ void CPlayer::ReleaseShaderVariables()
 	}
 }
 
-void CPlayer::MoveObject(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
+void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 {
 	if (dwDirection)
 	{
@@ -96,21 +96,21 @@ void CPlayer::MoveObject(DWORD dwDirection, float fDistance, bool bUpdateVelocit
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
 		}
 
-		MoveObject(xmf3Shift, bUpdateVelocity);
+		Move(xmf3Shift, bUpdateVelocity);
 	}
 }
 
-void CPlayer::MoveObject(float x, float y, float z)
+void CPlayer::Move(float x, float y, float z)
 {
 	m_xmf3Position = XMFLOAT3{ x, y, z };
-	m_pCamera->MoveObject(m_xmf3Position);
+	m_pCamera->Move(m_xmf3Position);
 
 #ifdef DEBUG
 	//std::cout << m_xmf3Position.x << ", " << m_xmf3Position.z << std::endl;
 #endif
 }
 
-void CPlayer::MoveObject(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
+void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 {
 	if (bUpdateVelocity)
 	{
@@ -119,7 +119,7 @@ void CPlayer::MoveObject(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 	else
 	{
 		m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
-		m_pCamera->MoveObject(xmf3Shift);
+		m_pCamera->Move(xmf3Shift);
 	}
 }
 
@@ -299,6 +299,12 @@ void CPlayer::MoveBullet()
 		}
 	}
 }
+void CPlayer::Show()
+{
+	std::cout << "(" << m_xmf3Look.x << ", " << m_xmf3Look.y << ",	" << m_xmf3Look.z << ")\n";
+	std::cout << "(" << m_xmf3Right.x << ", " << m_xmf3Right.y << ",	" << m_xmf3Right.z << ")\n";
+	std::cout << "(" << m_xmf3Up.x << ", " << m_xmf3Up.y << ",	" << m_xmf3Up.z << ")\n";
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
 //#define _WITH_DEBUG_CALLBACK_DATA
@@ -347,7 +353,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)pContext;
-	SetPosition(XMFLOAT3(310.0f, pTerrain->GetHeight(310.0f, 595.0f), 595.0f));
+	//SetPosition(XMFLOAT3(310.0f, pTerrain->GetHeight(310.0f, 595.0f), 595.0f));
 
 	SetScale(XMFLOAT3(0.2f, 0.2f, 0.2f));
 
@@ -462,11 +468,11 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 }
 
 #ifdef _WITH_SOUND_CALLBACK
-void CTerrainPlayer::MoveObject(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
+void CTerrainPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 {
 	m_pSkinnedAnimationController->SetTrackEnable(0, (dwDirection) ? true : false);
 
-	CPlayer::MoveObject(dwDirection, fDistance, bUpdateVelocity);
+	CPlayer::Move(dwDirection, fDistance, bUpdateVelocity);
 }
 
 void CTerrainPlayer::Update(float fTimeElapsed)

@@ -108,35 +108,3 @@ void Sector::MakeNewViewList(c_set* new_list, Session* client, c_map* others)
 		}
 	}
 }
-
-bool Sector::OutOfSectorXMin(POS x)
-{
-	if (lt_x <= x)
-		return false;
-
-	return true;
-}
-
-bool Sector::OutOfSectorZMin(POS z)
-{
-	if (lt_z <= z)
-		return false;
-
-	return true;
-}
-
-bool Sector::OutOfSectorXMax(POS x)
-{
-	if (x < lt_x + SECTOR_RANGE)
-		return false;
-
-	return true;
-}
-
-bool Sector::OutOfSectorZMax(POS z)
-{
-	if (z < lt_z + SECTOR_RANGE)
-		return false;
-
-	return true;
-}

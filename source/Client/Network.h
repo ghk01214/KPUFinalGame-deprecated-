@@ -18,14 +18,15 @@ public:
 	void Recv();
 	void Send(void* pack);
 
-	void Recv(DWORD bytes);
-	void Send(DWORD bytes);
+	void Recv(DWORD bytes, OVERLAPPEDEX* over_ex);
+	void Send(DWORD bytes, OVERLAPPEDEX* over_ex);
 
 	void ProcessPacket();
 	void Login();
 	void AddObject();
 	void RemoveObject();
 	void MoveObject();
+	void RotateObject();
 
 	void SendLogin();
 	void SendMoveObject(DWORD direction);
@@ -39,8 +40,6 @@ private:
 	
 	std::thread worker_thread;
 
-	OVERLAPPEDEX* over_ex;
-
 	OVERLAPPEDEX recv_ex;
 	OVERLAPPEDEX send_ex;
 
@@ -50,16 +49,14 @@ private:
 	SC::P::ROTATE_OBJ* sc_rotate_object;
 	SC::P::REMOVE_OBJ* sc_remove_object;
 	
-	CS::P::LOGIN* cs_login;
-	CS::P::MOVE_OBJ* cs_move_object;
-	CS::P::ROTATE_OBJ* cs_rotate_object;
-	CS::P::PLAYER_ATTACK* cs_player_attack;
+	CS::P::LOGIN cs_login;
+	CS::P::MOVE_OBJ cs_move_object;
+	CS::P::ROTATE_OBJ cs_rotate_object;
+	CS::P::PLAYER_ATTACK cs_player_attack;
 
 	char* packet;
 
 	int remain_size;
 	
 	CGameFramework* game_instance;
-public:
-	int id;
 };

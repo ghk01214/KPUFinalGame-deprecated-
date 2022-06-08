@@ -150,8 +150,8 @@ void Zone::MoveObject(ID id, int direction)
 
 	UpdateSector(my_obj);
 
-	auto& x{ my_obj->sector_index_x };
-	auto& z{ my_obj->sector_index_z };
+	auto x{ my_obj->sector_index_x };
+	auto z{ my_obj->sector_index_z };
 
 	my_obj->view_lock.lock();
 	auto old_list{ my_obj->view_list };
@@ -224,7 +224,7 @@ void Zone::RotateObject(ID id, float cx, float cy)
 
 	for (auto& opp_id : my_obj->view_list)
 	{
-		auto opp_obj{ objects[id] };
+		auto opp_obj{ objects[opp_id] };
 
 		if (opp_obj->GetState() == STATE::INGAME)
 		{

@@ -195,6 +195,8 @@ void Session::SendRotate(Session* client)
 		sc_rotate_obj.up_y = npc->GetUp().y;
 		sc_rotate_obj.up_z = npc->GetUp().z;
 	}
+
+	Send(&sc_rotate_obj);
 }
 
 void Session::SendPlayerAttack(Session* client)

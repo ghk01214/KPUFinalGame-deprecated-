@@ -34,6 +34,7 @@ public:
 	void Recv() { network_manager->Recv(); }
 	void AddPlayer(SC::P::ADD_OBJ* packet = nullptr);
 	void RemovePlayer(int id);
+	void EndThread() { network_manager->EndThread(); }
 
 	void BuildObjects();
 	void ReleaseObjects();
