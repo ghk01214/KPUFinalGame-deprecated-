@@ -3,7 +3,7 @@
 #pragma region TYPEDEF
 using SIZE_ = unsigned char;
 using TYPE = char;
-using ID = unsigned int;
+using ID = int;
 using POS = float;
 using VECTOR = float;
 using DIRECTION = unsigned char;

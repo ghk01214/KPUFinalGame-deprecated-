@@ -82,8 +82,7 @@ inline bool IsInSight(float dis1, float dis2)
 	//	return false;
 
 	//return true;
-
-	return SIGHT_RANGE >= std::abs(dis1) + std::abs(dis2);
+	return std::abs(dis1) + std::abs(dis2) <= SIGHT_RANGE;
 }
 
 namespace LUA

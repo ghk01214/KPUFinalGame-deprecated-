@@ -12,6 +12,7 @@ GameServer::GameServer() :
 	server{ INVALID_SOCKET },
 	server_key{ 99999 },
 	packet{ nullptr },
+	over_ex{ nullptr },
 	cs_login{ nullptr },
 	cs_move{ nullptr },
 	cs_rotate{ nullptr },
@@ -43,6 +44,11 @@ GameServer::~GameServer()
 		}
 	}
 
+	if (over_ex)
+	{
+		delete over_ex;
+		over_ex = nullptr;
+	}
 	if (packet)
 	{
 		delete packet;
@@ -170,8 +176,6 @@ void GameServer::WorkerThread()
 {
 	DWORD bytes;
 	ULONG_PTR id;
-	BOOL ret;
-	OVERLAPPEDEX* over_ex{ nullptr };
 
 	while (true)
 	{
@@ -199,24 +203,24 @@ void GameServer::WorkerThread()
 		{
 		case COMPLETION::ACCEPT:
 		{
-			AcceptClient(over_ex);
+			AcceptClient();
 		}
 		break;
 		case COMPLETION::RECV:
 		{
-			Recv(id, bytes, over_ex);
+			Recv(id, bytes);
 		}
 		break;
 		case COMPLETION::SEND:
 		{
-			Send(id, bytes, over_ex);
+			Send(id, bytes);
 		}
 		break;
 		}
 	}
 }
 
-void GameServer::AcceptClient(OVERLAPPEDEX* over_ex)
+void GameServer::AcceptClient()
 {
 	SOCKET client_socket{ reinterpret_cast<SOCKET>(over_ex->wsa.buf) };
 
@@ -238,13 +242,12 @@ void GameServer::AcceptClient(OVERLAPPEDEX* over_ex)
 	}
 
 	ZeroMemory(&over_ex->over, sizeof(over_ex->over));
-	//over_ex->type == COMPLETION::ACCEPT;
 	over_ex->wsa.buf = reinterpret_cast<char*>(client_socket);
 
 	AcceptEx(server, client_socket, over_ex->data, 0, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, 0, &over_ex->over);
 }
 
-void GameServer::Recv(ULONG_PTR id, DWORD bytes, OVERLAPPEDEX* over_ex)
+void GameServer::Recv(ULONG_PTR id, DWORD bytes)
 {
 	if (bytes == 0)
 	{
@@ -282,7 +285,7 @@ void GameServer::Recv(ULONG_PTR id, DWORD bytes, OVERLAPPEDEX* over_ex)
 	clients[id]->Recv();
 }
 
-void GameServer::Send(ULONG_PTR id, DWORD bytes, OVERLAPPEDEX* over_ex)
+void GameServer::Send(ULONG_PTR id, DWORD bytes)
 {
 	if (bytes == 0)
 	{
@@ -454,7 +457,7 @@ void GameServer::Move(ULONG_PTR id)
 
 	zone->MoveObject(id, cs_move->direction);
 
-#pragma region NPC
+	// NPC
 	//for (int i = NPC_START; i < NPC_NUM; ++i)
 	//{
 	//	auto dis1{ clients[i]->GetX() - clients[id]->GetX() };
@@ -467,7 +470,6 @@ void GameServer::Move(ULONG_PTR id)
 	//		PostQueuedCompletionStatus(iocp, 1, i, &over_ex->over);
 	//	}
 	//}
-#pragma endregion
 }
 
 void GameServer::Rotate(ULONG_PTR id)
@@ -485,9 +487,9 @@ void GameServer::AIThread()
 {
 	while (true)
 	{
-		for (int i = NPC_START; i < NPC_NUM; ++i)
+		for (int id = NPC_START; id < NPC_NUM; ++id)
 		{
-			dynamic_cast<NPC*>(clients[i]->GetMyObject())->Move();
+			dynamic_cast<NPC*>(clients[id]->GetMyObject())->Move();
 		}
 	}
 }

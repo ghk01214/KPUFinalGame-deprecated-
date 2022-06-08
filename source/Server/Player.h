@@ -11,6 +11,8 @@ public:
 	void Move(int direction) override;
 	void Rotate(float cx, float cy) override;
 
+	void Reset() override;
+
 	constexpr XMFLOAT3 GetLook() const noexcept { return look; }
 	constexpr XMFLOAT3 GetRight() const noexcept { return right; }
 	constexpr XMFLOAT3 GetUp() const noexcept { return up; }

@@ -3,7 +3,7 @@
 
 Sector::Sector() :
 	lt_x{ VAR::WORLD_X_MIN },
-	lt_z{ VAR::WORLD_Z_MAX }
+	lt_z{ VAR::WORLD_Z_MIN }
 {
 }
 
@@ -42,7 +42,7 @@ Sector::Sector(Sector&& right) noexcept :
 	lt_z{ right.lt_z }
 {
 	right.lt_x = VAR::WORLD_X_MIN;
-	right.lt_z = VAR::WORLD_Z_MAX;
+	right.lt_z = VAR::WORLD_Z_MIN;
 
 	sector_lock.lock();
 	right.sector_lock.lock();
@@ -62,7 +62,7 @@ Sector& Sector::operator=(Sector&& right) noexcept
 		lt_z = right.lt_z;
 
 		right.lt_x = VAR::WORLD_X_MIN;
-		right.lt_z = VAR::WORLD_Z_MAX;
+		right.lt_z = VAR::WORLD_Z_MIN;
 
 		sector_lock.lock();
 		right.sector_lock.lock();
@@ -77,12 +77,12 @@ Sector& Sector::operator=(Sector&& right) noexcept
 	return *this;
 }
 
-void Sector::EnterSector(int id)
+void Sector::EnterSector(ID id)
 {
 	objects.insert(id);
 }
 
-void Sector::LeaveSector(int id)
+void Sector::LeaveSector(ID id)
 {
 	sector_lock.lock();
 	objects.unsafe_erase(id);
@@ -117,17 +117,17 @@ bool Sector::OutOfSectorXMin(POS x)
 	return true;
 }
 
-bool Sector::OutOfSectorXMax(POS x)
+bool Sector::OutOfSectorZMin(POS z)
 {
-	if (x < lt_x + SECTOR_RANGE)
+	if (lt_z <= z)
 		return false;
 
 	return true;
 }
 
-bool Sector::OutOfSectorZMin(POS z)
+bool Sector::OutOfSectorXMax(POS x)
 {
-	if (lt_z <= z)
+	if (x < lt_x + SECTOR_RANGE)
 		return false;
 
 	return true;

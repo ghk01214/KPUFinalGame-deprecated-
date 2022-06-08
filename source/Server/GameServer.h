@@ -24,9 +24,9 @@ private:
 
 	// Main Thread
 	void WorkerThread();
-	void AcceptClient(OVERLAPPEDEX* over_ex);
-	void Recv(ULONG_PTR id, DWORD bytes, OVERLAPPEDEX* over_ex);
-	void Send(ULONG_PTR id, DWORD bytes, OVERLAPPEDEX* over_ex);
+	void AcceptClient();
+	void Recv(ULONG_PTR id, DWORD bytes);
+	void Send(ULONG_PTR id, DWORD bytes);
 
 	int NewPlayerID();
 	int NewRandomID();
@@ -44,9 +44,11 @@ private:
 private:
 	HANDLE iocp;
 	SOCKET server;
-	int server_key;
+	ID server_key;
 
 	std::array<Session*, MAX_USER/*+ NPC_NUM*/> clients;
+
+	OVERLAPPEDEX* over_ex;
 
 	std::vector<std::thread> worker_threads;
 	std::thread ai_thread;

@@ -10,6 +10,7 @@ public:
 	~NPC();
 
 	void InitializeScript(int id);
+	void Reset() override;
 
 	void Move();
 

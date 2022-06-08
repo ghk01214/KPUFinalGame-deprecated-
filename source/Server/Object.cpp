@@ -19,6 +19,20 @@ Object::Object(POS x, POS y, POS z) :
 
 Object::~Object()
 {
+	name.clear();
+	name.shrink_to_fit();
+}
+
+void Object::Reset()
+{
+	x = 0.0f;
+	y = 0.0f;
+	z = 0.0f;
+
+	if (!name.empty())
+	{
+		name.clear();
+	}
 }
 
 void Object::SetPos(POS new_x, POS new_y, POS new_z)

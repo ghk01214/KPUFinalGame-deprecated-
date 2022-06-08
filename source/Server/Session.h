@@ -31,15 +31,15 @@ public:
 	//bool IsPlayerID() { return id < MAX_USER; }
 	//bool IsNPCID() { return id >= NPC_START; }
 
-	void AddToViewList(ID id);
-	void RemoveFromViewList(ID id);
-	bool IsInViewList(ID id) { return view_list.find(id) != view_list.end(); }
+	void AddToViewList(int id);
+	void RemoveFromViewList(int id);
+	bool IsInViewList(int id) { return view_list.find(id) != view_list.end(); }
 
 	void Move(int direction) { object->Move(direction); }
 	void Rotate(float cx, float cy) { object->Rotate(cx, cy); }
 
 	const STATE GetState() const noexcept { return state.load(std::memory_order_seq_cst); }
-	constexpr ID GetId() const noexcept { return id; }
+	constexpr int GetId() const noexcept { return id; }
 	Object* GetMyObject()  { return object; }
 	constexpr POS GetX() const noexcept { return object->GetX(); }
 	constexpr POS GetY() const noexcept { return object->GetY(); }
@@ -48,7 +48,7 @@ public:
 
 	void SetSocket(SOCKET client) { sock = client; }
 	void SetState(STATE new_state) { state.store(new_state, std::memory_order_seq_cst); }
-	void SetID(ID new_id) { id = new_id; }
+	void SetID(int new_id) { id = new_id; }
 	void SetObjectName(const char* name) { object->SetName(name); }
 	void SetObjectName(std::string_view name) { object->SetName(name); }
 	void SetObjectPos(POS x, POS y, POS z) { object->SetPos(x, y, z); }
@@ -64,7 +64,7 @@ private:
 
 	SC::P::LOGIN sc_login;
 	SC::P::ADD_OBJ sc_add_obj;
-	SC::P::REMOVE_OBJ sc_delete_obj;
+	SC::P::REMOVE_OBJ sc_remove_obj;
 	SC::P::MOVE_OBJ sc_move_obj;
 	SC::P::ROTATE_OBJ sc_rotate_obj;
 	SC::P::PLAYER_ATTACK sc_player_attack;

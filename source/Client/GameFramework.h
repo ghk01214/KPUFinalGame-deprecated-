@@ -30,7 +30,7 @@ public:
 	void ChangeSwapChainState();
 
 	void ConnectToServer() { network_manager->ConnectToServer(); }
-	void Login() { network_manager->SendLoginPacket(); }
+	void Login() { network_manager->SendLogin(); }
 	void Recv() { network_manager->Recv(); }
 	void AddPlayer(SC::P::ADD_OBJ* packet = nullptr);
 	void RemovePlayer(int id);

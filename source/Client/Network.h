@@ -18,20 +18,19 @@ public:
 	void Recv();
 	void Send(void* pack);
 
-	void RecvData(DWORD bytes, OVERLAPPEDEX* over_ex);
-	void SendData(DWORD bytes, OVERLAPPEDEX* over_ex);
+	void Recv(DWORD bytes);
+	void Send(DWORD bytes);
 
 	void ProcessPacket();
-	void ProcessLogin();
-	void ProcessAddObject();
-	void ProcessRemoveObject();
-	void ProcessMove();
-	void ProcessRotate();
+	void Login();
+	void AddObject();
+	void RemoveObject();
+	void MoveObject();
 
-	void SendLoginPacket();
-	void SendMoveObjectPacket(DWORD direction);
-	void SendRotateObjectPacket(float cx, float cy);
-	void SendPlayerAttackPacket(int mode);
+	void SendLogin();
+	void SendMoveObject(DWORD direction);
+	void SendRotateObject(float cx, float cy);
+	void SendPlayerAttack(int mode);
 
 private:
 	SOCKET server;
@@ -39,7 +38,9 @@ private:
 	int key;
 	
 	std::thread worker_thread;
- 
+
+	OVERLAPPEDEX* over_ex;
+
 	OVERLAPPEDEX recv_ex;
 	OVERLAPPEDEX send_ex;
 

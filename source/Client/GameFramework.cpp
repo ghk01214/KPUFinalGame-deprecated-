@@ -556,11 +556,11 @@ void CGameFramework::ProcessInput()
 				if (cxDelta || cyDelta)
 				{
 					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
-					network_manager->SendRotateObjectPacket(cyDelta, cxDelta);
+					network_manager->SendRotateObject(cyDelta, cxDelta);
 				}
 				if (dwDirection)
 				{
-					network_manager->SendMoveObjectPacket(dwDirection);
+					network_manager->SendMoveObject(dwDirection);
 				}
 			}
 
@@ -658,7 +658,6 @@ void CGameFramework::FrameAdvance()
 		{
 			if (player.first >= 0 && player.second != m_pPlayer)
 			{
-				//player.second->OnPrepareRender();
 				player.second->Render(m_pd3dCommandList, player.second->GetCamera());
 			}
 
@@ -670,6 +669,22 @@ void CGameFramework::FrameAdvance()
 			}
 		}
 	}
+
+	//if (m_pPlayer)
+	//{
+	//	for (int i = 0; i < m_pPlayer->GetBulletNum(); ++i)
+	//	{
+	//		m_pPlayer->MoveBullet();
+	//	}
+	//}
+	//if (m_pPlayer)
+	//{
+	//	for (int i = 0; i < m_pPlayer->GetBulletNum(); ++i)
+	//	{
+	//		m_pPlayer->GetBullet()[i]->UpdateTransform(nullptr);
+	//		m_pPlayer->GetBullet()[i]->Render(m_pd3dCommandList, m_pCamera);
+	//	}
+	//}
 
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;

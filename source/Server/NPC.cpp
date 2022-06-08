@@ -39,7 +39,15 @@ void NPC::InitializeScript(int id)
 	lua_pcall(L, 1, 0, 0);
 }
 
+void NPC::Reset()
+{
+	look = { 0.0f, 0.0f, 1.0f };
+	right = { 1.0f, 0.0f, 0.0f };
+	up = { 0.0f, 1.0f, 0.0f };
+
+	Object::Reset();
+}
+
 void NPC::Move()
 {
-	// A* 알고리즘
 }

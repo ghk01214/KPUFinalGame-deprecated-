@@ -3,6 +3,9 @@
 
 Player::Player() :
 	max_speed{ 2.25f },
+	look{ 0.0f, 0.0f, 1.0f },
+	right{ 1.0f, 0.0f, 0.0f },
+	up{ 0.0f, 1.0f, 0.0f },
 	pitch{ 0.0f },
 	yaw{ 0.0f }
 {
@@ -120,4 +123,18 @@ void Player::Rotate(float cx, float cy)
 	DXMATH::Normalize(&look);
 	DXMATH::CrossNormalize(&right, &up, &look);
 	DXMATH::CrossNormalize(&up, &look, &right);
+}
+
+void Player::Reset()
+{
+	look = { 0.0f, 0.0f, 1.0f };
+	right = { 1.0f, 0.0f, 0.0f };
+	up = { 0.0f, 1.0f, 0.0f };
+
+	pitch = 0.0f;
+	yaw = 0.0f;
+
+	max_speed = 2.25f;
+
+	Object::Reset();
 }

@@ -67,6 +67,7 @@ void Zone::SetInSector(ID id)
 					objects[id]->sector_index_x = x;
 					objects[id]->sector_index_z = z;
 					sector[z][x].EnterSector(id);
+
 					std::cout << "스폰 위치 = [" << id << "] : sector(" << x << ", " << z << ")\n";
 
 					break;
@@ -89,6 +90,7 @@ void Zone::UpdateSector(Session* client)
 		{
 			sector[z][x].LeaveSector(id);
 			sector[z][++x].EnterSector(id);
+
 			std::cout << "[" << id << "] : sector(" << x << ", " << z << ")\n";
 		}
 	}
@@ -98,25 +100,28 @@ void Zone::UpdateSector(Session* client)
 		{
 			sector[z][x].LeaveSector(id);
 			sector[z][--x].EnterSector(id);
+
 			std::cout << "[" << id << "] : sector(" << x << ", " << z << ")\n";
 		}
 	}
 
-	if (sector[z][x].OutOfSectorZMin(client->GetZ()))
-	{
-		if (z > 0)
-		{
-			sector[z][x].LeaveSector(id);
-			sector[--z][x].EnterSector(id);
-			std::cout << "[" << id << "] : sector(" << x << ", " << z << ")\n";
-		}
-	}
-	else if (sector[z][x].OutOfSectorZMax(client->GetZ()))
+	if (sector[z][x].OutOfSectorZMax(client->GetZ()))
 	{
 		if (z < sector_num_z - 1)
 		{
 			sector[z][x].LeaveSector(id);
 			sector[++z][x].EnterSector(id);
+
+			std::cout << "[" << id << "] : sector(" << x << ", " << z << ")\n";
+		}
+	}
+	else if (sector[z][x].OutOfSectorZMin(client->GetZ()))
+	{
+		if (z > 0)
+		{
+			sector[z][x].LeaveSector(id);
+			sector[--z][x].EnterSector(id);
+
 			std::cout << "[" << id << "] : sector(" << x << ", " << z << ")\n";
 		}
 	}
@@ -145,8 +150,8 @@ void Zone::MoveObject(ID id, int direction)
 
 	UpdateSector(my_obj);
 
-	auto x{ my_obj->sector_index_x };
-	auto z{ my_obj->sector_index_z };
+	auto& x{ my_obj->sector_index_x };
+	auto& z{ my_obj->sector_index_z };
 
 	my_obj->view_lock.lock();
 	auto old_list{ my_obj->view_list };
@@ -219,7 +224,7 @@ void Zone::RotateObject(ID id, float cx, float cy)
 
 	for (auto& opp_id : my_obj->view_list)
 	{
-		auto opp_obj{ objects[opp_id] };
+		auto opp_obj{ objects[id] };
 
 		if (opp_obj->GetState() == STATE::INGAME)
 		{
@@ -227,3 +232,4 @@ void Zone::RotateObject(ID id, float cx, float cy)
 		}
 	}
 }
+

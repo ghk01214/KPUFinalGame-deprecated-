@@ -46,7 +46,7 @@ public:
 	void SetMaxVelocityXZ(float fMaxVelocity) { m_fMaxVelocityXZ = fMaxVelocity; }
 	void SetMaxVelocityY(float fMaxVelocity) { m_fMaxVelocityY = fMaxVelocity; }
 	void SetVelocity(const XMFLOAT3& xmf3Velocity) { m_xmf3Velocity = xmf3Velocity; }
-	void SetPosition(const XMFLOAT3& xmf3Position) { Move(XMFLOAT3(xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z), false); }
+	void SetPosition(const XMFLOAT3& xmf3Position) { MoveObject(XMFLOAT3(xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z), false); }
 
 	void SetScale(XMFLOAT3& xmf3Scale) { m_xmf3Scale = xmf3Scale; }
 
@@ -58,10 +58,10 @@ public:
 	CCamera *GetCamera() { return(m_pCamera); }
 	void SetCamera(CCamera *pCamera) { m_pCamera = pCamera; }
 
-	void Move(DWORD dwDirection, float fDistance, bool bVelocity = false);
-	virtual void Move(float x, float y, float z);
-	void Move(const XMFLOAT3& xmf3Shift, bool bVelocity = false);
-	//void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
+	void MoveObject(DWORD dwDirection, float fDistance, bool bVelocity = false);
+	virtual void MoveObject(float x, float y, float z);
+	void MoveObject(const XMFLOAT3& xmf3Shift, bool bVelocity = false);
+	//void MoveObject(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
 	void Rotate(float x, float y, float z);
 
 	virtual void Update(float fTimeElapsed);
@@ -124,7 +124,7 @@ public:
 	virtual void OnCameraUpdateCallback(float fTimeElapsed);
 
 #ifdef _WITH_SOUND_CALLBACK
-	virtual void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
+	virtual void MoveObject(ULONG nDirection, float fDistance, bool bVelocity = false);
 	virtual void Update(float fTimeElapsed);
 #endif
 };

@@ -15,7 +15,7 @@ void OVERLAPPEDEX::Set(char* packet)
 	type = COMPLETION::SEND;
 
 	ZeroMemory(&over, sizeof(over));
-	std::memcpy(data, packet, packet[0]);
+	memcpy_s(data, VAR::DATA, packet, packet[0]);
 }
 
 void OVERLAPPEDEX::Reset()

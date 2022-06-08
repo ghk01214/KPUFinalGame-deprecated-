@@ -55,7 +55,7 @@ void CPlayer::ReleaseShaderVariables()
 	}
 }
 
-void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
+void CPlayer::MoveObject(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 {
 	if (dwDirection)
 	{
@@ -96,21 +96,21 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
 		}
 
-		Move(xmf3Shift, bUpdateVelocity);
+		MoveObject(xmf3Shift, bUpdateVelocity);
 	}
 }
 
-void CPlayer::Move(float x, float y, float z)
+void CPlayer::MoveObject(float x, float y, float z)
 {
 	m_xmf3Position = XMFLOAT3{ x, y, z };
-	m_pCamera->Move(m_xmf3Position);
+	m_pCamera->MoveObject(m_xmf3Position);
 
 #ifdef DEBUG
 	//std::cout << m_xmf3Position.x << ", " << m_xmf3Position.z << std::endl;
 #endif
 }
 
-void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
+void CPlayer::MoveObject(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 {
 	if (bUpdateVelocity)
 	{
@@ -119,7 +119,7 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 	else
 	{
 		m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
-		m_pCamera->Move(xmf3Shift);
+		m_pCamera->MoveObject(xmf3Shift);
 	}
 }
 
@@ -186,7 +186,7 @@ void CPlayer::Update(float fTimeElapsed)
 	if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
 
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
-	//Move(xmf3Velocity, false);
+	//MoveObject(xmf3Velocity, false);
 
 	if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
 
@@ -462,11 +462,11 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 }
 
 #ifdef _WITH_SOUND_CALLBACK
-void CTerrainPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
+void CTerrainPlayer::MoveObject(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 {
 	m_pSkinnedAnimationController->SetTrackEnable(0, (dwDirection) ? true : false);
 
-	CPlayer::Move(dwDirection, fDistance, bUpdateVelocity);
+	CPlayer::MoveObject(dwDirection, fDistance, bUpdateVelocity);
 }
 
 void CTerrainPlayer::Update(float fTimeElapsed)
