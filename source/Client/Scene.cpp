@@ -87,9 +87,14 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	XMFLOAT3 xmf3Scale(8.0f, 2.0f, 8.0f);
 	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/Plain.raw"), 257, 257, xmf3Scale, xmf4Color);
-
-	m_nGameObjects = 6;
+	
+	m_nGameObjects = 1;
 	m_ppGameObjects = new CGameObject * [m_nGameObjects];
+
+	CLoadedModelInfo* pboxModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Object/wood_box.bin", NULL);
+	m_ppGameObjects[0] = new CBoxObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pboxModel, 1);
+	m_ppGameObjects[0]->SetPosition(100.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 100.0f);
+	m_ppGameObjects[0]->SetScale(100.0f, 100.0f, 100.0f);
 
 	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Ghoul@Animations.bin", NULL);
 	for (int i = 0; i <25; i++)
@@ -101,13 +106,6 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		(*(m_vGameObjects.end() - 1))->SetPosition(dis(dre), m_pTerrain->GetHeight(380.0f, 725.0f), dis(dre));
 	}
 
-
-	m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
-	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
-	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
-	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
-	m_ppGameObjects[0]->SetPosition(380.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
 
 	{
 		//m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
@@ -153,6 +151,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		//m_ppGameObjects[5]->SetPosition(880.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
 	}
 
+	if (pboxModel) delete pboxModel;
 	if (pAngrybotModel) delete pAngrybotModel;
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -418,7 +417,7 @@ void CScene::ReleaseUploadBuffers()
 	if (m_pTerrain) m_pTerrain->ReleaseUploadBuffers();
 
 	for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
-	//for (int i = 0; i < m_nGameObjects; i++) m_ppGameObjects[i]->ReleaseUploadBuffers();
+	for (int i = 0; i < m_nGameObjects; i++) m_ppGameObjects[i]->ReleaseUploadBuffers();
 	for (auto temp : m_vGameObjects) temp->ReleaseUploadBuffers();
 }
 
@@ -590,7 +589,6 @@ void CScene::AnimateObjects(float fTimeElapsed)
 		XMFLOAT3 distance{ xamount, 0, zamount };
 
 		distance = Vector3::Normalize(distance);
-		//XMFLOAT3 temp{ m_ppGameObjects[i]->GetLook().x,  m_ppGameObjects[i]->GetLook().y, m_ppGameObjects[i]->GetLook().z };
 		XMFLOAT3 temp{ m_vGameObjects[i]->GetLook().x,  m_vGameObjects[i]->GetLook().y, m_vGameObjects[i]->GetLook().z };
 		float Dot = Vector3::DotProduct(temp, distance);
 		float   Radian = (float)acos(Dot);
@@ -632,6 +630,16 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 			m_vGameObjects[i]->Animate(m_fElapsedTime);
 			if (!m_vGameObjects[i]->m_pSkinnedAnimationController) m_vGameObjects[i]->UpdateTransform(NULL);
 			m_vGameObjects[i]->Render(pd3dCommandList, pCamera);
+		}
+	}
+
+	for (int i = 0; i < m_nGameObjects; i++)
+	{
+		if (m_ppGameObjects[i])
+		{
+			m_ppGameObjects[i]->Animate(m_fElapsedTime);
+			if (!m_ppGameObjects[i]->m_pSkinnedAnimationController) m_ppGameObjects[i]->UpdateTransform(NULL);
+			m_ppGameObjects[i]->Render(pd3dCommandList, pCamera);
 		}
 	}
 

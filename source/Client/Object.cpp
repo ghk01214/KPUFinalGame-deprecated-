@@ -1198,7 +1198,7 @@ CSkyBox::CSkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComman
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	CTexture* pSkyBoxTexture = new CTexture(1, RESOURCE_TEXTURE_CUBE, 0);
-	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"SkyBox/SkyBox_1.dds", 0);
+	pSkyBoxTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"SkyBox/SkyBox_0.dds", 0);
 
 	CSkyBoxShader* pSkyBoxShader = new CSkyBoxShader();
 	pSkyBoxShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
@@ -1243,81 +1243,48 @@ CAngrybotObject::~CAngrybotObject()
 {
 }
 
-CElvenWitchObject::CElvenWitchObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
+CBoxObject::CBoxObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
 {
 	CLoadedModelInfo* pElvenWitchModel = pModel;
-	if (!pElvenWitchModel) pElvenWitchModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Elven_Witch.bin", NULL);
 
 	SetChild(pElvenWitchModel->m_pModelRootObject, true);
 	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pElvenWitchModel);
 
-	strcpy_s(m_pstrFrameName, "ElvenWitch");
-
 	Rotate(-90.0f, 0.0f, 0.0f);
 	SetScale(0.15f, 0.15f, 0.15f);
 
-	SetActive("elven_staff", false);
-	SetActive("elven_staff01", false);
 }
 
-CElvenWitchObject::~CElvenWitchObject()
+CBoxObject::~CBoxObject()
 {
 }
 
-CMonsterWeaponObject::CMonsterWeaponObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
+CStreetObject::CStreetObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
 {
 	CLoadedModelInfo* pMonsterWeaponModel = pModel;
-	if (!pMonsterWeaponModel) pMonsterWeaponModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/MonsterWeapon.bin", NULL);
 
 	SetChild(pMonsterWeaponModel->m_pModelRootObject, true);
 	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pMonsterWeaponModel);
 
-	strcpy_s(m_pstrFrameName, "MonsterWeapon");
-
 	SetScale(0.35f, 0.35f, 0.35f);
 }
 
-CMonsterWeaponObject::~CMonsterWeaponObject()
+CStreetObject::~CStreetObject()
 {
 }
 
-CLionObject::CLionObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
+CBarrelObject::CBarrelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
 {
 	CLoadedModelInfo* pLionModel = pModel;
-	if (!pLionModel) pLionModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Lion.bin", NULL);
 
 	SetChild(pLionModel->m_pModelRootObject, true);
 	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pLionModel);
 
-	strcpy_s(m_pstrFrameName, "Lion");
-
-	Rotate(-90.0f, 0.0f, 0.0f);
-	SetScale(0.2f, 0.2f, 0.2f);
-
-	SetActive("SK_Lion_LOD1", false);
-	SetActive("SK_Lion_LOD2", false);
-	SetActive("SK_Lion_LOD3", false);
-}
-
-CLionObject::~CLionObject()
-{
-}
-
-CEagleObject::CEagleObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
-{
-	CLoadedModelInfo* pEagleModel = pModel;
-	if (!pEagleModel) pEagleModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Eagle.bin", NULL);
-
-	SetChild(pEagleModel->m_pModelRootObject, true);
-	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pEagleModel);
-
-	strcpy_s(m_pstrFrameName, "Eagle");
-
 	Rotate(-90.0f, 0.0f, 0.0f);
 	SetScale(0.2f, 0.2f, 0.2f);
 }
 
-CEagleObject::~CEagleObject()
+CBarrelObject::~CBarrelObject()
 {
 }
 

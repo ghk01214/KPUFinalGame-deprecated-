@@ -355,6 +355,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)pContext;
 	//SetPosition(XMFLOAT3(310.0f, pTerrain->GetHeight(310.0f, 595.0f), 595.0f));
 
+	
 	SetScale(XMFLOAT3(0.2f, 0.2f, 0.2f));
 
 	CLoadedModelInfo* pBulletModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/9mm.bin", NULL);
