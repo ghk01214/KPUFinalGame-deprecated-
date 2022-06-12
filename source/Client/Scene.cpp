@@ -88,7 +88,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/Plain.raw"), 257, 257, xmf3Scale, xmf4Color);
 
-	m_nGameObjects = 33;
+	m_nGameObjects = 37;
 	m_ppGameObjects = new CGameObject * [m_nGameObjects];
 
 	CLoadedModelInfo* pwallModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Object/wall.bin", NULL);
@@ -192,60 +192,77 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 			m_ppGameObjects[20] = new CBusObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pbusModel, 1);
 			m_ppGameObjects[20]->SetPosition(500.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1650.0f);
 			m_ppGameObjects[20]->SetScale(10.0f, 10.0f, 10.0f);
+
+			m_ppGameObjects[21] = new CBusObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pbusModel, 1);
+			m_ppGameObjects[21]->SetPosition(300.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1530.0f);
+			m_ppGameObjects[21]->SetScale(10.0f, 10.0f, 10.0f);
+			m_ppGameObjects[21]->Rotate(0.0f, 0.0f, 180.0f);
+
+			m_ppGameObjects[22] = new CBusObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pbusModel, 1);
+			m_ppGameObjects[22]->SetPosition(500.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1090.0f);
+			m_ppGameObjects[22]->SetScale(10.0f, 10.0f, 10.0f);
 		}
 		//자동차
 		{
-			m_ppGameObjects[21] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
-			m_ppGameObjects[21]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 260.0f);
-			m_ppGameObjects[21]->SetScale(8.0f, 8.0f, 8.0f);
-
-			m_ppGameObjects[22] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
-			m_ppGameObjects[22]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 460.0f);
-			m_ppGameObjects[22]->SetScale(8.0f, 8.0f, 8.0f);
-
 			m_ppGameObjects[23] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
-			m_ppGameObjects[23]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1060.0f);
+			m_ppGameObjects[23]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 260.0f);
 			m_ppGameObjects[23]->SetScale(8.0f, 8.0f, 8.0f);
 
 			m_ppGameObjects[24] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
-			m_ppGameObjects[24]->SetPosition(420.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1800.0f);
+			m_ppGameObjects[24]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 460.0f);
 			m_ppGameObjects[24]->SetScale(8.0f, 8.0f, 8.0f);
-			m_ppGameObjects[24]->Rotate(0.0f, 180.0f, 0.0f);
 
 			m_ppGameObjects[25] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
-			m_ppGameObjects[25]->SetPosition(420.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1230.0f);
+			m_ppGameObjects[25]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1060.0f);
 			m_ppGameObjects[25]->SetScale(8.0f, 8.0f, 8.0f);
-			m_ppGameObjects[25]->Rotate(0.0f, 180.0f, 0.0f);
 
 			m_ppGameObjects[26] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
-			m_ppGameObjects[26]->SetPosition(420.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 610.0f);
+			m_ppGameObjects[26]->SetPosition(420.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1800.0f);
 			m_ppGameObjects[26]->SetScale(8.0f, 8.0f, 8.0f);
 			m_ppGameObjects[26]->Rotate(0.0f, 180.0f, 0.0f);
 
 			m_ppGameObjects[27] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
-			m_ppGameObjects[27]->SetPosition(420.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1360.0f);
+			m_ppGameObjects[27]->SetPosition(420.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1230.0f);
 			m_ppGameObjects[27]->SetScale(8.0f, 8.0f, 8.0f);
 			m_ppGameObjects[27]->Rotate(0.0f, 180.0f, 0.0f);
 
 			m_ppGameObjects[28] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
-			m_ppGameObjects[28]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1360.0f);
+			m_ppGameObjects[28]->SetPosition(420.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 610.0f);
 			m_ppGameObjects[28]->SetScale(8.0f, 8.0f, 8.0f);
+			m_ppGameObjects[28]->Rotate(0.0f, 180.0f, 0.0f);
 
 			m_ppGameObjects[29] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
-			m_ppGameObjects[29]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1150.0f);
+			m_ppGameObjects[29]->SetPosition(420.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1360.0f);
 			m_ppGameObjects[29]->SetScale(8.0f, 8.0f, 8.0f);
+			m_ppGameObjects[29]->Rotate(0.0f, 180.0f, 0.0f);
 
 			m_ppGameObjects[30] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
-			m_ppGameObjects[30]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 600.0f);
+			m_ppGameObjects[30]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1360.0f);
 			m_ppGameObjects[30]->SetScale(8.0f, 8.0f, 8.0f);
 
 			m_ppGameObjects[31] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
-			m_ppGameObjects[31]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 750.0f);
+			m_ppGameObjects[31]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1150.0f);
 			m_ppGameObjects[31]->SetScale(8.0f, 8.0f, 8.0f);
 
 			m_ppGameObjects[32] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
-			m_ppGameObjects[32]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 900.0f);
+			m_ppGameObjects[32]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 600.0f);
 			m_ppGameObjects[32]->SetScale(8.0f, 8.0f, 8.0f);
+
+			m_ppGameObjects[33] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
+			m_ppGameObjects[33]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 750.0f);
+			m_ppGameObjects[33]->SetScale(8.0f, 8.0f, 8.0f);
+
+			m_ppGameObjects[34] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
+			m_ppGameObjects[34]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 900.0f);
+			m_ppGameObjects[34]->SetScale(8.0f, 8.0f, 8.0f);
+
+			m_ppGameObjects[35] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
+			m_ppGameObjects[35]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1630.0f);
+			m_ppGameObjects[35]->SetScale(8.0f, 8.0f, 8.0f);
+
+			m_ppGameObjects[36] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
+			m_ppGameObjects[36]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1930.0f);
+			m_ppGameObjects[36]->SetScale(8.0f, 8.0f, 8.0f);
 		}
 	}
 	//적
