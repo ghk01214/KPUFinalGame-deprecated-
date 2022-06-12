@@ -88,38 +88,167 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/Plain.raw"), 257, 257, xmf3Scale, xmf4Color);
 
-	m_nGameObjects = 5;
+	m_nGameObjects = 33;
 	m_ppGameObjects = new CGameObject * [m_nGameObjects];
 
-	//벽
 	CLoadedModelInfo* pwallModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Object/wall.bin", NULL);
 	CLoadedModelInfo* pwallModel2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Object/wall2.bin", NULL);
-	{
-		//가로
-		m_ppGameObjects[0] = new CWallObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pwallModel, 1);
-		m_ppGameObjects[0]->SetPosition(1000.0f, m_pTerrain->GetHeight(380.0f, 725.0f) - 10.0f, -5.0f);
-		m_ppGameObjects[0]->SetScale(8.0f, 3.0f, 1.0f);
-
-		m_ppGameObjects[1] = new CWallObject3(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pwallModel, 1);
-		m_ppGameObjects[1]->SetPosition(1000.0f, m_pTerrain->GetHeight(380.0f, 725.0f) - 10.0f, 2020.0f);
-		m_ppGameObjects[1]->SetScale(8.0f, 3.0f, 1.0f);
-
-		//세로
-		m_ppGameObjects[2] = new CWallObject2(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pwallModel2, 1);
-		m_ppGameObjects[2]->SetPosition(-5.0f, m_pTerrain->GetHeight(380.0f, 725.0f) + 350, 1000.0f);
-		m_ppGameObjects[2]->SetScale(1.0f, 8.0f, 3.5f);
-
-		m_ppGameObjects[3] = new CWallObject4(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pwallModel2, 1);
-		m_ppGameObjects[3]->SetPosition(2020.0f, m_pTerrain->GetHeight(380.0f, 725.0f) + 350, 1000.0f);
-		m_ppGameObjects[3]->SetScale(1.0f, 8.0f, 3.5f);
-	}
-
+	CLoadedModelInfo* pstreetModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Object/street_lamp.bin", NULL);
 	CLoadedModelInfo* pbusModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Object/brokenbus.bin", NULL);
-	m_ppGameObjects[4] = new CBusObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pbusModel, 1);
-	m_ppGameObjects[4]->SetPosition(1000.0f, m_pTerrain->GetHeight(380.0f, 725.0f)+5, 1000.0f);
-	m_ppGameObjects[4]->SetScale(10.0f, 10.0f, 10.0f);
+	CLoadedModelInfo* pcarModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Object/brokencar.bin", NULL);
+	
+	//오브젝트
+	{
+		//벽
+		{
+			//가로
+			m_ppGameObjects[0] = new CWallObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pwallModel, 1);
+			m_ppGameObjects[0]->SetPosition(1000.0f, m_pTerrain->GetHeight(380.0f, 725.0f) - 10.0f, -5.0f);
+			m_ppGameObjects[0]->SetScale(8.0f, 3.0f, 1.0f);
 
+			m_ppGameObjects[1] = new CWallObject3(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pwallModel, 1);
+			m_ppGameObjects[1]->SetPosition(1000.0f, m_pTerrain->GetHeight(380.0f, 725.0f) - 10.0f, 2020.0f);
+			m_ppGameObjects[1]->SetScale(8.0f, 3.0f, 1.0f);
 
+			//세로
+			m_ppGameObjects[2] = new CWallObject2(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pwallModel2, 1);
+			m_ppGameObjects[2]->SetPosition(-5.0f, m_pTerrain->GetHeight(380.0f, 725.0f) + 350, 1000.0f);
+			m_ppGameObjects[2]->SetScale(1.0f, 8.0f, 3.5f);
+
+			m_ppGameObjects[3] = new CWallObject4(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pwallModel2, 1);
+			m_ppGameObjects[3]->SetPosition(2020.0f, m_pTerrain->GetHeight(380.0f, 725.0f) + 350, 1000.0f);
+			m_ppGameObjects[3]->SetScale(1.0f, 8.0f, 3.5f);
+		}
+		//가로등
+		{
+			m_ppGameObjects[4] = new CStreetObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pstreetModel, 1);
+			m_ppGameObjects[4]->SetPosition(550.0f, m_pTerrain->GetHeight(380.0f, 725.0f) - 5.0f, 1900.0f);
+			m_ppGameObjects[4]->SetScale(10.0f, 10.0f, 10.0f);
+
+			m_ppGameObjects[5] = new CStreetObject2(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pstreetModel, 1);
+			m_ppGameObjects[5]->SetPosition(250.0f, m_pTerrain->GetHeight(380.0f, 725.0f) - 5.0f, 1750.0f);
+			m_ppGameObjects[5]->SetScale(10.0f, 10.0f, 10.0f);
+
+			m_ppGameObjects[6] = new CStreetObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pstreetModel, 1);
+			m_ppGameObjects[6]->SetPosition(550.0f, m_pTerrain->GetHeight(380.0f, 725.0f) - 5.0f, 1600.0f);
+			m_ppGameObjects[6]->SetScale(10.0f, 10.0f, 10.0f);
+
+			m_ppGameObjects[7] = new CStreetObject2(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pstreetModel, 1);
+			m_ppGameObjects[7]->SetPosition(250.0f, m_pTerrain->GetHeight(380.0f, 725.0f) - 5.0f, 1450.0f);
+			m_ppGameObjects[7]->SetScale(10.0f, 10.0f, 10.0f);
+
+			m_ppGameObjects[8] = new CStreetObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pstreetModel, 1);
+			m_ppGameObjects[8]->SetPosition(550.0f, m_pTerrain->GetHeight(380.0f, 725.0f) - 5.0f, 1300.0f);
+			m_ppGameObjects[8]->SetScale(10.0f, 10.0f, 10.0f);
+
+			m_ppGameObjects[9] = new CStreetObject2(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pstreetModel, 1);
+			m_ppGameObjects[9]->SetPosition(250.0f, m_pTerrain->GetHeight(380.0f, 725.0f) - 5.0f, 1150.0f);
+			m_ppGameObjects[9]->SetScale(10.0f, 10.0f, 10.0f);
+
+			m_ppGameObjects[10] = new CStreetObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pstreetModel, 1);
+			m_ppGameObjects[10]->SetPosition(550.0f, m_pTerrain->GetHeight(380.0f, 725.0f) - 5.0f, 1000.0f);
+			m_ppGameObjects[10]->SetScale(10.0f, 10.0f, 10.0f);
+
+			m_ppGameObjects[11] = new CStreetObject2(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pstreetModel, 1);
+			m_ppGameObjects[11]->SetPosition(250.0f, m_pTerrain->GetHeight(380.0f, 725.0f) - 5.0f, 850.0f);
+			m_ppGameObjects[11]->SetScale(10.0f, 10.0f, 10.0f);
+
+			m_ppGameObjects[12] = new CStreetObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pstreetModel, 1);
+			m_ppGameObjects[12]->SetPosition(550.0f, m_pTerrain->GetHeight(380.0f, 725.0f) - 5.0f, 700.0f);
+			m_ppGameObjects[12]->SetScale(10.0f, 10.0f, 10.0f);
+
+			m_ppGameObjects[13] = new CStreetObject2(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pstreetModel, 1);
+			m_ppGameObjects[13]->SetPosition(250.0f, m_pTerrain->GetHeight(380.0f, 725.0f) - 5.0f, 550.0f);
+			m_ppGameObjects[13]->SetScale(10.0f, 10.0f, 10.0f);
+
+			m_ppGameObjects[14] = new CStreetObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pstreetModel, 1);
+			m_ppGameObjects[14]->SetPosition(550.0f, m_pTerrain->GetHeight(380.0f, 725.0f) - 5.0f, 400.0f);
+			m_ppGameObjects[14]->SetScale(10.0f, 10.0f, 10.0f);
+
+			m_ppGameObjects[15] = new CStreetObject2(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pstreetModel, 1);
+			m_ppGameObjects[15]->SetPosition(250.0f, m_pTerrain->GetHeight(380.0f, 725.0f) - 5.0f, 250.0f);
+			m_ppGameObjects[15]->SetScale(10.0f, 10.0f, 10.0f);
+
+			m_ppGameObjects[16] = new CStreetObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pstreetModel, 1);
+			m_ppGameObjects[16]->SetPosition(550.0f, m_pTerrain->GetHeight(380.0f, 725.0f) - 5.0f, 100.0f);
+			m_ppGameObjects[16]->SetScale(10.0f, 10.0f, 10.0f);
+		}
+		//버스
+		{
+			m_ppGameObjects[17] = new CBusObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pbusModel, 1);
+			m_ppGameObjects[17]->SetPosition(500.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1870.0f);
+			m_ppGameObjects[17]->SetScale(10.0f, 10.0f, 10.0f);
+
+			m_ppGameObjects[18] = new CBusObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pbusModel, 1);
+			m_ppGameObjects[18]->SetPosition(300.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 450.0f);
+			m_ppGameObjects[18]->SetScale(10.0f, 10.0f, 10.0f);
+			m_ppGameObjects[18]->Rotate(0.0f, 0.0f, 180.0f);
+
+			m_ppGameObjects[19] = new CBusObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pbusModel, 1);
+			m_ppGameObjects[19]->SetPosition(300.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 150.0f);
+			m_ppGameObjects[19]->SetScale(10.0f, 10.0f, 10.0f);
+			m_ppGameObjects[19]->Rotate(0.0f, 0.0f, 180.0f);
+
+			m_ppGameObjects[20] = new CBusObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pbusModel, 1);
+			m_ppGameObjects[20]->SetPosition(500.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1650.0f);
+			m_ppGameObjects[20]->SetScale(10.0f, 10.0f, 10.0f);
+		}
+		//자동차
+		{
+			m_ppGameObjects[21] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
+			m_ppGameObjects[21]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 260.0f);
+			m_ppGameObjects[21]->SetScale(8.0f, 8.0f, 8.0f);
+
+			m_ppGameObjects[22] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
+			m_ppGameObjects[22]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 460.0f);
+			m_ppGameObjects[22]->SetScale(8.0f, 8.0f, 8.0f);
+
+			m_ppGameObjects[23] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
+			m_ppGameObjects[23]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1060.0f);
+			m_ppGameObjects[23]->SetScale(8.0f, 8.0f, 8.0f);
+
+			m_ppGameObjects[24] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
+			m_ppGameObjects[24]->SetPosition(420.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1800.0f);
+			m_ppGameObjects[24]->SetScale(8.0f, 8.0f, 8.0f);
+			m_ppGameObjects[24]->Rotate(0.0f, 180.0f, 0.0f);
+
+			m_ppGameObjects[25] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
+			m_ppGameObjects[25]->SetPosition(420.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1230.0f);
+			m_ppGameObjects[25]->SetScale(8.0f, 8.0f, 8.0f);
+			m_ppGameObjects[25]->Rotate(0.0f, 180.0f, 0.0f);
+
+			m_ppGameObjects[26] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
+			m_ppGameObjects[26]->SetPosition(420.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 610.0f);
+			m_ppGameObjects[26]->SetScale(8.0f, 8.0f, 8.0f);
+			m_ppGameObjects[26]->Rotate(0.0f, 180.0f, 0.0f);
+
+			m_ppGameObjects[27] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
+			m_ppGameObjects[27]->SetPosition(420.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1360.0f);
+			m_ppGameObjects[27]->SetScale(8.0f, 8.0f, 8.0f);
+			m_ppGameObjects[27]->Rotate(0.0f, 180.0f, 0.0f);
+
+			m_ppGameObjects[28] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
+			m_ppGameObjects[28]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1360.0f);
+			m_ppGameObjects[28]->SetScale(8.0f, 8.0f, 8.0f);
+
+			m_ppGameObjects[29] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
+			m_ppGameObjects[29]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 1150.0f);
+			m_ppGameObjects[29]->SetScale(8.0f, 8.0f, 8.0f);
+
+			m_ppGameObjects[30] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
+			m_ppGameObjects[30]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 600.0f);
+			m_ppGameObjects[30]->SetScale(8.0f, 8.0f, 8.0f);
+
+			m_ppGameObjects[31] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
+			m_ppGameObjects[31]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 750.0f);
+			m_ppGameObjects[31]->SetScale(8.0f, 8.0f, 8.0f);
+
+			m_ppGameObjects[32] = new CCarObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pcarModel, 1);
+			m_ppGameObjects[32]->SetPosition(360.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 900.0f);
+			m_ppGameObjects[32]->SetScale(8.0f, 8.0f, 8.0f);
+		}
+	}
+	//적
 	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Ghoul@Animations.bin", NULL);
 	for (int i = 0; i < 25; i++)
 	{
@@ -131,54 +260,20 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	}
 
 
+
+
+
+
+
+	///////////
 	{
-		//m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
-		//m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		//m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
-		//m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
-		//m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
-		//m_ppGameObjects[0]->SetPosition(380.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
-
-		//m_ppGameObjects[1] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
-		//m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		//m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
-		//m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
-		//m_ppGameObjects[1]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
-		//m_ppGameObjects[1]->SetPosition(480.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
-
-		//m_ppGameObjects[2] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
-		//m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		//m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
-		//m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
-		//m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
-		//m_ppGameObjects[2]->SetPosition(580.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
-
-		//m_ppGameObjects[3] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
-		//m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		//m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);
-		//m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
-		//m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
-		//m_ppGameObjects[3]->SetPosition(680.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
-
-		//m_ppGameObjects[4] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
-		//m_ppGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		//m_ppGameObjects[4]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 3.0f);
-		//m_ppGameObjects[4]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
-		//m_ppGameObjects[4]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
-		//m_ppGameObjects[4]->SetPosition(780.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
-
-		//m_ppGameObjects[5] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 2);
-		//m_ppGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		//m_ppGameObjects[5]->m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 5.5f);
-		//m_ppGameObjects[5]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
-		//m_ppGameObjects[5]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.1f);
-		//m_ppGameObjects[5]->SetPosition(880.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
+		if (pwallModel) delete pwallModel;
+		if (pwallModel2) delete pwallModel2;
+		if (pstreetModel) delete pstreetModel;
+		if (pbusModel) delete pbusModel;
+		if (pcarModel) delete pcarModel;
+		if (pAngrybotModel) delete pAngrybotModel;
 	}
-
-	if (pwallModel) delete pwallModel;
-	if (pwallModel2) delete pwallModel2;
-	if (pAngrybotModel) delete pAngrybotModel;
-
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 

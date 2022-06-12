@@ -511,11 +511,11 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-class CBusObject : public CGameObject
+class CStreetObject2 : public CGameObject
 {
 public:
-	CBusObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CLoadedModelInfo *pModel, int nAnimationTracks);
-	virtual ~CBusObject();
+	CStreetObject2(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CLoadedModelInfo *pModel, int nAnimationTracks);
+	virtual ~CStreetObject2();
 };
 
 ////////////////////////////////////////////////////
@@ -550,9 +550,23 @@ public:
 	virtual ~CWallObject4();
 };
 
+///////////////////////////////
+class CBusObject : public CGameObject
+{
+public:
+	CBusObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks);
+	virtual ~CBusObject();
+};
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+class CCarObject : public CGameObject
+{
+public:
+	CCarObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks);
+	virtual ~CCarObject();
+};
 
+/// /////////////////
 class CBulletObject : public CGameObject
 {
 public:

@@ -1266,23 +1266,24 @@ CStreetObject::CStreetObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	SetChild(pMonsterWeaponModel->m_pModelRootObject, true);
 	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pMonsterWeaponModel);
 
-	SetScale(0.35f, 0.35f, 0.35f);
+	Rotate(-90.0f, 0.0f, 0.0f);
 }
 
 CStreetObject::~CStreetObject()
 {
 }
 
-CBusObject::CBusObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
+CStreetObject2::CStreetObject2(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
 {
-	CLoadedModelInfo* pLionModel = pModel;
+	CLoadedModelInfo* pMonsterWeaponModel = pModel;
 
-	SetChild(pLionModel->m_pModelRootObject, true);
-	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pLionModel);
-	Rotate(-90.0f, 0.0f, 0.0f);
+	SetChild(pMonsterWeaponModel->m_pModelRootObject, true);
+	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pMonsterWeaponModel);
+
+	Rotate(-90.0f, 180.0f, 0.0f);
 }
 
-CBusObject::~CBusObject()
+CStreetObject2::~CStreetObject2()
 {
 }
 
@@ -1339,6 +1340,31 @@ CWallObject4::CWallObject4(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 }
 
 CWallObject4::~CWallObject4()
+{
+}
+
+CBusObject::CBusObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
+{
+	CLoadedModelInfo* pwallModel = pModel;
+
+	SetChild(pwallModel->m_pModelRootObject, true);
+	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pwallModel);
+	Rotate(-90.0f, 90.0f, 0.0f);
+}
+
+CBusObject::~CBusObject()
+{
+}
+
+CCarObject::CCarObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
+{
+	CLoadedModelInfo* pwallModel = pModel;
+
+	SetChild(pwallModel->m_pModelRootObject, true);
+	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pwallModel);
+}
+
+CCarObject::~CCarObject()
 {
 }
 
