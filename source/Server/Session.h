@@ -35,6 +35,7 @@ public:
 	void RemoveFromViewList(int id);
 	bool IsInViewList(int id) { return view_list.find(id) != view_list.end(); }
 
+	void Move() { object->Move(); }
 	void Move(int direction) { object->Move(direction); }
 	void Rotate(float cx, float cy) { object->Rotate(cx, cy); }
 

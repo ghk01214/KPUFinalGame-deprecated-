@@ -430,7 +430,12 @@ void CGameFramework::AddPlayer(SC::P::ADD_OBJ* packet)
 			players.emplace(i, std::move(pPlayer));
 		}
 
-		m_pScene->m_pPlayer = m_pPlayer = (*players.begin()).second;
+		auto iter{ std::find_if(players.begin(), players.end(), [](const std::pair<int, CPlayer*>& other)
+			{
+				return other.first < 0;
+			}) };
+
+		m_pScene->m_pPlayer = m_pPlayer = (*iter).second;
 		m_pCamera = m_pPlayer->GetCamera();
 	}
 	else
@@ -441,7 +446,7 @@ void CGameFramework::AddPlayer(SC::P::ADD_OBJ* packet)
 
 		XMFLOAT3 temp{ x, y, z };
 
-		auto iter{ std::find_if(players.begin(), players.end(), [](std::pair<int, CPlayer*> other)
+		auto iter{ std::find_if(players.begin(), players.end(), [](const std::pair<int, CPlayer*>& other)
 			{
 				return other.first < 0;
 			}) };
@@ -459,12 +464,12 @@ void CGameFramework::AddPlayer(SC::P::ADD_OBJ* packet)
 
 void CGameFramework::RemovePlayer(int id)
 {
-	int new_id{ rand_pl(dre) };
-
-	while (players.find(new_id) != players.end())
+	int new_id{};
+	
+	do
 	{
 		new_id = rand_pl(dre);
-	}
+	} while (players.find(new_id) != players.end());
 
 	auto player{ players.extract(id) };
 	player.key() = new_id;
@@ -495,9 +500,9 @@ void CGameFramework::BuildObjects()
 
 	if (!players.empty())
 	{
-		for (auto& player : players)
+		for (auto& [id, player] : players)
 		{
-			player.second->ReleaseUploadBuffers();
+			player->ReleaseUploadBuffers();
 		}
 	}
 
@@ -508,14 +513,11 @@ void CGameFramework::ReleaseObjects()
 {
 	if (!players.empty())
 	{
-		for (auto& player : players)
+		for (auto& [id, player] : players)
 		{
-			player.second->Release();
+			player->Release();
 		}
 	}
-
-	if (m_pPlayer)
-		m_pPlayer->Release();
 
 	if (m_pScene) m_pScene->ReleaseObjects();
 	if (m_pScene) delete m_pScene;
@@ -594,9 +596,9 @@ void CGameFramework::AnimateObjects()
 
 	if (!players.empty())
 	{
-		for (auto& player : players)
+		for (auto& [id, player] : players)
 		{
-			player.second->Animate(fTimeElapsed);
+			player->Animate(fTimeElapsed);
 		}
 	}
 }
@@ -668,18 +670,18 @@ void CGameFramework::FrameAdvance()
 #endif
 	if (!players.empty())
 	{
-		for (auto& player : players)
+		for (auto& [id, player] : players)
 		{
-			if (player.first >= 0 && player.second != m_pPlayer)
+			if (id >= 0 && player != m_pPlayer)
 			{
-				player.second->Render(m_pd3dCommandList, player.second->GetCamera());
+				player->Render(m_pd3dCommandList, player->GetCamera());
 			}
 
-			for (int i = 0; i < player.second->GetBulletNum(); ++i)
+			for (int i = 0; i < player->GetBulletNum(); ++i)
 			{
-				player.second->MoveBullet();
-				player.second->GetBullet()[i]->UpdateTransform(nullptr);
-				player.second->GetBullet()[i]->Render(m_pd3dCommandList, player.second->GetCamera());
+				player->MoveBullet();
+				player->GetBullet()[i]->UpdateTransform(nullptr);
+				player->GetBullet()[i]->Render(m_pd3dCommandList, player->GetCamera());
 			}
 		}
 	}

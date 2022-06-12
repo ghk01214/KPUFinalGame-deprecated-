@@ -63,12 +63,15 @@ using c_set = concurrency::concurrent_unordered_set<ID>;
 extern std::default_random_engine dre;
 
 #pragma region CONSTANT
-inline constexpr int MAX_USER{ 10 };
-inline constexpr int NPC_NUM{ 100 };
-inline constexpr int SIGHT_RANGE{ 200 };
-inline constexpr int SECTOR_RANGE{ 400 };
+inline constexpr int SIGHT_RANGE{ 1000 };
+inline constexpr int SECTOR_RANGE{ 500 };
+
 // NPC 시작 인덱스
-#define NPC_START MAX_USER
+inline constexpr int NPC_START{ VAR::MAX_USER };
+inline constexpr int NPC_1{ NPC_START + 50 };
+inline constexpr int NPC_2{ NPC_1 + 25 };
+inline constexpr int NPC_3{ NPC_2 + 15 };
+inline constexpr int NPC_4{ NPC_3 + 10 };
 #pragma endregion
 
 void ErrorQuit(std::wstring_view msg);

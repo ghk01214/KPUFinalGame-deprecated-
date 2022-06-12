@@ -7,6 +7,7 @@ public:
 	Object(POS x, POS y, POS z);
 	virtual ~Object();
 
+	virtual void Move() {}
 	virtual void Move(int direction) {}
 	virtual void Rotate(float cx, float cy) {}
 

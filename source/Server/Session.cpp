@@ -47,8 +47,8 @@ void Session::Reset()
 	closesocket(sock);
 	state.store(STATE::FREE, std::memory_order_seq_cst);
 
-	recv_ex.Reset();
-	send_ex.Reset();
+	//recv_ex.Reset();
+	//send_ex.Reset();
 
 	object->Reset();
 
@@ -58,6 +58,9 @@ void Session::Reset()
 
 	flag = 0;
 	remain = 0;
+
+	id = -1;
+	next_move_time = steady_clock::now() + seconds(1);
 }
 
 void Session::Recv()
@@ -99,7 +102,7 @@ void Session::SendAdd(Session* client)
 	sc_add_obj.y = client->object->GetY();
 	sc_add_obj.z = client->object->GetZ();
 
-	if (client->id < MAX_USER)
+	if (client->id < VAR::MAX_USER && client->id >= 0)
 	{
 		auto player{ dynamic_cast<Player*>(client->object) };
 
@@ -163,7 +166,7 @@ void Session::SendRotate(Session* client)
 	sc_rotate_obj.type = SC::ROTATE_OBJ;
 	sc_rotate_obj.id = client->id;
 
-	if (client->id < MAX_USER)
+	if (client->id < VAR::MAX_USER)
 	{
 		auto player{ dynamic_cast<Player*>(client->object) };
 

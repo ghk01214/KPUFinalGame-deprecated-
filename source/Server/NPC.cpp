@@ -1,15 +1,26 @@
 ﻿#include "pch.h"
 #include "NPC.h"
 
-NPC::NPC()
+NPC::NPC() :
+	Object{ 0, 0, 0 },
+	look{ 0.0f, 0.0f, 1.0f },
+	right{ 1.0f, 0.0f, 0.0f },
+	up{ 0.0f, 1.0f, 0.0f },
+	dead{ false }
 {
+	L = luaL_newstate();
+
+	luaL_openlibs(L);
+	luaL_loadfile(L, "NPC.lua");
+	lua_pcall(L, 0, 0, 0);
 }
 
 NPC::NPC(POS x, POS y, POS z) :
 	Object{ x, y, z },
 	look{ 0.0f, 0.0f, 1.0f },
 	right{ 1.0f, 0.0f, 0.0f },
-	up{ 0.0f, 1.0f, 0.0f }
+	up{ 0.0f, 1.0f, 0.0f },
+	dead{ false }
 {
 	L = luaL_newstate();
 

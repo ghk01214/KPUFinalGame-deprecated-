@@ -13,6 +13,9 @@ public:
 	void Reset() override;
 
 	void Move();
+	void Die() { dead = true; }
+
+	bool IsDead() { return dead; }
 
 	// TODO: Lua 내부에서 호출할 메서드
 
@@ -24,6 +27,8 @@ protected:
 	XMFLOAT3 look;
 	XMFLOAT3 right;
 	XMFLOAT3 up;
+
+	bool dead;
 
 	lua_State* L;
 };

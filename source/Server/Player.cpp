@@ -67,10 +67,6 @@ void Player::Move(int direction)
 	}
 
 	y = position.y;
-
-#ifdef DEBUG
-	//std::cout << x << ", " << z << std::endl;
-#endif
 }
 
 void Player::Rotate(float cx, float cy)

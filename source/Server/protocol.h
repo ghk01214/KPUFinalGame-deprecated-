@@ -24,6 +24,8 @@ namespace KEY
 
 namespace VAR
 {
+	inline constexpr int MAX_USER{ 10 };
+	inline constexpr int NPC_NUM{ 100 };
 	inline constexpr int DATA{ 200 };				// 한 패킷에 들어갈 수 있는 최대 데이터 크기
 	inline constexpr int NAME{ 10 };				// 최대 이름 길이
 	inline constexpr float WORLD_X_MIN{ 0 };		// 월드의 왼쪽 끝

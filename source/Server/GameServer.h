@@ -46,7 +46,7 @@ private:
 	SOCKET server;
 	ID server_key;
 
-	std::array<Session*, MAX_USER/*+ NPC_NUM*/> clients;
+	std::array<Session*, VAR::MAX_USER/* + VAR::NPC_NUM*/> clients;
 
 	std::vector<std::thread> worker_threads;
 	std::thread ai_thread;

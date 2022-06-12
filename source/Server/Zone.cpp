@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include "NPC.h"
 #include "Zone.h"
 
 Zone::Zone() :
@@ -21,12 +22,12 @@ Zone::Zone() :
 
 	sector.reserve(sector_num_z);
 
-	for (int z = 0, lt_z = VAR::WORLD_Z_MIN; z < sector.capacity(); ++z, lt_z += SECTOR_RANGE)
+	for (int z = 0, lt_z = VAR::WORLD_Z_MIN; z < sector_num_z; ++z, lt_z += SECTOR_RANGE)
 	{
 		std::vector<Sector> temp;
 		temp.reserve(sector_num_x);
 
-		for (int x = 0, lt_x = VAR::WORLD_X_MIN; x < temp.capacity(); ++x, lt_x += SECTOR_RANGE)
+		for (int x = 0, lt_x = VAR::WORLD_X_MIN; x < sector_num_x; ++x, lt_x += SECTOR_RANGE)
 		{
 			temp.emplace_back(lt_x, lt_z);
 		}
@@ -38,20 +39,16 @@ Zone::Zone() :
 
 Zone::~Zone()
 {
-	for (auto& iter : objects)
-	{
-		iter.second = nullptr;
-	}
-
 	zone_lock.lock();
-	objects.clear();
+	players.clear();
+	npcs.clear();
 	zone_lock.unlock();
 }
 
-void Zone::SetInSector(ID id)
+void Zone::SetInSector(ID id, c_map* cont)
 {
-	auto obj_x{ objects[id]->GetX() };
-	auto obj_z{ objects[id]->GetZ() };
+	auto obj_x{ (*cont)[id]->GetX() };
+	auto obj_z{ (*cont)[id]->GetZ() };
 
 	for (int z = 0; z < sector.size(); ++z)
 	{
@@ -64,17 +61,36 @@ void Zone::SetInSector(ID id)
 				if (sector[z][x].GetLBZ() <= obj_z &&
 					obj_z < sector[z][x].GetLBZ() + SECTOR_RANGE)
 				{
-					objects[id]->sector_index_x = x;
-					objects[id]->sector_index_z = z;
+					(*cont)[id]->sector_index_x = x;
+					(*cont)[id]->sector_index_z = z;
 					sector[z][x].EnterSector(id);
-
 					std::cout << "스폰 위치 = [" << id << "] : sector(" << x << ", " << z << ")\n";
-
 					break;
 				}
 			}
 		}
 	}
+}
+
+void Zone::AddPlayer(Session* client)
+{
+	players[client->GetId()] = client;
+
+	SetInSector(client->GetId(), &players);
+}
+
+void Zone::AddNPC(Session* npc)
+{
+	npcs[npc->GetId()] = npc;
+
+	SetInSector(npc->GetId(), &npcs);
+}
+
+void Zone::RemovePlayer(ID id)
+{
+	zone_lock.lock();
+	players.unsafe_erase(id);
+	zone_lock.unlock();
 }
 
 void Zone::UpdateSector(Session* client)
@@ -127,26 +143,14 @@ void Zone::UpdateSector(Session* client)
 	}
 }
 
-void Zone::AddObject(Session* client)
+void Zone::MovePlayer(ID id, int direction)
 {
-	objects[client->GetId()] = client;
-
-	SetInSector(client->GetId());
-}
-
-void Zone::RemoveObject(ID id)
-{
-	zone_lock.lock();
-	objects.unsafe_erase(id);
-	zone_lock.unlock();
-}
-
-void Zone::MoveObject(ID id, int direction)
-{
-	auto my_obj{ objects[id] };
+	auto my_obj{ players[id] };
 
 	my_obj->Move(direction);
 	my_obj->SendMove(my_obj);
+
+	//std::cout << "[" << id << "] : " << my_obj->GetX() << ", " << my_obj->GetZ() << "\n";
 
 	UpdateSector(my_obj);
 
@@ -158,12 +162,55 @@ void Zone::MoveObject(ID id, int direction)
 	my_obj->view_lock.unlock();
 
 	c_set new_list;
-	sector[z][x].MakeNewViewList(&new_list, my_obj, &objects);
+	int x_start{ x - 1 }, x_end{ x + 2 };
+	int z_start{ z - 1 }, z_end{ z + 2 };
+
+	if (x == 0)
+	{
+		x_start = 0;
+		x_end = x_start + 2;
+	}
+	else if (x_start == sector_num_x - 2)
+	{
+		x_end = sector_num_x;
+		x_start = x_end - 2;
+	}
+
+	if (z == 0)
+	{
+		z_start = 0;
+		z_end = z_start + 2;
+	}
+	else if (z_start == sector_num_z - 2)
+	{
+		z_end = sector_num_z;
+		z_start = z_end - 2;
+	}
+
+	// 플레이어가 있는 5번 sector의 인접한 8개 sector를 검사해서 view list 생성
+	//	 	 ┃	 	 ┃	 
+	//	 1 	 ┃	 2 	 ┃	 3
+	//	  	 ┃	  	 ┃	 
+	// ━━━━━━╋━━━━━━━╋━━━━━━━
+	//	 	 ┃	 	 ┃	 
+	//	 4 	 ┃	 5 	 ┃	 6
+	//	  	 ┃	  	 ┃	 
+	// ━━━━━━╋━━━━━━━╋━━━━━━━
+	//	 	 ┃	 	 ┃	 
+	//	 7 	 ┃	 8 	 ┃	 9
+	//	  	 ┃	  	 ┃	 
+	for (int sec_z = z_start; sec_z < z_end; ++sec_z)
+	{
+		for (int sec_x = x_start; sec_x < x_end; ++sec_x)
+		{
+			sector[sec_z][sec_x].MakeNewPlayerViewList(&new_list, my_obj, &players, &npcs);
+		}
+	}
 
 	// 새로운 view list에
 	for (auto& opp_id : new_list)
 	{
-		auto opp_obj{ objects[opp_id] };
+		auto opp_obj{ players[opp_id] };
 
 		if (opp_obj->GetState() == STATE::INGAME)
 		{
@@ -193,7 +240,7 @@ void Zone::MoveObject(ID id, int direction)
 	// 기존의 veiw list에
 	for (auto& opp_id : old_list)
 	{
-		auto opp_obj{ objects[opp_id] };
+		auto opp_obj{ players[opp_id] };
 
 		if (opp_obj->GetState() == STATE::INGAME)
 		{
@@ -216,15 +263,33 @@ void Zone::MoveObject(ID id, int direction)
 	}
 }
 
-void Zone::RotateObject(ID id, float cx, float cy)
+void Zone::MoveNPC()
 {
-	auto my_obj{ objects[id] };
+	for (auto& [npc_id, npc] : npcs)
+	{
+		npc->Move();
+
+		UpdateSector(npc);
+
+		for (auto& [player_id, player] : players)
+		{
+			if (player->GetState() == STATE::INGAME)
+			{
+				player->SendMove(npc);
+			}
+		}
+	}
+}
+
+void Zone::RotatePlayer(ID id, float cx, float cy)
+{
+	auto my_obj{ players[id] };
 
 	my_obj->Rotate(cx, cy);
 
 	for (auto& opp_id : my_obj->view_list)
 	{
-		auto opp_obj{ objects[opp_id] };
+		auto opp_obj{ players[opp_id] };
 
 		if (opp_obj->GetState() == STATE::INGAME)
 		{
@@ -232,4 +297,3 @@ void Zone::RotateObject(ID id, float cx, float cy)
 		}
 	}
 }
-

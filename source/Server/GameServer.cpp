@@ -18,12 +18,12 @@ GameServer::GameServer() :
 	cs_player_attack{ nullptr },
 	zone{ new Zone{} }
 {
-	for (int i = 0; i < MAX_USER; ++i)
+	for (int i = 0; i < VAR::MAX_USER; ++i)
 	{
 		clients[i] = new Session{ new Player{} };
 	}
 
-	//for (int id = NPC_START; id < NPC_NUM; ++id)
+	//for (int id = NPC_START; id < clients.size(); ++id)
 	//{
 	//	clients[id] = new Session{ new NPC{} };
 	//}
@@ -78,6 +78,7 @@ GameServer::~GameServer()
 void GameServer::Run()
 {
 	Initialize();
+	//InitializeNPC();
 	Accept();
 	CreateThread();
 }
@@ -123,16 +124,15 @@ void GameServer::InitializeNPC()
 
 	Lua::MakeNewInstance(zone);
 
-	for (int id = NPC_START; id < NPC_NUM; ++id)
+	for (int id = NPC_START; id < clients.size(); ++id)
 	{
 		clients[id]->SetState(STATE::INGAME);
+		clients[id]->SetID(id);
 		clients[id]->SetObjectPos(random_x(dre), 270.0f, random_z(dre));
 		clients[id]->SetObjectName("NPC-" + std::to_string(id));
-		clients[id]->SetID(id);
+		dynamic_cast<NPC*>(clients[id]->GetMyObject())->InitializeScript(id);
 
-		zone->AddObject(clients[id]);
-
-		//dynamic_cast<NPC*>(clients[id]->GetMyObject())->InitializeScript(id);
+		zone->AddNPC(clients[id]);
 	}
 
 	std::cout << "Done" << std::endl;
@@ -151,7 +151,7 @@ void GameServer::Accept()
 
 void GameServer::CreateThread()
 {
-	for (int i = 0; i < MAX_USER; ++i)
+	for (int i = 0; i < VAR::MAX_USER; ++i)
 	{
 		worker_threads.emplace_back(&GameServer::WorkerThread, this);
 	}
@@ -187,7 +187,9 @@ void GameServer::WorkerThread()
 
 				if (over_ex->type == COMPLETION::SEND)
 				{
-					over_ex->Reset();
+					//over_ex->Reset();
+					ZeroMemory(&over_ex->over, sizeof(over_ex->over));
+					over_ex = nullptr;
 				}
 
 				continue;
@@ -287,12 +289,14 @@ void GameServer::Send(ULONG_PTR id, DWORD bytes, OVERLAPPEDEX* over_ex)
 		Disconnect(id);
 	}
 
-	over_ex->Reset();
+	//over_ex->Reset();
+	ZeroMemory(&over_ex->over, sizeof(over_ex->over));
+	over_ex = nullptr;
 }
 
 int GameServer::NewPlayerID()
 {
-	for (int id = 0; id < MAX_USER; ++id)
+	for (int id = 0; id < VAR::MAX_USER; ++id)
 	{
 		if (clients[id]->GetState() == STATE::FREE)
 		{
@@ -318,6 +322,7 @@ void GameServer::Disconnect(ULONG_PTR id)
 	}
 
 	clients[id]->Reset();
+	zone->RemovePlayer(id);
 
 	for (auto& client : clients)
 	{
@@ -397,9 +402,9 @@ void GameServer::Login(ULONG_PTR id)
 	clients[id]->SendLogin();
 	clients[id]->SetState(STATE::INGAME);
 
-	zone->AddObject(clients[id]);
+	zone->AddPlayer(clients[id]);
 
-	for (int i = 0; i < MAX_USER; ++i)
+	for (int i = 0; i < VAR::MAX_USER; ++i)
 	{
 		if (clients[i]->IsMyID(id))
 		{
@@ -408,16 +413,14 @@ void GameServer::Login(ULONG_PTR id)
 
 		if (clients[i]->GetState() != STATE::INGAME)
 		{
-			continue;
-		}
+			auto dis1{ clients[id]->GetX() - clients[i]->GetX() };
+			auto dis2{ clients[id]->GetZ() - clients[i]->GetZ() };
 
-		auto dis1{ clients[id]->GetX() - clients[i]->GetX() };
-		auto dis2{ clients[id]->GetZ() - clients[i]->GetZ() };
-
-		if (::IsInSight(dis1, dis2))
-		{
-			clients[i]->AddToViewList(id);
-			clients[i]->SendAdd(clients[id]);
+			if (::IsInSight(dis1, dis2))
+			{
+				clients[i]->AddToViewList(id);
+				clients[i]->SendAdd(clients[id]);
+			}
 		}
 	}
 
@@ -428,18 +431,16 @@ void GameServer::Login(ULONG_PTR id)
 			continue;
 		}
 
-		if (player->GetState() != STATE::INGAME)
+		if (player->GetState() == STATE::INGAME)
 		{
-			continue;
-		}
+			auto dis1{ clients[id]->GetX() - player->GetX() };
+			auto dis2{ clients[id]->GetY() - player->GetY() };
 
-		auto dis1{ clients[id]->GetX() - player->GetX() };
-		auto dis2{ clients[id]->GetY() - player->GetY() };
-
-		if (::IsInSight(dis1, dis2))
-		{
-			clients[id]->AddToViewList(player->GetId());
-			clients[id]->SendAdd(player);
+			if (::IsInSight(dis1, dis2))
+			{
+				clients[id]->AddToViewList(player->GetId());
+				clients[id]->SendAdd(player);
+			}
 		}
 	}
 
@@ -450,7 +451,7 @@ void GameServer::Move(ULONG_PTR id)
 {
 	cs_move = reinterpret_cast<CS::P::MOVE_OBJ*>(packet);
 
-	zone->MoveObject(id, cs_move->direction);
+	zone->MovePlayer(id, cs_move->direction);
 
 	// NPC
 	//for (int i = NPC_START; i < NPC_NUM; ++i)
@@ -471,7 +472,7 @@ void GameServer::Rotate(ULONG_PTR id)
 {
 	cs_rotate = reinterpret_cast<CS::P::ROTATE_OBJ*>(packet);
 
-	zone->RotateObject(id, cs_rotate->cx, cs_rotate->cy);
+	zone->RotatePlayer(id, cs_rotate->cx, cs_rotate->cy);
 }
 
 void GameServer::PlayerAttack(ULONG_PTR id)
@@ -480,11 +481,15 @@ void GameServer::PlayerAttack(ULONG_PTR id)
 
 void GameServer::AIThread()
 {
+	std::chrono::steady_clock::time_point start_time{};
+
 	while (true)
 	{
-		for (int id = NPC_START; id < NPC_NUM; ++id)
-		{
-			dynamic_cast<NPC*>(clients[id]->GetMyObject())->Move();
-		}
+		start_time = std::chrono::steady_clock::now();
+
+		zone->MoveNPC();
+
+		// 1초 마다 실행
+		std::this_thread::sleep_until(start_time + std::chrono::seconds(1));
 	}
 }

@@ -25,29 +25,29 @@ CNetwork::~CNetwork()
 
 	worker_thread.join();
 
-	if (packet)
+	if (packet[0] != '\0')
 	{
 		delete packet;
 		packet = nullptr;
 	}
+	else
+	{
+		packet = nullptr;
+	}
 	if (sc_login)
 	{
-		delete sc_login;
 		sc_login = nullptr;
 	}
 	if (sc_move_object)
 	{
-		delete sc_move_object;
 		sc_move_object = nullptr;
 	}
 	if (sc_add_object)
 	{
-		delete sc_add_object;
 		sc_add_object = nullptr;
 	}
 	if (sc_remove_object)
 	{
-		delete sc_remove_object;
 		sc_remove_object = nullptr;
 	}
 	if (game_instance)
@@ -238,7 +238,7 @@ void CNetwork::Login()
 
 	auto players{ game_instance->GetPlayers() };
 
-	auto iter{ std::find_if(players->begin(), players->end(), [](std::pair<int, CPlayer*> other)
+	auto iter{ std::find_if(players->begin(), players->end(), [](const std::pair<int, CPlayer*>& other)
 		{
 			return other.first < 0;
 		}) };

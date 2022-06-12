@@ -89,20 +89,32 @@ void Sector::LeaveSector(ID id)
 	sector_lock.unlock();
 }
 
-void Sector::MakeNewViewList(c_set* new_list, Session* client, c_map* others)
+void Sector::MakeNewPlayerViewList(c_set* new_list, Session* client, c_map* players, c_map* npcs)
 {
+	c_map obj;
+
+	for (auto& [id, player] : *players)
+	{
+		obj[id] = player;
+	}
+	
+	for (auto& [id, npc] : *npcs)
+	{
+		obj[id] = npc;
+	}
+
 	if (not objects.empty())
 	{
-		for (auto& obj : objects)
+		for (auto& obj_id : objects)
 		{
-			if (not client->IsMyID(obj))
+			if (not client->IsMyID(obj_id))
 			{
-				auto dis1{ client->GetX() - (*others)[obj]->GetX() };
-				auto dis2{ client->GetZ() - (*others)[obj]->GetZ() };
+				auto dis1{ client->GetX() - obj[obj_id]->GetX() };
+				auto dis2{ client->GetZ() - obj[obj_id]->GetZ() };
 
 				if (::IsInSight(dis1, dis2))
 				{
-					new_list->insert(obj);
+					new_list->insert(obj_id);
 				}
 			}
 		}

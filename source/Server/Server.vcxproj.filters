@@ -43,8 +43,8 @@
     <Filter Include="GameServer\Zone">
       <UniqueIdentifier>{db0140fb-72c7-4f9d-9a3f-38eaaf250846}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GameServer\Zone\Sector">
-      <UniqueIdentifier>{55ccc1a8-39fd-4eaf-892e-bddf216da6e6}</UniqueIdentifier>
+    <Filter Include="GameServer\Sector">
+      <UniqueIdentifier>{05586f92-fa2d-4962-9372-996910ac041e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -97,7 +97,7 @@
       <Filter>GameServer\Zone</Filter>
     </ClInclude>
     <ClInclude Include="Sector.h">
-      <Filter>GameServer\Zone\Sector</Filter>
+      <Filter>GameServer\Sector</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -135,7 +135,7 @@
       <Filter>GameServer\Zone</Filter>
     </ClCompile>
     <ClCompile Include="Sector.cpp">
-      <Filter>GameServer\Zone\Sector</Filter>
+      <Filter>GameServer\Sector</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
