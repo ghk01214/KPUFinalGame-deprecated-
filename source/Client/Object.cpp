@@ -1273,21 +1273,74 @@ CStreetObject::~CStreetObject()
 {
 }
 
-CBarrelObject::CBarrelObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
+CBusObject::CBusObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
 {
 	CLoadedModelInfo* pLionModel = pModel;
 
 	SetChild(pLionModel->m_pModelRootObject, true);
 	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pLionModel);
-
 	Rotate(-90.0f, 0.0f, 0.0f);
-	SetScale(0.2f, 0.2f, 0.2f);
 }
 
-CBarrelObject::~CBarrelObject()
+CBusObject::~CBusObject()
 {
 }
 
+CWallObject::CWallObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
+{
+	//가로 1번
+	CLoadedModelInfo* pwallModel = pModel;
+
+	SetChild(pwallModel->m_pModelRootObject, true);
+	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pwallModel);
+
+}
+
+CWallObject::~CWallObject()
+{
+}
+
+CWallObject2::CWallObject2(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
+{
+	//세로 1번
+	CLoadedModelInfo* pwallModel = pModel;
+
+	SetChild(pwallModel->m_pModelRootObject, true);
+	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pwallModel);
+	Rotate(90.0f, 0.0f, 0.0f);
+}
+
+CWallObject2::~CWallObject2()
+{
+}
+
+CWallObject3::CWallObject3(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
+{
+	//가로 3번
+	CLoadedModelInfo* pwallModel = pModel;
+
+	SetChild(pwallModel->m_pModelRootObject, true);
+	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pwallModel);
+	Rotate(0.0f, 180.0f, 0.0f);
+}
+
+CWallObject3::~CWallObject3()
+{
+}
+
+CWallObject4::CWallObject4(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
+{
+	//세로 1번
+	CLoadedModelInfo* pwallModel = pModel;
+
+	SetChild(pwallModel->m_pModelRootObject, true);
+	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pwallModel);
+	Rotate(90.0f, 180.0f, 0.0f);
+}
+
+CWallObject4::~CWallObject4()
+{
+}
 
 CBulletObject::CBulletObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
 {

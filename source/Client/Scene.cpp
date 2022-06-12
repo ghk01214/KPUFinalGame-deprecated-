@@ -87,17 +87,41 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	XMFLOAT3 xmf3Scale(8.0f, 2.0f, 8.0f);
 	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/Plain.raw"), 257, 257, xmf3Scale, xmf4Color);
-	
-	m_nGameObjects = 1;
+
+	m_nGameObjects = 5;
 	m_ppGameObjects = new CGameObject * [m_nGameObjects];
 
-	CLoadedModelInfo* pboxModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Object/wood_box.bin", NULL);
-	m_ppGameObjects[0] = new CBoxObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pboxModel, 1);
-	m_ppGameObjects[0]->SetPosition(100.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 100.0f);
-	m_ppGameObjects[0]->SetScale(100.0f, 100.0f, 100.0f);
+	//벽
+	CLoadedModelInfo* pwallModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Object/wall.bin", NULL);
+	CLoadedModelInfo* pwallModel2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Object/wall2.bin", NULL);
+	{
+		//가로
+		m_ppGameObjects[0] = new CWallObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pwallModel, 1);
+		m_ppGameObjects[0]->SetPosition(1000.0f, m_pTerrain->GetHeight(380.0f, 725.0f) - 10.0f, -5.0f);
+		m_ppGameObjects[0]->SetScale(8.0f, 3.0f, 1.0f);
+
+		m_ppGameObjects[1] = new CWallObject3(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pwallModel, 1);
+		m_ppGameObjects[1]->SetPosition(1000.0f, m_pTerrain->GetHeight(380.0f, 725.0f) - 10.0f, 2020.0f);
+		m_ppGameObjects[1]->SetScale(8.0f, 3.0f, 1.0f);
+
+		//세로
+		m_ppGameObjects[2] = new CWallObject2(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pwallModel2, 1);
+		m_ppGameObjects[2]->SetPosition(-5.0f, m_pTerrain->GetHeight(380.0f, 725.0f) + 350, 1000.0f);
+		m_ppGameObjects[2]->SetScale(1.0f, 8.0f, 3.5f);
+
+		m_ppGameObjects[3] = new CWallObject4(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pwallModel2, 1);
+		m_ppGameObjects[3]->SetPosition(2020.0f, m_pTerrain->GetHeight(380.0f, 725.0f) + 350, 1000.0f);
+		m_ppGameObjects[3]->SetScale(1.0f, 8.0f, 3.5f);
+	}
+
+	CLoadedModelInfo* pbusModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Object/brokenbus.bin", NULL);
+	m_ppGameObjects[4] = new CBusObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pbusModel, 1);
+	m_ppGameObjects[4]->SetPosition(1000.0f, m_pTerrain->GetHeight(380.0f, 725.0f)+5, 1000.0f);
+	m_ppGameObjects[4]->SetScale(10.0f, 10.0f, 10.0f);
+
 
 	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Ghoul@Animations.bin", NULL);
-	for (int i = 0; i <25; i++)
+	for (int i = 0; i < 25; i++)
 	{
 		m_vGameObjects.push_back(new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 1));
 		(*(m_vGameObjects.end() - 1))->m_pSkinnedAnimationController->SetTrackStartEndTime(0, 0.0f, 2.5f);
@@ -151,7 +175,8 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		//m_ppGameObjects[5]->SetPosition(880.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
 	}
 
-	if (pboxModel) delete pboxModel;
+	if (pwallModel) delete pwallModel;
+	if (pwallModel2) delete pwallModel2;
 	if (pAngrybotModel) delete pAngrybotModel;
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -559,7 +584,7 @@ void CScene::die(int hit)
 
 void CScene::stopmove(int hit)
 {
-	for(int i=0 ;i< 6;++i)
+	for (int i = 0; i < 6; ++i)
 	{
 		m_vGameObjects[hit]->SetPosition(temp);
 	}

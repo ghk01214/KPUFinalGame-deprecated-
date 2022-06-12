@@ -511,11 +511,43 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-class CBarrelObject : public CGameObject
+class CBusObject : public CGameObject
 {
 public:
-	CBarrelObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CLoadedModelInfo *pModel, int nAnimationTracks);
-	virtual ~CBarrelObject();
+	CBusObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CLoadedModelInfo *pModel, int nAnimationTracks);
+	virtual ~CBusObject();
+};
+
+////////////////////////////////////////////////////
+class CWallObject : public CGameObject
+{
+public:
+	CWallObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks);
+	virtual ~CWallObject();
+};
+
+///////////////////////////////////////////////
+class CWallObject2 : public CGameObject
+{
+public:
+	CWallObject2(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12RootSignature * pd3dGraphicsRootSignature, CLoadedModelInfo * pModel, int nAnimationTracks);
+	virtual ~CWallObject2();
+};
+
+/////////////////////////////////////////////
+class CWallObject3 : public CGameObject
+{
+public:
+	CWallObject3(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks);
+	virtual ~CWallObject3();
+};
+
+/////////////////////////////////////////////////
+class CWallObject4 : public CGameObject
+{
+public:
+	CWallObject4(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks);
+	virtual ~CWallObject4();
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
